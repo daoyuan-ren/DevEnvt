@@ -22,15 +22,17 @@ using namespace std;
 #define BACKGROUND  12
 #define FOREGROUND  13
 
-#define DEBUG
+//#define DEBUG
+//#define MESSAGE_ON
+
 class PlayThread : public QThread
 {
     Q_OBJECT
 
 public:
     PlayThread();
-    PlayThread(QLabel* iLabel, QLabel* dLabel, QList<QImage>* iBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, QTimer* timer_ptr, int* fps);
-    PlayThread(QLabel* iLabel, QLabel* dLabel, QList<QImage>* iBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, int* fps);
+    PlayThread(QLabel* iLabel, QLabel* dLabel, QList<QImage>* iBuf, QList<QImage>* gBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, QTimer* timer_ptr, int* fps);
+    PlayThread(QLabel* iLabel, QLabel* dLabel, QList<QImage>* iBuf, QList<QImage>* gBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, int* fps);
     virtual ~PlayThread(){};
     virtual void run();
 
@@ -41,7 +43,7 @@ public:
     int     state();
     int     label();
     void    set_label(int lbl);
-    int     update_frame_ctr(int position);
+    void     update_frame_ctr(int position);
     int     get_frame_ctr();
 
     QMutex mutex;
@@ -50,6 +52,7 @@ private:
     QLabel* imgLabel;
     QLabel* dbgLabel;
     QList<QImage>* imgBuffer;
+    QList<QImage>* gryBuffer;
     QList<QImage>* dbgBuffer;
     QList<QImage>* backBuffer;
     QTimer* timer_ptr;

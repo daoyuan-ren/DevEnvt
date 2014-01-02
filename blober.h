@@ -18,7 +18,7 @@ public:
 
     void create(int blob_num);
 
-    Scalar* color;
+    Scalar color;
     vector<vector<Point> >* contours_poly;
     vector<Rect>* boundRect;
     vector< vector<Point> > contours;
@@ -28,9 +28,12 @@ public:
     vector<float>* radius;
 #endif
     int size();
-    void find_blobs(Mat& frame, Mat& drawing, int blob_minSize);
-    void paint_blobs(QImage* image);
+    void find_blobs(Mat& frame, int blob_minSize);
+    void paint_label(QImage* image);
+    void paint_blobs(Mat& drawing);
     string drawText(int x, int y, int width, int height);
+
+    vector<Rect>* rects();
 private:
     int blob_num;
 };

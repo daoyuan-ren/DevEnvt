@@ -2,9 +2,9 @@
 
 Blober::Blober()
 {
-    color           = NULL;
     contours_poly   = NULL;
     boundRect       = NULL;
+    color = Scalar(0, 255, 127);
 #ifdef CIRCLE
     center          = NULL;
     radius          = NULL;
@@ -18,9 +18,9 @@ Blober::Blober(int size){
 
 void Blober::create(int size){
     blob_num        = size;
-    color           = new Scalar(0, 0, 255);
     contours_poly   = new vector< vector<Point> >(size);
     boundRect       = new vector<Rect>(size);
+    color = Scalar(0, 255, 127);
 #ifdef CIRCLE
     center          = new vector<Point2f>(size);
     radius          = new vector<float>(size);
@@ -31,7 +31,7 @@ int Blober::size(){
     return blob_num;
 }
 
-void Blober::find_blobs(Mat &frame, Mat &drawing, int blob_minSize){
+void Blober::find_blobs(Mat &frame, int blob_minSize){
     Mat temp;
     frame.copyTo(temp);
     cv::findContours(temp, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
@@ -47,23 +47,26 @@ void Blober::find_blobs(Mat &frame, Mat &drawing, int blob_minSize){
 #endif
         }
     }
+}
 
+void Blober::paint_blobs(Mat &drawing){
     for( int i = 0; i < boundRect->size(); i++ )
     {
 #ifdef POLY
         drawContours( drawing, blobs.contours_poly, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
 #endif
-        rectangle(drawing, (*boundRect)[i].tl(), (*boundRect)[i].br(), *color, 2);
+        rectangle(drawing, (*boundRect)[i].tl(), (*boundRect)[i].br(), color, 2);
 #ifdef CIRCLE
         circle(drawing, (*center)[i], (int)(*radius)[i], *color, 2);
 #endif
     }
+
 }
 
-void Blober::paint_blobs(QImage* image){
+void Blober::paint_label(QImage* image){
     for(int i = 0; i < blob_num; i++){
         QPainter* painter = new QPainter(image); // sorry i forgot the "&"
-        painter->setPen(Qt::white);
+        painter->setPen(Qt::red);
         painter->setFont(QFont("Arial", 12));
         string text = drawText((*boundRect)[i].x, (*boundRect)[i].y, (*boundRect)[i].width, (*boundRect)[i].height);
         painter->drawText((*boundRect)[i].x, (*boundRect)[i].y, QString::fromStdString(text));
@@ -75,4 +78,8 @@ string Blober::drawText(int x, int y, int width, int height){
     ostringstream ss;
     ss << "(" << x <<", " << y << ")<" << width << ", " << height << ">";
     return ss.str();
+}
+
+vector<Rect>* Blober::rects(){
+    return boundRect;
 }

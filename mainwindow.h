@@ -24,7 +24,9 @@
 #include "blober.h"
 #include "framemanager.h"
 
-#define DEBUG
+//#define DEBUG
+#define FMANAGER
+#define PLAYER
 
 namespace Ui {
 class MainWindow;
@@ -49,6 +51,7 @@ private:
     Ui::MainWindow *ui;
 
     QList<QImage>* imgBuffer;
+    QList<QImage>* gryBuffer;
     QList<QImage>* dbgBuffer;
     QList<QImage>* backBuffer;
     QList<QImage>  swap;
@@ -62,12 +65,7 @@ private:
 
     PlayThread* player;
     FrameManager* fmanager;
-
-    BackgroundSubtractorMOG2 bg;
-//    vector< vector<Point> > contours;
-//    vector< vector<Point> > bigcons;
     Blober blober;
-//    FrameManager* fmanager;
 
     int frame_pos;
     unsigned int alloc_idx;
@@ -77,10 +75,10 @@ private:
     int width;
     int height;
     timespec interval;
-
+#ifndef FMANAGER
     QImage Mat2QImage(cv::Mat const& src);
     cv::Mat QImage2Mat(QImage const& src);
-
+#endif
     void *play_function(void *arg);
     void play();
     void stop();
@@ -90,7 +88,9 @@ private:
     void process(QString fileName, bool live);
 
     private slots:
+#ifndef PLAYER
     void imageUpdate();
+#endif
     void labelUpdate();
     void memManage();
     void on_actionQuit_triggered();

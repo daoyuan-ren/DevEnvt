@@ -19,16 +19,22 @@
 using namespace cv;
 using namespace std;
 
+#define BLOB_ON
+
 class FrameManager : public QThread
 {
     Q_OBJECT
 public:
     explicit FrameManager(QObject *parent = 0);
-    FrameManager(VideoCapture cap, QList<QImage>* iBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, PlayThread* player, QSpinBox* spinBox_ctSize);
+    FrameManager(VideoCapture cap, QList<QImage>* iBuf, QList<QImage>* gBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, PlayThread* player, QSpinBox* spinBox_ctSize);
 
     QImage Mat2QImage(cv::Mat const& src);
     cv::Mat QImage2Mat(QImage const& src);
+
     void process();
+    void black_out(Mat& mat);
+    void blur(Mat& mat);
+    void edge(Mat& mat, const Mat& back);
     unsigned int buffered_frame();
 
     virtual void run();
@@ -40,6 +46,7 @@ private:
     QSpinBox* spinBox_ctSize;
 
     QList<QImage>* imgBuffer;
+    QList<QImage>* gryBuffer;
     QList<QImage>* dbgBuffer;
     QList<QImage>* backBuffer;
     QList<QImage>  swap;

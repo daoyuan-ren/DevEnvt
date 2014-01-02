@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     height      = 0;
     alloc_idx   = 0;
     imgBuffer   = new QList<QImage>();
+    gryBuffer   = new QList<QImage>();
     dbgBuffer   = new QList<QImage>();
     backBuffer  = new QList<QImage>();
     fps_str     = "";
@@ -24,16 +25,11 @@ MainWindow::MainWindow(QWidget *parent) :
     interval.tv_sec  = 3;
     interval.tv_nsec = 500000000L; //1 000 000 000nsec = 1sec
 
-    bg.set("nmixtures", 3);
-    bg.set("history", 108);
-//    bg.bShadowDetection = true;
-    bg.set("detectShadows", true);
-
     mem_timer = new QTimer(this);
     connect(mem_timer, SIGNAL(timeout()), this, SLOT(memManage()));
     lup_timer = new QTimer(this);
     connect(lup_timer, SIGNAL(timeout()), this, SLOT(labelUpdate()));
-    player = new PlayThread(ui->label, ui->label_debug, imgBuffer, dbgBuffer, backBuffer, &fps);
+    player = new PlayThread(ui->label, ui->label_debug, imgBuffer, gryBuffer, dbgBuffer, backBuffer, &fps);
 }
 
 MainWindow::~MainWindow()
@@ -66,6 +62,8 @@ void MainWindow::on_actionOpen_triggered()
     process(fileName, false);
 }
 
+/************* replaced by FrameManager.Mat2QImage() ************************/
+#ifndef FMANAGER
 QImage MainWindow::Mat2QImage(cv::Mat const& src)
 {
     cv::Mat temp; // make the same cv::Mat
@@ -82,7 +80,9 @@ QImage MainWindow::Mat2QImage(cv::Mat const& src)
     dest2.detach(); // enforce deep copy
     return dest2;
 }
-
+#endif
+/************* replaced by FrameManager.QImage2Mat() ************************/
+#ifndef FMANAGER
 cv::Mat MainWindow::QImage2Mat(QImage const& src)
 {
      cv::Mat tmp(src.height(),src.width(),CV_8UC3,(uchar*)src.bits(),src.bytesPerLine());
@@ -90,7 +90,7 @@ cv::Mat MainWindow::QImage2Mat(QImage const& src)
      cvtColor(tmp, result,CV_BGR2RGB);
      return result;
 }
-
+#endif
 void MainWindow::on_pushButton_apply_clicked()
 {
     if(!cap.isOpened())
@@ -100,8 +100,10 @@ void MainWindow::on_pushButton_apply_clicked()
 }
 
 /************* replaced by Player.imageUpdate() ************************/
+#ifndef PLAYER
+
 void MainWindow::imageUpdate() {
-#ifdef DEBUG
+#ifdef MESSAGE_ON
             cout << "@MainWindow.imageUpdate(): 1" << endl;
 #endif
     player->mutex.lock();
@@ -125,29 +127,33 @@ void MainWindow::imageUpdate() {
     frame_pos++;
     player->mutex.unlock();
 }
+#endif
 
 /************* replaced by Player.play() *******************************/
+#ifndef PLAYER
 void MainWindow::play(){
-#ifdef DEBUG
+#ifdef MESSAGE_ON
             cout << "@MainWindow.play(): 1" << endl;
 #endif
     fps = ui->fps_spinBox->value();
     mem_timer->start(1000/10);
     ui->label_status->setText(QString::fromStdString("Playing"));
 }
-
+#endif
 /************* replaced by Player.play() *******************************/
+#ifndef PLAYER
 void *MainWindow::play_function(void *arg) {
     fps = ui->fps_spinBox->value();
     mem_timer->start(1000/fps);
     ui->label_status->setText(QString::fromStdString("Playing"));
 }
-
+#endif
 /************* replaced by Player.stop_play() **************************/
+#ifndef PLAYER
 void MainWindow::stop(){
     mem_timer->stop();
 }
-
+#endif
 void MainWindow::on_actionQuit_triggered()
 {
     player->stop_play();
@@ -173,11 +179,11 @@ void MainWindow::process(QString fileName, bool live){
     }
 
     if(cap.isOpened()){
-        fmanager = new FrameManager(cap, imgBuffer, dbgBuffer, backBuffer, player, ui->spinBox_ctSize);
+        fmanager = new FrameManager(cap, imgBuffer, gryBuffer, dbgBuffer, backBuffer, player, ui->spinBox_ctSize);
         fmanager->start(QThread::NormalPriority);
         player->start(QThread::HighPriority);
         mem_timer->start(3000);
-        lup_timer->start(300);
+        lup_timer->start(500);
     }
 }
 
@@ -263,7 +269,7 @@ void MainWindow::on_radioButton_orig_clicked()
 }
 
 void MainWindow::memManage(){
-#ifdef DEBUG
+#ifdef MESSAGE_ON
             cout << "@MainWindow.memManage(): 1" << endl;
 #endif
             if(player->get_frame_ctr() > 30){
@@ -271,33 +277,35 @@ void MainWindow::memManage(){
                 swap = imgBuffer->mid(player->get_frame_ctr());
                 delete imgBuffer;
                 imgBuffer = new QList<QImage>(swap);
-#ifdef DEBUG
+#ifdef MESSAGE_ON
                 cout << "new allocated iBuffer with size " << imgBuffer->size() << endl;
+#endif
+                swap = gryBuffer->mid(player->get_frame_ctr());
+                delete gryBuffer;
+                gryBuffer = new QList<QImage>(swap);
+#ifdef MESSAGE_ON
+                cout << "new allocated gBuffer with size " << gryBuffer->size() << endl;
 #endif
                 swap = dbgBuffer->mid(player->get_frame_ctr());
                 delete dbgBuffer;
                 dbgBuffer = new QList<QImage>(swap);
-#ifdef DEBUG
+#ifdef MESSAGE_ON
                 cout << "new allocated dBuffer with size " << dbgBuffer->size() << endl;
 #endif
                 swap = backBuffer->mid(player->get_frame_ctr());
                 delete backBuffer;
                 backBuffer = new QList<QImage>(swap);
-#ifdef DEBUG
+#ifdef MESSAGE_ON
                 cout << "new allocated bBuffer with size " << backBuffer->size() << endl;
 #endif
                 alloc_idx = player->get_frame_ctr();
                 player->update_frame_ctr(0);
                 player->mutex.unlock();
             }
-//            if(player->state() == INIT){
-//                player->start();
-//            }
-//            nanosleep(&interval, NULL);
 }
 
 void MainWindow::labelUpdate(){
-#ifdef DEBUG
+#ifdef MESSAGE_ON
             cout << "@MainWindow.labelUpdate(): 1" << endl;
 #endif
     ui->label_fps->setText(QString::number(fps));

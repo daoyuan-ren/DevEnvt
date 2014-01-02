@@ -5,6 +5,7 @@ PlayThread::PlayThread()
     imgLabel            = NULL;
     dbgLabel            = NULL;
     imgBuffer           = NULL;
+    gryBuffer           = NULL;
     dbgBuffer           = NULL;
     backBuffer          = NULL;
     timer_ptr           = NULL;
@@ -16,11 +17,12 @@ PlayThread::PlayThread()
     status              = QString::fromStdString("No Input Video");
 }
 
-PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, QList<QImage>* iBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, QTimer* timer, int* fps)
+PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, QList<QImage>* iBuf, QList<QImage>* gBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, QTimer* timer, int* fps)
 {
     imgLabel    = iLabel;
     dbgLabel    = dLabel;
     imgBuffer   = iBuf;
+    gryBuffer   = gBuf;
     dbgBuffer   = dBuf;
     backBuffer  = bBuf;
     this->fps   = fps;
@@ -32,11 +34,12 @@ PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, QList<QImage>* iBuf, QLis
     timer_ptr   = timer;
 }
 
-PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, QList<QImage>* iBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, int* fps)
+PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, QList<QImage>* iBuf, QList<QImage>* gBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, int* fps)
 {
     imgLabel    = iLabel;
     dbgLabel    = dLabel;
     imgBuffer   = iBuf;
+    gryBuffer   = gBuf;
     dbgBuffer   = dBuf;
     backBuffer  = bBuf;
     this->fps   = fps;
@@ -50,7 +53,7 @@ PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, QList<QImage>* iBuf, QLis
 }
 
 void PlayThread::run() {
-#ifdef DEBUG
+#ifdef MESSAGE_ON
     cout << "start to play" << endl;
     cout << "@player.run(): " << currentThreadId() << endl;
 #endif
@@ -58,7 +61,7 @@ void PlayThread::run() {
 }
 
 void PlayThread::imageUpdate() {
-#ifdef DEBUG
+#ifdef MESSAGE_ON
     cout << "@player.imageUpdate(): " << currentThreadId() << endl;
 #endif
     mutex.lock();
@@ -67,7 +70,7 @@ void PlayThread::imageUpdate() {
         state_t = BUFFERING;
         status  = QString::fromStdString("Buffering");
 //        ui->label_status->setText(QString::fromStdString("Buffering"));
-#ifdef DEBUG
+#ifdef MESSAGE_ON
         cout << "video buffering" << endl;
 #endif
     } else if(!imgBuffer->isEmpty()){
@@ -77,8 +80,7 @@ void PlayThread::imageUpdate() {
             dbgLabel->setPixmap(QPixmap::fromImage(imgBuffer->at(frame_pos)));
             break;
         case GREYSCALE:
-            // todo: image transformation
-            dbgLabel->setPixmap(QPixmap::fromImage(imgBuffer->at(frame_pos)));
+            dbgLabel->setPixmap(QPixmap::fromImage(gryBuffer->at(frame_pos)));
             break;
         case BACKGROUND:
             dbgLabel->setPixmap(QPixmap::fromImage(backBuffer->at(frame_pos)));
@@ -94,11 +96,11 @@ void PlayThread::imageUpdate() {
     }
     else{
         status  = QString::fromStdString("Buffering");
-#ifdef DEBUG
+#ifdef MESSAGE_ON
         cout << "image buffer empty" << endl;
 #endif
     }
-#ifdef DEBUG
+#ifdef MESSAGE_ON
     time_t now = time(NULL);
     cout << now%60 << ": [" << *fps << "]" <<  "<" << played_frame_cnt++ << ", (";
     cout << imgBuffer->length() << ", " << dbgBuffer->length() << "), " << imgBuffer->length() - frame_pos << ">" << endl;    
@@ -108,7 +110,7 @@ void PlayThread::imageUpdate() {
 }
 
 void PlayThread::play(){
-#ifdef DEBUG
+#ifdef MESSAGE_ON
     cout << "@player.play(): " << currentThreadId() << endl;
 #endif
     timer_ptr->start(1000 / *fps);
@@ -130,7 +132,7 @@ int PlayThread::get_frame_ctr(){
     return frame_pos;
 }
 
-int PlayThread::update_frame_ctr(int position){
+void PlayThread::update_frame_ctr(int position){
     frame_pos = position;
 }
 
