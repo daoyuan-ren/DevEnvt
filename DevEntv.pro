@@ -16,10 +16,14 @@ CV22_LIB = /usr/local/lib/OpenCV2
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    playthread.cpp
+    playthread.cpp \
+    blober.cpp \
+    framemanager.cpp
 
 HEADERS  += mainwindow.h \
-    playthread.h
+    playthread.h \
+    blober.h \
+    framemanager.h
 
 FORMS    += mainwindow.ui
 

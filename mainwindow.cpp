@@ -11,160 +11,59 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    movie       = NULL;
-    pixMap      = NULL;
-    frame_ctr   = 0;
+    frame_pos   = 0;
     fps         = ui->fps_spinBox->value();
     width       = 0;
     height      = 0;
+    alloc_idx   = 0;
+    imgBuffer   = new QList<QImage>();
+    dbgBuffer   = new QList<QImage>();
+    backBuffer  = new QList<QImage>();
     fps_str     = "";
     status_str  = "";
-    interval.tv_sec  = 0;
-    interval.tv_nsec = 50000000L;
+    interval.tv_sec  = 3;
+    interval.tv_nsec = 500000000L; //1 000 000 000nsec = 1sec
 
-    timer = new QTimer(this);
-//    connect(timer, SIGNAL(timeout()), this, SLOT(imageUpdate()));
-    player = new PlayThread(ui->label, ui->label_debug, &imgBuffer, &dbgBuffer, timer, &fps, &frame_ctr);
+    bg.set("nmixtures", 3);
+    bg.set("history", 108);
+//    bg.bShadowDetection = true;
+    bg.set("detectShadows", true);
+
+    mem_timer = new QTimer(this);
+    connect(mem_timer, SIGNAL(timeout()), this, SLOT(memManage()));
+    lup_timer = new QTimer(this);
+    connect(lup_timer, SIGNAL(timeout()), this, SLOT(labelUpdate()));
+    player = new PlayThread(ui->label, ui->label_debug, imgBuffer, dbgBuffer, backBuffer, &fps);
 }
 
 MainWindow::~MainWindow()
 {
-    timer->stop();
-    delete timer;
+    player->wait();
+    fmanager->wait();
+
+    mem_timer->stop();
+    delete player;
+    delete fmanager;
+    delete mem_timer;
     delete ui;
     exit(0);
 }
 
 void MainWindow::on_pushButton_select_clicked()
 {
-    bool    isPlaying  = false;
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath());
-    if (!fileName.isEmpty()) {
-        if(cap.isOpened()){
-            cap.release();
-        }
-        cap.open(fileName.toStdString());
-        //cap.open("/home/ren/Videos/output_30.avi");
-        fps     = cap.get(CV_CAP_PROP_FPS);
-        width   = cap.get(CV_CAP_PROP_FRAME_WIDTH);
-        height  = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
+    QFileDialog dialog;
+    QString fileName = dialog.getOpenFileName(this, tr("Open File"), QDir::currentPath());
 
-        Mat frame, back, fore;
-        QImage image, grey_image;
-        vector< vector<Point> > contours;
-        vector< vector<Point> > bigcons;
-        BackgroundSubtractorMOG2 bg;
-        bg.set("nmixtures", 3);
-        bg.set("history", 96);
-
-        for(int i = 0;; i++) {
-            cap >> frame;
-            image = Mat2QImage(frame);
-
-            GaussianBlur(frame, frame, Size(7, 7), 1.5, 1.5);
-            bg.operator ()(frame, fore);
-            bg.getBackgroundImage(back);
-            erode(fore, fore, cv::Mat());
-            dilate(fore, fore, cv::Mat());
-            {
-
-//                cv::findContours(fore, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
-//                bigcons.clear();
-//                for(int i = 0; i < contours.size(); i++){
-//                    if(contours.at(i).size() > 200) {
-//                        bigcons.push_back(contours.at(i));
-//                    }
-//                }
-//                cv::drawContours(frame, bigcons, -1, cv::Scalar(0, 255, 0), 2);
-//                QImage grey_image(fore.data, frame.cols, frame.rows, QImage::Format_Indexed8);
-            }
-            grey_image = Mat2QImage(fore);
-            imgBuffer.append(image);
-            dbgBuffer.append(grey_image);
-
-//            imshow("frame", frame);
-//            imshow("fore", fore);
-//            cout << "fore: " << i << endl;
-
-            ui->lcdNumber_buffer->display(imgBuffer.length()-frame_ctr);
-            nanosleep(&interval, NULL);
-            if(waitKey(30) >= 0){
-                stop();
-                isPlaying = false;
-                break;
-            }
-            if(isPlaying == false){
-//                play();
-                player->start();
-                isPlaying = true;
-            }
-        }
-   }
-   player->wait();
+//    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath());
+//    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath());
+    if(dialog.close() == true)
+        process(fileName,false);
 }
 
 void MainWindow::on_actionOpen_triggered()
 {
-    bool    isPlaying  = false;
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath());
-    if (!fileName.isEmpty()) {
-        if(cap.isOpened()){
-            cap.release();
-        }
-        cap.open(fileName.toStdString());
-        //cap.open("/home/ren/Videos/output_30.avi");
-        width   = cap.get(CV_CAP_PROP_FRAME_WIDTH);
-        height  = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
-
-        Mat frame, back, fore;
-        QImage image, grey_image;
-        vector< vector<Point> > contours;
-        vector< vector<Point> > bigcons;
-        BackgroundSubtractorMOG2 bg;
-        bg.set("nmixtures", 3);
-        bg.set("history", 96);
-
-        for(int i = 0;; i++) {
-            cap >> frame;
-            image = Mat2QImage(frame);
-
-            GaussianBlur(frame, frame, Size(7, 7), 1.5, 1.5);
-            bg.operator ()(frame, fore);
-            bg.getBackgroundImage(back);
-            erode(fore, fore, cv::Mat());
-            dilate(fore, fore, cv::Mat());
-            {
-
-//                cv::findContours(fore, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
-//                bigcons.clear();
-//                for(int i = 0; i < contours.size(); i++){
-//                    if(contours.at(i).size() > 200) {
-//                        bigcons.push_back(contours.at(i));
-//                    }
-//                }
-//                cv::drawContours(frame, bigcons, -1, cv::Scalar(0, 255, 0), 2);
-//                QImage grey_image(fore.data, frame.cols, frame.rows, QImage::Format_Indexed8);
-            }
-            grey_image = Mat2QImage(fore);
-            imgBuffer.append(image);
-            dbgBuffer.append(grey_image);
-
-//            imshow("frame", frame);
-//            imshow("fore", fore);
-//            cout << "fore: " << i << endl;
-
-            nanosleep(&interval, NULL);
-            if(waitKey(30) >= 0){
-                stop();
-                isPlaying = false;
-                break;
-            }
-            if(isPlaying == false){
-                play();
-                isPlaying = true;
-            }
-        }
-   }
+    process(fileName, false);
 }
 
 QImage MainWindow::Mat2QImage(cv::Mat const& src)
@@ -197,51 +96,213 @@ void MainWindow::on_pushButton_apply_clicked()
     if(!cap.isOpened())
         return;
     fps = ui->fps_spinBox->value();
-    play();
+    player->start();
 }
 
+/************* replaced by Player.imageUpdate() ************************/
 void MainWindow::imageUpdate() {
-    if(!imgBuffer.isEmpty()){
-        ui->label->setPixmap(QPixmap::fromImage(imgBuffer.at(frame_ctr)));
-        ui->label_debug->setPixmap(QPixmap::fromImage(dbgBuffer.at(frame_ctr)));
-        imgBuffer.removeFirst();
-        dbgBuffer.removeFirst();
+#ifdef DEBUG
+            cout << "@MainWindow.imageUpdate(): 1" << endl;
+#endif
+    player->mutex.lock();
+    if(!imgBuffer->isEmpty() && frame_pos < imgBuffer->size()){
+        ui->label->setPixmap(QPixmap::fromImage(imgBuffer->at(frame_pos)));
+        ui->label_debug->setPixmap(QPixmap::fromImage(dbgBuffer->at(frame_pos)));
     }
     else
         cout << "image buffer empty" << endl;
 
-    if(imgBuffer.length() - frame_ctr <= 0) {
-        stop();
+    if(imgBuffer->length() - frame_pos <= 0) {
+//        stop();
+//        player->stop_play();
         ui->label_status->setText(QString::fromStdString("Buffering"));
         cout << "video buffering" << endl;
     }
     ui->label_fps->setText(QString::number(fps));
-    cout << "[" << fps << "]" << " [" << width  << ", " << height << "] " << "<" << frame_ctr << ", (";
-    cout << imgBuffer.length() << ", " << dbgBuffer.length() << "), " << imgBuffer.length() - frame_ctr << ">" << endl;
+    cout << "[" << fps << "]" << " [" << cap.get(CV_CAP_PROP_FRAME_WIDTH)  << ", " << cap.get(CV_CAP_PROP_FRAME_HEIGHT) << "] " << "<" << frame_pos << ", (";
+    cout << imgBuffer->length() << ", " << dbgBuffer->length() << "), " << imgBuffer->length() - frame_pos << ">" << endl;
 
-    frame_ctr++;
+    frame_pos++;
+    player->mutex.unlock();
 }
 
+/************* replaced by Player.play() *******************************/
 void MainWindow::play(){
+#ifdef DEBUG
+            cout << "@MainWindow.play(): 1" << endl;
+#endif
     fps = ui->fps_spinBox->value();
-    timer->start(1000/fps);
+    mem_timer->start(1000/10);
     ui->label_status->setText(QString::fromStdString("Playing"));
 }
 
+/************* replaced by Player.play() *******************************/
 void *MainWindow::play_function(void *arg) {
     fps = ui->fps_spinBox->value();
-    timer->start(1000/fps);
+    mem_timer->start(1000/fps);
     ui->label_status->setText(QString::fromStdString("Playing"));
 }
 
+/************* replaced by Player.stop_play() **************************/
 void MainWindow::stop(){
-    timer->stop();
+    mem_timer->stop();
 }
 
 void MainWindow::on_actionQuit_triggered()
 {
-    timer->stop();
-    delete timer;
+    player->stop_play();
+//    delete timer;
     delete ui;
     exit(0);
+}
+
+void MainWindow::process(QString fileName, bool live){
+
+    if(live == false && fileName.isEmpty()) {
+        return;
+    }
+    if(live == false && !fileName.isEmpty()) {
+        if(cap.isOpened())
+            cap.release();
+        cap.open(fileName.toStdString());
+    }
+    if(live == true) {
+        if(cap.isOpened())
+            cap.release();
+        cap.open(0);
+    }
+
+    if(cap.isOpened()){
+        fmanager = new FrameManager(cap, imgBuffer, dbgBuffer, backBuffer, player, ui->spinBox_ctSize);
+        fmanager->start(QThread::NormalPriority);
+        player->start(QThread::HighPriority);
+        mem_timer->start(3000);
+        lup_timer->start(300);
+    }
+}
+
+void MainWindow::on_toolButton_play_clicked()
+{
+    if(player->state() != PLAYING)
+        player->start();
+}
+
+void MainWindow::on_toolButton_stop_clicked()
+{
+    if(player->state() != STOPPED && player->state() != INIT)
+        player->stop_play();
+}
+
+void MainWindow::on_pushButton_live_clicked()
+{
+    if(player->state() == PLAYING){
+        player->stop_play();
+    }
+    process(QString::fromStdString(""), true);
+}
+
+/*
+Blob MainWindow::findBlobs(Mat& frame, Mat& drawing, int blob_minSize){
+    cv::findContours(frame, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+    blobs.create(contours.size());
+
+      for( int i = 0; i < contours.size(); i++ )
+      {
+          if(contours[i].size() >= blob_minSize){
+              approxPolyDP( Mat(contours[i]), blobs.contours_poly[i], 3, true );
+              blobs.boundRect[i] = boundingRect( Mat(blobs.contours_poly[i]) );
+#ifdef CIRELE
+              minEnclosingCircle( (Mat)contours_poly[i], blobs.center[i], blobs.radius[i] );
+#endif
+          }
+      }
+
+      for( int i = 0; i< contours.size(); i++ )
+      {
+#ifdef POLY
+          drawContours( drawing, blobs.contours_poly, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
+#endif
+          rectangle( drawing, blobs.boundRect[i].tl(), blobs.boundRect[i].br(), color, 2, 8, 0 );
+#ifdef CIRCLE
+          circle( drawing, blobs.center[i], (int)blobs.radius[i], color, 2, 8, 0 );
+#endif
+      }
+}
+*/
+/*
+void MainWindow::paintBlobs(QImage* frame, Blober& blober){
+    for(int i = 0; i < blober.boundRect->size(); i++){
+        QPainter* painter = new QPainter(frame); // sorry i forgot the "&"
+        painter->setPen(Qt::white);
+        painter->setFont(QFont("Arial", 12));
+        string text = blober.drawText((*(blober.boundRect))[i].x, (*(blober.boundRect))[i].y, (*(blober.boundRect))[i].width, (*(blober.boundRect))[i].height);
+        painter->drawText((*(blober.boundRect))[i].x, (*(blober.boundRect))[i].y, QString::fromStdString(text));
+        delete painter;
+    }
+}
+*/
+
+void MainWindow::on_radioButton_fore_clicked()
+{
+    player->set_label(FOREGROUND);
+}
+
+void MainWindow::on_radioButton_back_clicked()
+{
+    player->set_label(BACKGROUND);
+}
+
+void MainWindow::on_radioButton_grey_clicked()
+{
+    player->set_label(GREYSCALE);
+}
+
+void MainWindow::on_radioButton_orig_clicked()
+{
+    player->set_label(ORIGINAL);
+}
+
+void MainWindow::memManage(){
+#ifdef DEBUG
+            cout << "@MainWindow.memManage(): 1" << endl;
+#endif
+            if(player->get_frame_ctr() > 30){
+                player->mutex.lock();
+                swap = imgBuffer->mid(player->get_frame_ctr());
+                delete imgBuffer;
+                imgBuffer = new QList<QImage>(swap);
+#ifdef DEBUG
+                cout << "new allocated iBuffer with size " << imgBuffer->size() << endl;
+#endif
+                swap = dbgBuffer->mid(player->get_frame_ctr());
+                delete dbgBuffer;
+                dbgBuffer = new QList<QImage>(swap);
+#ifdef DEBUG
+                cout << "new allocated dBuffer with size " << dbgBuffer->size() << endl;
+#endif
+                swap = backBuffer->mid(player->get_frame_ctr());
+                delete backBuffer;
+                backBuffer = new QList<QImage>(swap);
+#ifdef DEBUG
+                cout << "new allocated bBuffer with size " << backBuffer->size() << endl;
+#endif
+                alloc_idx = player->get_frame_ctr();
+                player->update_frame_ctr(0);
+                player->mutex.unlock();
+            }
+//            if(player->state() == INIT){
+//                player->start();
+//            }
+//            nanosleep(&interval, NULL);
+}
+
+void MainWindow::labelUpdate(){
+#ifdef DEBUG
+            cout << "@MainWindow.labelUpdate(): 1" << endl;
+#endif
+    ui->label_fps->setText(QString::number(fps));
+    player->mutex.lock();
+    ui->lcdNumber_buffer->display(imgBuffer->length() - player->get_frame_ctr());
+    player->mutex.unlock();
+    ui->label_status->setText(player->get_status());
 }
