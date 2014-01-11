@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Thu Jan 2 17:41:48 2014
+** Created: Sat Jan 11 14:22:16 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -14,6 +14,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
+#include <QtGui/QCheckBox>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLCDNumber>
@@ -28,6 +29,7 @@
 #include <QtGui/QStatusBar>
 #include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
+#include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -37,6 +39,7 @@ class Ui_MainWindow
 public:
     QAction *actionOpen;
     QAction *actionQuit;
+    QAction *actionOpen_Background;
     QWidget *centralWidget;
     QWidget *horizontalLayoutWidget;
     QHBoxLayout *horizontalLayout;
@@ -62,10 +65,20 @@ public:
     QWidget *horizontalLayoutWidget_3;
     QHBoxLayout *horizontalLayout_3;
     QSpacerItem *horizontalSpacer_2;
+    QCheckBox *checkBox_rect;
     QRadioButton *radioButton_orig;
     QRadioButton *radioButton_grey;
     QRadioButton *radioButton_back;
     QRadioButton *radioButton_fore;
+    QWidget *verticalLayoutWidget;
+    QVBoxLayout *verticalLayout;
+    QSpacerItem *verticalSpacer;
+    QCheckBox *checkBox_privacy;
+    QRadioButton *radioButton_black;
+    QRadioButton *radioButton_blur;
+    QRadioButton *radioButton_edge;
+    QRadioButton *radioButton_border;
+    QRadioButton *radioButton_default;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QToolBar *mainToolBar;
@@ -75,7 +88,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1022, 518);
+        MainWindow->resize(1103, 518);
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -85,6 +98,8 @@ public:
         actionOpen->setObjectName(QString::fromUtf8("actionOpen"));
         actionQuit = new QAction(MainWindow);
         actionQuit->setObjectName(QString::fromUtf8("actionQuit"));
+        actionOpen_Background = new QAction(MainWindow);
+        actionOpen_Background->setObjectName(QString::fromUtf8("actionOpen_Background"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -201,7 +216,7 @@ public:
 
         horizontalLayoutWidget_3 = new QWidget(centralWidget);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
-        horizontalLayoutWidget_3->setGeometry(QRect(0, 0, 1021, 31));
+        horizontalLayoutWidget_3->setGeometry(QRect(0, 0, 1101, 31));
         horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_3);
         horizontalLayout_3->setSpacing(6);
         horizontalLayout_3->setContentsMargins(11, 11, 11, 11);
@@ -210,6 +225,12 @@ public:
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_3->addItem(horizontalSpacer_2);
+
+        checkBox_rect = new QCheckBox(horizontalLayoutWidget_3);
+        checkBox_rect->setObjectName(QString::fromUtf8("checkBox_rect"));
+        checkBox_rect->setChecked(true);
+
+        horizontalLayout_3->addWidget(checkBox_rect);
 
         radioButton_orig = new QRadioButton(horizontalLayoutWidget_3);
         radioButton_orig->setObjectName(QString::fromUtf8("radioButton_orig"));
@@ -223,6 +244,7 @@ public:
 
         radioButton_grey = new QRadioButton(horizontalLayoutWidget_3);
         radioButton_grey->setObjectName(QString::fromUtf8("radioButton_grey"));
+        radioButton_grey->setChecked(true);
 
         horizontalLayout_3->addWidget(radioButton_grey);
 
@@ -233,14 +255,59 @@ public:
 
         radioButton_fore = new QRadioButton(horizontalLayoutWidget_3);
         radioButton_fore->setObjectName(QString::fromUtf8("radioButton_fore"));
-        radioButton_fore->setChecked(true);
+        radioButton_fore->setChecked(false);
 
         horizontalLayout_3->addWidget(radioButton_fore);
+
+        verticalLayoutWidget = new QWidget(centralWidget);
+        verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
+        verticalLayoutWidget->setGeometry(QRect(1020, 30, 153, 391));
+        verticalLayout = new QVBoxLayout(verticalLayoutWidget);
+        verticalLayout->setSpacing(6);
+        verticalLayout->setContentsMargins(11, 11, 11, 11);
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        verticalLayout->setContentsMargins(0, 0, 0, 0);
+        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout->addItem(verticalSpacer);
+
+        checkBox_privacy = new QCheckBox(verticalLayoutWidget);
+        checkBox_privacy->setObjectName(QString::fromUtf8("checkBox_privacy"));
+        checkBox_privacy->setChecked(true);
+
+        verticalLayout->addWidget(checkBox_privacy);
+
+        radioButton_black = new QRadioButton(verticalLayoutWidget);
+        radioButton_black->setObjectName(QString::fromUtf8("radioButton_black"));
+        radioButton_black->setChecked(false);
+
+        verticalLayout->addWidget(radioButton_black);
+
+        radioButton_blur = new QRadioButton(verticalLayoutWidget);
+        radioButton_blur->setObjectName(QString::fromUtf8("radioButton_blur"));
+
+        verticalLayout->addWidget(radioButton_blur);
+
+        radioButton_edge = new QRadioButton(verticalLayoutWidget);
+        radioButton_edge->setObjectName(QString::fromUtf8("radioButton_edge"));
+
+        verticalLayout->addWidget(radioButton_edge);
+
+        radioButton_border = new QRadioButton(verticalLayoutWidget);
+        radioButton_border->setObjectName(QString::fromUtf8("radioButton_border"));
+
+        verticalLayout->addWidget(radioButton_border);
+
+        radioButton_default = new QRadioButton(verticalLayoutWidget);
+        radioButton_default->setObjectName(QString::fromUtf8("radioButton_default"));
+        radioButton_default->setChecked(true);
+
+        verticalLayout->addWidget(radioButton_default);
 
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1022, 27));
+        menuBar->setGeometry(QRect(0, 0, 1103, 27));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         MainWindow->setMenuBar(menuBar);
@@ -253,6 +320,7 @@ public:
 
         menuBar->addAction(menuFile->menuAction());
         menuFile->addAction(actionOpen);
+        menuFile->addAction(actionOpen_Background);
         menuFile->addSeparator();
         menuFile->addAction(actionQuit);
 
@@ -268,6 +336,8 @@ public:
         actionOpen->setShortcut(QApplication::translate("MainWindow", "Ctrl+O", 0, QApplication::UnicodeUTF8));
         actionQuit->setText(QApplication::translate("MainWindow", "Quit", 0, QApplication::UnicodeUTF8));
         actionQuit->setShortcut(QApplication::translate("MainWindow", "Ctrl+Q", 0, QApplication::UnicodeUTF8));
+        actionOpen_Background->setText(QApplication::translate("MainWindow", "Open Background", 0, QApplication::UnicodeUTF8));
+        actionOpen_Background->setShortcut(QApplication::translate("MainWindow", "Ctrl+B", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("MainWindow", "FPS:", 0, QApplication::UnicodeUTF8));
         label_fps->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("MainWindow", "Status:", 0, QApplication::UnicodeUTF8));
@@ -281,10 +351,17 @@ public:
         pushButton_live->setText(QApplication::translate("MainWindow", "LIVE", 0, QApplication::UnicodeUTF8));
         label->setText(QString());
         label_debug->setText(QString());
+        checkBox_rect->setText(QApplication::translate("MainWindow", "rectangle", 0, QApplication::UnicodeUTF8));
         radioButton_orig->setText(QApplication::translate("MainWindow", "original", 0, QApplication::UnicodeUTF8));
         radioButton_grey->setText(QApplication::translate("MainWindow", "grey", 0, QApplication::UnicodeUTF8));
         radioButton_back->setText(QApplication::translate("MainWindow", "background", 0, QApplication::UnicodeUTF8));
         radioButton_fore->setText(QApplication::translate("MainWindow", "foreground", 0, QApplication::UnicodeUTF8));
+        checkBox_privacy->setText(QApplication::translate("MainWindow", "privacy", 0, QApplication::UnicodeUTF8));
+        radioButton_black->setText(QApplication::translate("MainWindow", "black", 0, QApplication::UnicodeUTF8));
+        radioButton_blur->setText(QApplication::translate("MainWindow", "blur", 0, QApplication::UnicodeUTF8));
+        radioButton_edge->setText(QApplication::translate("MainWindow", "edge", 0, QApplication::UnicodeUTF8));
+        radioButton_border->setText(QApplication::translate("MainWindow", "border", 0, QApplication::UnicodeUTF8));
+        radioButton_default->setText(QApplication::translate("MainWindow", "default", 0, QApplication::UnicodeUTF8));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

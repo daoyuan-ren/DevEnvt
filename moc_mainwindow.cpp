@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'mainwindow.h'
 **
-** Created: Thu Jan 2 18:52:55 2014
+** Created: Sat Jan 11 14:35:25 2014
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      13,   14, // methods
+      21,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -44,6 +44,14 @@ static const uint qt_meta_data_MainWindow[] = {
      268,   11,   11,   11, 0x08,
      298,   11,   11,   11, 0x08,
      328,   11,   11,   11, 0x08,
+     358,   11,   11,   11, 0x08,
+     388,   11,   11,   11, 0x08,
+     419,   11,   11,   11, 0x08,
+     449,   11,   11,   11, 0x08,
+     479,   11,   11,   11, 0x08,
+     511,   11,   11,   11, 0x08,
+     548,   11,   11,   11, 0x08,
+     581,   11,   11,   11, 0x08,
 
        0        // eod
 };
@@ -61,6 +69,14 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "on_radioButton_back_clicked()\0"
     "on_radioButton_grey_clicked()\0"
     "on_radioButton_orig_clicked()\0"
+    "on_checkBox_privacy_clicked()\0"
+    "on_radioButton_black_clicked()\0"
+    "on_radioButton_blur_clicked()\0"
+    "on_radioButton_edge_clicked()\0"
+    "on_radioButton_border_clicked()\0"
+    "on_actionOpen_Background_triggered()\0"
+    "on_radioButton_default_clicked()\0"
+    "on_checkBox_rect_clicked()\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -82,6 +98,14 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 10: _t->on_radioButton_back_clicked(); break;
         case 11: _t->on_radioButton_grey_clicked(); break;
         case 12: _t->on_radioButton_orig_clicked(); break;
+        case 13: _t->on_checkBox_privacy_clicked(); break;
+        case 14: _t->on_radioButton_black_clicked(); break;
+        case 15: _t->on_radioButton_blur_clicked(); break;
+        case 16: _t->on_radioButton_edge_clicked(); break;
+        case 17: _t->on_radioButton_border_clicked(); break;
+        case 18: _t->on_actionOpen_Background_triggered(); break;
+        case 19: _t->on_radioButton_default_clicked(); break;
+        case 20: _t->on_checkBox_rect_clicked(); break;
         default: ;
         }
     }
@@ -120,9 +144,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 13)
+        if (_id < 21)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 13;
+        _id -= 21;
     }
     return _id;
 }

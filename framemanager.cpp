@@ -6,24 +6,31 @@ FrameManager::FrameManager(QObject *parent) :
     interval.tv_sec     = 0;
     interval.tv_nsec    = 100000000L; //1 000 000 000nsec = 1sec
     buffered_frame_idx  = 0;
+    in_privacy_mode     = false;
+    pain_blob           = true;
+    pixel_operation     = OP_DEFAULT;
 
     bg.set("nmixtures", 3);
     bg.set("history", 108);
 //    bg.bShadowDetection = true;
     bg.set("detectShadows", true);
-    imgBuffer       = NULL;
-    gryBuffer       = NULL;
-    dbgBuffer       = NULL;
-    backBuffer      = NULL;
+    static_background   = NULL;
+    imgBuffer           = NULL;
+    gryBuffer           = NULL;
+    dbgBuffer           = NULL;
+    backBuffer          = NULL;
 
-    player          = NULL;
-    spinBox_ctSize  = NULL;
+    player              = NULL;
+    spinBox_ctSize      = NULL;
 }
 
-FrameManager::FrameManager(VideoCapture cap, QList<QImage> *iBuf, QList<QImage>* gBuf, QList<QImage> *dBuf, QList<QImage> *bBuf, PlayThread* player, QSpinBox* spinBox_ctSize){
+FrameManager::FrameManager(VideoCapture cap, QList<QImage> *iBuf, QList<QImage>* gBuf, QList<QImage> *dBuf, QList<QImage> *bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back){
     interval.tv_sec     = 0;
-    interval.tv_nsec    = 200000000L; //1 000 000 000nsec = 1sec
+    interval.tv_nsec    = 100000000L; //1 000 000 000nsec = 1sec
     buffered_frame_idx  = 0;
+    in_privacy_mode     = false;
+    pain_blob           = true;
+    pixel_operation     =OP_DEFAULT;
 
     bg.set("nmixtures", 3);
     bg.set("history", 108);
@@ -31,13 +38,26 @@ FrameManager::FrameManager(VideoCapture cap, QList<QImage> *iBuf, QList<QImage>*
     bg.set("detectShadows", true);
 
     this->cap = cap;
-    imgBuffer   = iBuf;
-    gryBuffer   = gBuf;
-    dbgBuffer   = dBuf;
-    backBuffer  = bBuf;
+    static_background   = s_back;
+    imgBuffer           = iBuf;
+    gryBuffer           = gBuf;
+    dbgBuffer           = dBuf;
+    backBuffer          = bBuf;
 
     this->player= player;
     this->spinBox_ctSize = spinBox_ctSize;
+}
+
+void FrameManager::inPrivacy(bool privacy_mode){
+    in_privacy_mode = privacy_mode;
+}
+
+void FrameManager::pain_rect(bool paint_blob){
+    this->pain_blob = paint_blob;
+}
+
+void FrameManager::setOperat(int operation){
+    pixel_operation = operation;
 }
 
 void FrameManager::process(){
@@ -50,7 +70,7 @@ void FrameManager::process(){
 //        height  = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
 
         Mat frame, back, fore;
-        Mat drawing, grey, grey_back;
+        Mat drawing, grey, grey_back, st_back;
         QImage image, grey_image, fore_ground, back_ground;
 
         for(int i = 0;; i++) {
@@ -70,17 +90,40 @@ void FrameManager::process(){
             cvtColor(fore, drawing, CV_GRAY2BGR);
             blober.find_blobs(fore, spinBox_ctSize->value());
 
+            if(static_background != NULL){
+                st_back = QImage2Mat(*static_background);
+                cvtColor(st_back, st_back, CV_RGB2GRAY);
+                cvtColor(st_back, st_back, CV_GRAY2BGR);
+            }
+            else
+                st_back = grey_back;
+
             /*** add the pixel operation on range of interest ***/
-//            black_out(grey);
-
-//            blur(grey);
-
-            edge(grey, grey_back);
-
+            if(in_privacy_mode == true){
+                switch (pixel_operation){
+                case OP_BLACK:
+                    black_out(st_back);
+                    break;
+                case OP_BLUR:
+                    blur(grey, st_back);
+                    break;
+                case OP_EDGE:
+                    edge(grey, grey_back, st_back);
+                    break;
+                case OP_BORDER:
+                    border(grey, drawing, grey_back, st_back);
+                    break;
+                default:
+                    break;
+                }
+            }
             blober.paint_blobs(drawing);
 #ifdef BLOB_ON
-            blober.paint_blobs(back);
-            blober.paint_blobs(grey);
+            if(pain_blob == true){
+                blober.paint_blobs(back);
+//                blober.paint_blobs(grey);
+                blober.paint_blobs(st_back);
+            }
 #endif
 
 {
@@ -97,10 +140,14 @@ void FrameManager::process(){
             fore_ground = Mat2QImage(drawing);
             blober.paint_label(&fore_ground);
             back_ground = Mat2QImage(back);
-            grey_image  = Mat2QImage(grey);
-#ifdef BLOB_ON
-            blober.paint_label(&back_ground);
-            blober.paint_label(&grey_image);
+//            grey_image  = Mat2QImage(grey);
+            grey_image  = Mat2QImage(st_back);
+//            grey_image = *static_background;
+#ifdef LABEL_ON
+            if(pain_blob == true){
+                blober.paint_label(&back_ground);
+                blober.paint_label(&grey_image);
+            }
 #endif
             player->mutex.lock();
             imgBuffer->append(image);
@@ -110,55 +157,74 @@ void FrameManager::process(){
             buffered_frame_idx++;
             player->mutex.unlock();
 
-//            imshow("back", back);
-//            imshow("drawing", drawing);
-//            imshow("frame", frame);
-//            cout << "fore: " << i << endl;
 #ifdef MESSAGE_ON
             cout << "<" << buffered_frame_idx << "> " << "processing @fmanager.run(): " << currentThreadId() << endl;
 #endif
             nanosleep(&interval, NULL);
-//            if(waitKey(30) >= 0){
-//                player->stop_play();
-//                break;
-//            }
         }
 }
 
-void FrameManager::black_out(Mat &mat){
+void FrameManager::black_out(Mat& st_back){
     for(unsigned int i = 0; i <blober.rects()->size(); i++){
         Rect rec = blober.rects()->at(i);
-        Mat roi = mat(rec);
+        if(rec.width <= 0 || rec.height <= 0)
+            continue;
+        Mat roi = st_back(rec);
         roi = Mat::zeros(rec.height, rec.width, roi.type());
     }
 }
 
-void FrameManager::blur(Mat &mat){
+void FrameManager::blur(Mat &mat, Mat& st_back){
     for(unsigned int i = 0; i <blober.rects()->size(); i++){
         Rect rec = blober.rects()->at(i);
+        if(rec.width <= 0 || rec.height <= 0)
+            continue;
         Mat roi = mat(rec);
         GaussianBlur(roi, roi, Size(9, 9), 2.5, 2.5);
+        roi.copyTo(st_back(rec));
     }
 }
 
-void FrameManager::edge(Mat &mat, const Mat& back){
+void FrameManager::edge(Mat &mat, const Mat& back, Mat& st_back){
     Mat sobel_x, sobel_y, sobel;
-    for(unsigned int i = 0; i <blober.rects()->size(); i++){
+    for(unsigned int i = 0; i < blober.rects()->size(); i++){
         Rect rec = blober.rects()->at(i);
+        if(rec.width <= 0 || rec.height <= 0)
+            continue;
         Mat roi = mat(rec);
         GaussianBlur(roi, roi, Size(7, 7), 1.5, 1.5);
         Sobel(roi, sobel_x, -1, 0, 1);
         Sobel(roi, sobel_y, -1, 1, 0);
-        roi = sobel_x+sobel_y+back(rec);
+        st_back(rec) = sobel_x+sobel_y+back(rec);
+    }
+}
+
+void FrameManager::border(Mat &mat, const Mat& fore, const Mat& back, Mat& st_back){
+    Mat sobel_x, sobel_y, sobel;
+    for(unsigned int i = 0; i <blober.rects()->size(); i++){
+        Rect rec = blober.rects()->at(i);
+        if(rec.width <= 0 || rec.height <= 0)
+            continue;
+        Mat roi = mat(rec);
+//        GaussianBlur(roi, roi, Size(7, 7), 1.5, 1.5);
+        Sobel(fore(rec), sobel_x, -1, 0, 1);
+        Sobel(fore(rec), sobel_y, -1, 1, 0);
+        st_back(rec) = sobel_x+sobel_y+back(rec);
     }
 }
 
 cv::Mat FrameManager::QImage2Mat(QImage const& src)
 {
-     cv::Mat tmp(src.height(),src.width(),CV_8UC3,(uchar*)src.bits(),src.bytesPerLine());
-     cv::Mat result; // deep copy just in case (my lack of knowledge with open cv)
-     cvtColor(tmp, result,CV_BGR2RGB);
-     return result;
+    QImage cvt;
+    if(src.format() != QImage::Format_RGB888)
+        cvt = src.convertToFormat(QImage::Format_RGB888);
+    else
+        cvt = src;
+    cv::Mat tmp(cvt.height(),cvt.width(),CV_8UC3,(uchar*)cvt.bits(), cvt.bytesPerLine());
+    cv::Mat result;
+    cvtColor(tmp, result,CV_RGB2BGR);
+
+    return result;
 }
 
 QImage FrameManager::Mat2QImage(cv::Mat const& src)
@@ -183,6 +249,10 @@ void FrameManager::run(){
     cout << "@fmanager.run(): " << currentThreadId() << endl;
 #endif
     process();
+}
+
+void FrameManager::gamma_correction(Mat &mat, const double gamma){
+    mat = mat * gamma;
 }
 
 unsigned int FrameManager::buffered_frame(){

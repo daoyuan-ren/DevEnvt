@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     width       = 0;
     height      = 0;
     alloc_idx   = 0;
+    background  = NULL;
     imgBuffer   = new QList<QImage>();
     gryBuffer   = new QList<QImage>();
     dbgBuffer   = new QList<QImage>();
@@ -25,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     interval.tv_sec  = 3;
     interval.tv_nsec = 500000000L; //1 000 000 000nsec = 1sec
 
+    fmanager = NULL;
     mem_timer = new QTimer(this);
     connect(mem_timer, SIGNAL(timeout()), this, SLOT(memManage()));
     lup_timer = new QTimer(this);
@@ -48,7 +50,9 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_select_clicked()
 {
     QFileDialog dialog;
-    QString fileName = dialog.getOpenFileName(this, tr("Open File"), QDir::currentPath());
+    QString fileName = dialog.getOpenFileName(this, tr("Open File"), QDir::currentPath(),tr("Videos(*.avi)"));
+    if(fileName.isEmpty())
+        return;
 
 //    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath());
 //    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath());
@@ -58,7 +62,9 @@ void MainWindow::on_pushButton_select_clicked()
 
 void MainWindow::on_actionOpen_triggered()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath());
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath(),tr("Videos(*.avi)"));
+    if(fileName.isEmpty())
+        return;
     process(fileName, false);
 }
 
@@ -164,10 +170,7 @@ void MainWindow::on_actionQuit_triggered()
 
 void MainWindow::process(QString fileName, bool live){
 
-    if(live == false && fileName.isEmpty()) {
-        return;
-    }
-    if(live == false && !fileName.isEmpty()) {
+    if(live == false) {
         if(cap.isOpened())
             cap.release();
         cap.open(fileName.toStdString());
@@ -179,7 +182,9 @@ void MainWindow::process(QString fileName, bool live){
     }
 
     if(cap.isOpened()){
-        fmanager = new FrameManager(cap, imgBuffer, gryBuffer, dbgBuffer, backBuffer, player, ui->spinBox_ctSize);
+        fmanager = new FrameManager(cap, imgBuffer, gryBuffer, dbgBuffer, backBuffer, player, ui->spinBox_ctSize, background);
+        fmanager->inPrivacy(ui->checkBox_privacy->isChecked());
+        fmanager->pain_rect(ui->checkBox_rect->isChecked());
         fmanager->start(QThread::NormalPriority);
         player->start(QThread::HighPriority);
         mem_timer->start(3000);
@@ -314,3 +319,56 @@ void MainWindow::labelUpdate(){
     player->mutex.unlock();
     ui->label_status->setText(player->get_status());
 }
+
+void MainWindow::on_checkBox_privacy_clicked()
+{
+    if(fmanager != NULL){
+        fmanager->inPrivacy(ui->checkBox_privacy->isChecked());
+    }
+}
+
+void MainWindow::on_radioButton_black_clicked()
+{
+    if(fmanager != NULL)
+        fmanager->setOperat(OP_BLACK);
+}
+
+void MainWindow::on_radioButton_blur_clicked()
+{
+    if(fmanager != NULL)
+        fmanager->setOperat(OP_BLUR);
+}
+
+void MainWindow::on_radioButton_edge_clicked()
+{
+    if(fmanager != NULL)
+        fmanager->setOperat(OP_EDGE);
+}
+
+void MainWindow::on_radioButton_border_clicked()
+{
+    if(fmanager != NULL)
+        fmanager->setOperat(OP_BORDER);
+}
+
+void MainWindow::on_actionOpen_Background_triggered()
+{
+    QFileDialog dialog;
+    QString fileName = dialog.getOpenFileName(this, tr("Open File"), "/home/ren", tr("Images(*.png *.jpg *.tiff)"));
+    if(fileName.isEmpty())
+        return;
+    background = new QImage(fileName);
+}
+
+void MainWindow::on_radioButton_default_clicked()
+{
+    if(fmanager != NULL)
+        fmanager->setOperat(OP_DEFAULT);
+}
+
+void MainWindow::on_checkBox_rect_clicked()
+{
+    if(fmanager != NULL)
+        fmanager->pain_rect(ui->checkBox_rect->isChecked());
+}
+

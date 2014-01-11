@@ -50,6 +50,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
+    QImage*        background;
     QList<QImage>* imgBuffer;
     QList<QImage>* gryBuffer;
     QList<QImage>* dbgBuffer;
@@ -101,6 +102,14 @@ private:
     void on_radioButton_back_clicked();
     void on_radioButton_grey_clicked();
     void on_radioButton_orig_clicked();
+    void on_checkBox_privacy_clicked();
+    void on_radioButton_black_clicked();
+    void on_radioButton_blur_clicked();
+    void on_radioButton_edge_clicked();
+    void on_radioButton_border_clicked();
+    void on_actionOpen_Background_triggered();
+    void on_radioButton_default_clicked();
+    void on_checkBox_rect_clicked();
 };
 
 #endif // MAINWINDOW_H
