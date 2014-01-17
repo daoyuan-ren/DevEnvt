@@ -372,3 +372,9 @@ void MainWindow::on_checkBox_rect_clicked()
         fmanager->pain_rect(ui->checkBox_rect->isChecked());
 }
 
+
+void MainWindow::on_radioButton_mosaic_clicked()
+{
+    if(fmanager != NULL)
+        fmanager->setOperat(OP_MOSAIC);
+}

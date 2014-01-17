@@ -110,6 +110,7 @@ private:
     void on_actionOpen_Background_triggered();
     void on_radioButton_default_clicked();
     void on_checkBox_rect_clicked();
+    void on_radioButton_mosaic_clicked();
 };
 
 #endif // MAINWINDOW_H

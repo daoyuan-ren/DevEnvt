@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Sat Jan 11 14:22:16 2014
+** Created: Fri Jan 17 13:51:36 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -78,6 +78,7 @@ public:
     QRadioButton *radioButton_blur;
     QRadioButton *radioButton_edge;
     QRadioButton *radioButton_border;
+    QRadioButton *radioButton_mosaic;
     QRadioButton *radioButton_default;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -298,6 +299,11 @@ public:
 
         verticalLayout->addWidget(radioButton_border);
 
+        radioButton_mosaic = new QRadioButton(verticalLayoutWidget);
+        radioButton_mosaic->setObjectName(QString::fromUtf8("radioButton_mosaic"));
+
+        verticalLayout->addWidget(radioButton_mosaic);
+
         radioButton_default = new QRadioButton(verticalLayoutWidget);
         radioButton_default->setObjectName(QString::fromUtf8("radioButton_default"));
         radioButton_default->setChecked(true);
@@ -361,6 +367,7 @@ public:
         radioButton_blur->setText(QApplication::translate("MainWindow", "blur", 0, QApplication::UnicodeUTF8));
         radioButton_edge->setText(QApplication::translate("MainWindow", "edge", 0, QApplication::UnicodeUTF8));
         radioButton_border->setText(QApplication::translate("MainWindow", "border", 0, QApplication::UnicodeUTF8));
+        radioButton_mosaic->setText(QApplication::translate("MainWindow", "mosaic", 0, QApplication::UnicodeUTF8));
         radioButton_default->setText(QApplication::translate("MainWindow", "default", 0, QApplication::UnicodeUTF8));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0, QApplication::UnicodeUTF8));
     } // retranslateUi

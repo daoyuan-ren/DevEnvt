@@ -27,6 +27,7 @@ using namespace std;
 #define OP_BLUR     1
 #define OP_BORDER   2
 #define OP_EDGE     3
+#define OP_MOSAIC   4
 #define OP_DEFAULT  9
 
 class FrameManager : public QThread
@@ -42,6 +43,7 @@ public:
     void process();
     void black_out(Mat& st_back);
     void blur(Mat& mat, Mat& st_back);
+    void mosaic(Mat &mat, Mat &st_back);
     void edge(Mat& mat, const Mat& back, Mat& st_back);
     void border(Mat& mat,const Mat& fore, const Mat& back, Mat& st_back);
 

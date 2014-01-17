@@ -113,6 +113,9 @@ void FrameManager::process(){
                 case OP_BORDER:
                     border(grey, drawing, grey_back, st_back);
                     break;
+                case OP_MOSAIC:
+                    mosaic(grey, st_back);
+                    break;
                 default:
                     break;
                 }
@@ -175,12 +178,48 @@ void FrameManager::black_out(Mat& st_back){
 }
 
 void FrameManager::blur(Mat &mat, Mat& st_back){
-    for(unsigned int i = 0; i <blober.rects()->size(); i++){
+    for(unsigned int i = 0; i < blober.rects()->size(); i++){
         Rect rec = blober.rects()->at(i);
         if(rec.width <= 0 || rec.height <= 0)
             continue;
         Mat roi = mat(rec);
         GaussianBlur(roi, roi, Size(9, 9), 2.5, 2.5);
+        roi.copyTo(st_back(rec));
+    }
+}
+
+void FrameManager::mosaic(Mat &mat, Mat &st_back){
+    int dist = 10;
+    Scalar mean_val;
+    for(unsigned int i = 0; i < blober.rects()->size(); i++){
+        Rect rec = blober.rects()->at(i);
+        if(rec.width <= 0 || rec.height <= 0)
+            continue;
+        Mat roi = mat(rec);
+        cvtColor(roi, roi, CV_BGR2GRAY);
+        int m = 0;
+        for(m; m < roi.rows - dist; m+=dist){
+            int n = 0;
+            for(n; n < roi.cols - dist; n+=dist){
+                Mat block = roi(Rect(n, m, dist,dist));
+                mean_val = mean(block);
+                block = Mat::ones(dist, dist, block.type())*(unsigned char)mean_val[0];
+            }
+            Mat block = roi(Rect(n, m, roi.cols-n,dist));
+            mean_val = mean(block);
+            block = Mat::ones(dist, roi.cols-n, block.type())*(unsigned char)mean_val[0];
+        }
+        int n = 0;
+        for(n; n < roi.cols - dist; n+=dist){
+            Mat block = roi(Rect(n, m, dist, roi.rows-m));
+            mean_val = mean(block);
+            block = Mat::ones(roi.rows-m, dist, block.type())*(unsigned char)mean_val[0];
+        }
+        Mat block = roi(Rect(n, m, roi.cols-n,roi.rows-m));
+        mean_val = mean(block);
+        block = Mat::ones(roi.rows-m, roi.cols-n, block.type())*(unsigned char)mean_val[0];
+
+        cvtColor(roi, roi, CV_GRAY2BGR);
         roi.copyTo(st_back(rec));
     }
 }
@@ -205,8 +244,7 @@ void FrameManager::border(Mat &mat, const Mat& fore, const Mat& back, Mat& st_ba
         Rect rec = blober.rects()->at(i);
         if(rec.width <= 0 || rec.height <= 0)
             continue;
-        Mat roi = mat(rec);
-//        GaussianBlur(roi, roi, Size(7, 7), 1.5, 1.5);
+
         Sobel(fore(rec), sobel_x, -1, 0, 1);
         Sobel(fore(rec), sobel_y, -1, 1, 0);
         st_back(rec) = sobel_x+sobel_y+back(rec);

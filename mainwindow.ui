@@ -326,6 +326,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QRadioButton" name="radioButton_mosaic">
+       <property name="text">
+        <string>mosaic</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QRadioButton" name="radioButton_default">
        <property name="text">
         <string>default</string>
