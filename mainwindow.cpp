@@ -378,3 +378,9 @@ void MainWindow::on_radioButton_mosaic_clicked()
     if(fmanager != NULL)
         fmanager->setOperat(OP_MOSAIC);
 }
+
+void MainWindow::on_checkBox_shadow_clicked()
+{
+    if(fmanager != NULL)
+        fmanager->shadow(ui->checkBox_shadow->isChecked());
+}

@@ -111,6 +111,7 @@ private:
     void on_radioButton_default_clicked();
     void on_checkBox_rect_clicked();
     void on_radioButton_mosaic_clicked();
+    void on_checkBox_shadow_clicked();
 };
 
 #endif // MAINWINDOW_H

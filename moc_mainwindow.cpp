@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'mainwindow.h'
 **
-** Created: Fri Jan 17 13:52:26 2014
+** Created: Fri Jan 17 17:05:33 2014
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      22,   14, // methods
+      23,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -53,6 +53,7 @@ static const uint qt_meta_data_MainWindow[] = {
      548,   11,   11,   11, 0x08,
      581,   11,   11,   11, 0x08,
      608,   11,   11,   11, 0x08,
+     640,   11,   11,   11, 0x08,
 
        0        // eod
 };
@@ -79,6 +80,7 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "on_radioButton_default_clicked()\0"
     "on_checkBox_rect_clicked()\0"
     "on_radioButton_mosaic_clicked()\0"
+    "on_checkBox_shadow_clicked()\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -109,6 +111,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 19: _t->on_radioButton_default_clicked(); break;
         case 20: _t->on_checkBox_rect_clicked(); break;
         case 21: _t->on_radioButton_mosaic_clicked(); break;
+        case 22: _t->on_checkBox_shadow_clicked(); break;
         default: ;
         }
     }
@@ -147,9 +150,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 22)
+        if (_id < 23)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 22;
+        _id -= 23;
     }
     return _id;
 }

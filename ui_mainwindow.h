@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Fri Jan 17 13:51:36 2014
+** Created: Fri Jan 17 15:34:46 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -65,6 +65,7 @@ public:
     QWidget *horizontalLayoutWidget_3;
     QHBoxLayout *horizontalLayout_3;
     QSpacerItem *horizontalSpacer_2;
+    QCheckBox *checkBox_shadow;
     QCheckBox *checkBox_rect;
     QRadioButton *radioButton_orig;
     QRadioButton *radioButton_grey;
@@ -227,6 +228,12 @@ public:
 
         horizontalLayout_3->addItem(horizontalSpacer_2);
 
+        checkBox_shadow = new QCheckBox(horizontalLayoutWidget_3);
+        checkBox_shadow->setObjectName(QString::fromUtf8("checkBox_shadow"));
+        checkBox_shadow->setChecked(true);
+
+        horizontalLayout_3->addWidget(checkBox_shadow);
+
         checkBox_rect = new QCheckBox(horizontalLayoutWidget_3);
         checkBox_rect->setObjectName(QString::fromUtf8("checkBox_rect"));
         checkBox_rect->setChecked(true);
@@ -357,6 +364,7 @@ public:
         pushButton_live->setText(QApplication::translate("MainWindow", "LIVE", 0, QApplication::UnicodeUTF8));
         label->setText(QString());
         label_debug->setText(QString());
+        checkBox_shadow->setText(QApplication::translate("MainWindow", "shadowDet", 0, QApplication::UnicodeUTF8));
         checkBox_rect->setText(QApplication::translate("MainWindow", "rectangle", 0, QApplication::UnicodeUTF8));
         radioButton_orig->setText(QApplication::translate("MainWindow", "original", 0, QApplication::UnicodeUTF8));
         radioButton_grey->setText(QApplication::translate("MainWindow", "grey", 0, QApplication::UnicodeUTF8));

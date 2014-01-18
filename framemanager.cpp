@@ -8,10 +8,11 @@ FrameManager::FrameManager(QObject *parent) :
     buffered_frame_idx  = 0;
     in_privacy_mode     = false;
     pain_blob           = true;
+    shadow_detect       = true;
     pixel_operation     = OP_DEFAULT;
 
     bg.set("nmixtures", 3);
-    bg.set("history", 108);
+    bg.set("history", HISTORY);
 //    bg.bShadowDetection = true;
     bg.set("detectShadows", true);
     static_background   = NULL;
@@ -30,10 +31,11 @@ FrameManager::FrameManager(VideoCapture cap, QList<QImage> *iBuf, QList<QImage>*
     buffered_frame_idx  = 0;
     in_privacy_mode     = false;
     pain_blob           = true;
-    pixel_operation     =OP_DEFAULT;
+    shadow_detect       = true;
+    pixel_operation     = OP_DEFAULT;
 
     bg.set("nmixtures", 3);
-    bg.set("history", 108);
+    bg.set("history", HISTORY);
 //    bg.bShadowDetection = true;
     bg.set("detectShadows", true);
 
@@ -54,6 +56,10 @@ void FrameManager::inPrivacy(bool privacy_mode){
 
 void FrameManager::pain_rect(bool paint_blob){
     this->pain_blob = paint_blob;
+}
+
+void FrameManager::shadow(bool shadow_detec){
+    this->shadow_detect = shadow_detec;
 }
 
 void FrameManager::setOperat(int operation){
@@ -88,7 +94,7 @@ void FrameManager::process(){
             cvtColor(grey_back, grey_back, CV_GRAY2BGR);
 
             cvtColor(fore, drawing, CV_GRAY2BGR);
-            blober.find_blobs(fore, spinBox_ctSize->value());
+            blober.find_blobs(fore, spinBox_ctSize->value(), shadow_detect);
 
             if(static_background != NULL){
                 st_back = QImage2Mat(*static_background);

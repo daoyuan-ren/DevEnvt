@@ -28,7 +28,7 @@ public:
     vector<float>* radius;
 #endif
     int size();
-    void find_blobs(Mat& frame, int blob_minSize);
+    void find_blobs(Mat& frame, int blob_minSize, bool shadow_detect);
     void paint_label(QImage* image);
     void paint_blobs(Mat& drawing);
     string drawText(int x, int y, int width, int height);

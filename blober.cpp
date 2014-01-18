@@ -31,7 +31,7 @@ int Blober::size(){
     return blob_num;
 }
 
-void Blober::find_blobs(Mat &frame, int blob_minSize){
+void Blober::find_blobs(Mat &frame, int blob_minSize, bool shadow_detect){
     Mat temp;
     frame.copyTo(temp);
     cv::findContours(temp, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
@@ -45,6 +45,20 @@ void Blober::find_blobs(Mat &frame, int blob_minSize){
 #ifdef CIRELE
             minEnclosingCircle( (Mat)(*contours_poly)[i], (*center)[i], (*radius)[i] );
 #endif
+        }
+    }
+    if(shadow_detect == true){
+        Mat sub;
+        double min_val, max_val;
+        for(int i = 0; i < boundRect->size(); i++){
+            if((*boundRect)[i].width > 0 && (*boundRect)[i].height > 0){
+                sub = frame((*boundRect)[i]);
+                int cut = sub.rows-1;
+                for(; cut > 0 && (unsigned char)max_val < 128; cut--){
+                    minMaxLoc(sub(Rect(0, cut, sub.cols,1)), &min_val, &max_val);
+                }
+                (*boundRect)[i].height = cut+1;
+            }
         }
     }
 }

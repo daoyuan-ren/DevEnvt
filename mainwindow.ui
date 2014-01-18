@@ -210,6 +210,16 @@
       </spacer>
      </item>
      <item>
+      <widget class="QCheckBox" name="checkBox_shadow">
+       <property name="text">
+        <string>shadowDet</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QCheckBox" name="checkBox_rect">
        <property name="text">
         <string>rectangle</string>
