@@ -27,8 +27,11 @@ MainWindow::MainWindow(QWidget *parent) :
     interval.tv_nsec = 500000000L; //1 000 000 000nsec = 1sec
 
     fmanager = NULL;
+    //clock used to check and clean memory
     mem_timer = new QTimer(this);
     connect(mem_timer, SIGNAL(timeout()), this, SLOT(memManage()));
+
+    //clock used to update the label in ui
     lup_timer = new QTimer(this);
     connect(lup_timer, SIGNAL(timeout()), this, SLOT(labelUpdate()));
     player = new PlayThread(ui->label, ui->label_debug, imgBuffer, gryBuffer, dbgBuffer, backBuffer, &fps);
@@ -318,6 +321,7 @@ void MainWindow::labelUpdate(){
     ui->lcdNumber_buffer->display(imgBuffer->length() - player->get_frame_ctr());
     player->mutex.unlock();
     ui->label_status->setText(player->get_status());
+    return;
 }
 
 void MainWindow::on_checkBox_privacy_clicked()
@@ -325,24 +329,28 @@ void MainWindow::on_checkBox_privacy_clicked()
     if(fmanager != NULL){
         fmanager->inPrivacy(ui->checkBox_privacy->isChecked());
     }
+    return;
 }
 
 void MainWindow::on_radioButton_black_clicked()
 {
     if(fmanager != NULL)
         fmanager->setOperat(OP_BLACK);
+    return;
 }
 
 void MainWindow::on_radioButton_blur_clicked()
 {
     if(fmanager != NULL)
         fmanager->setOperat(OP_BLUR);
+    return;
 }
 
 void MainWindow::on_radioButton_edge_clicked()
 {
     if(fmanager != NULL)
         fmanager->setOperat(OP_EDGE);
+    return;
 }
 
 void MainWindow::on_radioButton_border_clicked()
@@ -358,18 +366,21 @@ void MainWindow::on_actionOpen_Background_triggered()
     if(fileName.isEmpty())
         return;
     background = new QImage(fileName);
+    return;
 }
 
 void MainWindow::on_radioButton_default_clicked()
 {
     if(fmanager != NULL)
         fmanager->setOperat(OP_DEFAULT);
+    return;
 }
 
 void MainWindow::on_checkBox_rect_clicked()
 {
     if(fmanager != NULL)
         fmanager->pain_rect(ui->checkBox_rect->isChecked());
+    return;
 }
 
 
@@ -377,10 +388,27 @@ void MainWindow::on_radioButton_mosaic_clicked()
 {
     if(fmanager != NULL)
         fmanager->setOperat(OP_MOSAIC);
+    return;
 }
 
 void MainWindow::on_checkBox_shadow_clicked()
 {
     if(fmanager != NULL)
         fmanager->shadow(ui->checkBox_shadow->isChecked());
+    return;
+}
+
+void MainWindow::on_pushButton_work_clicked()
+{
+    if(fmanager != NULL){
+        if(fmanager->state() == ST_PROC){
+            fmanager->setState(ST_STOP);
+            ui->pushButton_work->setText(QString::fromStdString("Work"));
+
+        } else {
+            fmanager->setState(ST_PROC);
+            ui->pushButton_work->setText(QString::fromStdString("Halt"));
+        }
+    }
+    return;
 }

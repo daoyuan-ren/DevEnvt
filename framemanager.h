@@ -30,8 +30,10 @@ using namespace std;
 #define OP_MOSAIC   4
 #define OP_DEFAULT  9
 
-#define HISTORY     156
+#define ST_PROC     10
+#define ST_STOP     11
 
+#define HISTORY     156
 
 class FrameManager : public QThread
 {
@@ -57,13 +59,18 @@ public:
     void pain_rect(bool paint_blob);
     void shadow(bool shadow_detect);
     void setOperat(int operation);
+    void setState(int state_t);
+
+
+    int  state();
 
     virtual void run();
 private:
     bool in_privacy_mode;
     bool pain_blob;
     bool shadow_detect;
-    int pixel_operation;
+    int  pixel_operation;
+    int  state_t;
     unsigned int buffered_frame_idx;
 
     timespec interval;

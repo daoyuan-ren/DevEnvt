@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Fri Jan 17 15:34:46 2014
+** Created: Mon Jan 20 11:22:44 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -58,6 +58,7 @@ public:
     QPushButton *pushButton_apply;
     QPushButton *pushButton_select;
     QPushButton *pushButton_live;
+    QPushButton *pushButton_work;
     QWidget *horizontalLayoutWidget_2;
     QHBoxLayout *horizontalLayout_2;
     QLabel *label;
@@ -194,6 +195,11 @@ public:
         pushButton_live->setObjectName(QString::fromUtf8("pushButton_live"));
 
         horizontalLayout->addWidget(pushButton_live);
+
+        pushButton_work = new QPushButton(horizontalLayoutWidget);
+        pushButton_work->setObjectName(QString::fromUtf8("pushButton_work"));
+
+        horizontalLayout->addWidget(pushButton_work);
 
         horizontalLayoutWidget_2 = new QWidget(centralWidget);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
@@ -362,6 +368,7 @@ public:
         pushButton_apply->setText(QApplication::translate("MainWindow", "apply", 0, QApplication::UnicodeUTF8));
         pushButton_select->setText(QApplication::translate("MainWindow", "select", 0, QApplication::UnicodeUTF8));
         pushButton_live->setText(QApplication::translate("MainWindow", "LIVE", 0, QApplication::UnicodeUTF8));
+        pushButton_work->setText(QApplication::translate("MainWindow", "Halt", 0, QApplication::UnicodeUTF8));
         label->setText(QString());
         label_debug->setText(QString());
         checkBox_shadow->setText(QApplication::translate("MainWindow", "shadowDet", 0, QApplication::UnicodeUTF8));

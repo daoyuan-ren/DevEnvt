@@ -11,6 +11,9 @@ FrameManager::FrameManager(QObject *parent) :
     shadow_detect       = true;
     pixel_operation     = OP_DEFAULT;
 
+    state_t             = ST_PROC;
+    timer               = NULL;
+
     bg.set("nmixtures", 3);
     bg.set("history", HISTORY);
 //    bg.bShadowDetection = true;
@@ -33,6 +36,10 @@ FrameManager::FrameManager(VideoCapture cap, QList<QImage> *iBuf, QList<QImage>*
     pain_blob           = true;
     shadow_detect       = true;
     pixel_operation     = OP_DEFAULT;
+
+    state_t             = ST_PROC;
+//    timer               = new QTimer(0);
+//    connect(timer_ptr, SIGNAL(timeout()), this, SLOT(imageUpdate()));
 
     bg.set("nmixtures", 3);
     bg.set("history", HISTORY);
@@ -64,6 +71,14 @@ void FrameManager::shadow(bool shadow_detec){
 
 void FrameManager::setOperat(int operation){
     pixel_operation = operation;
+}
+
+void FrameManager::setState(int state_t){
+    this->state_t = state_t;
+}
+
+int FrameManager::state(){
+   return this->state_t;
 }
 
 void FrameManager::process(){
@@ -169,7 +184,10 @@ void FrameManager::process(){
 #ifdef MESSAGE_ON
             cout << "<" << buffered_frame_idx << "> " << "processing @fmanager.run(): " << currentThreadId() << endl;
 #endif
-            nanosleep(&interval, NULL);
+            if(state_t == ST_PROC)
+                nanosleep(&interval, NULL);
+            else
+                sleep(5);
         }
 }
 
