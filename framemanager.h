@@ -27,7 +27,8 @@ using namespace std;
 #define OP_BLUR     1
 #define OP_BORDER   2
 #define OP_EDGE     3
-#define OP_MOSAIC   4
+#define OP_POLY     4
+#define OP_MOSAIC   5
 #define OP_DEFAULT  9
 
 #define ST_PROC     10
@@ -48,9 +49,10 @@ public:
     void process();
     void black_out(Mat& st_back);
     void blur(Mat& mat, Mat& st_back);
+    void poly(Mat& st_back);
     void mosaic(Mat &mat, Mat &st_back);
     void edge(Mat& mat, const Mat& back, Mat& st_back);
-    void border(Mat& mat,const Mat& fore, const Mat& back, Mat& st_back);
+    void border(const Mat& fore, const Mat& back, Mat& st_back);
 
     void gamma_correction(Mat& mat, const double gamma);
     unsigned int buffered_frame();

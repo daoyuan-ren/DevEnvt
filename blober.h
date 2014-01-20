@@ -10,6 +10,18 @@
 
 using namespace cv;
 using namespace std;
+
+#define POLY
+
+#define PT_POLY 10
+#define PT_RECT 11
+#define PT_CIRC 12
+
+#define CL_RED      Scalar(255, 0, 0)
+#define CL_GREEN    Scalar(0, 255, 127)
+#define CL_BLUE     Scalar(255, 0, 0)
+#define CL_YELLOW   Scalar(0, 255, 255)
+
 class Blober
 {
 public:
@@ -31,6 +43,7 @@ public:
     void find_blobs(Mat& frame, int blob_minSize, bool shadow_detect);
     void paint_label(QImage* image);
     void paint_blobs(Mat& drawing);
+    void paint_blobs(Mat &drawing, int shape_t);
     string drawText(int x, int y, int width, int height);
 
     vector<Rect>* rects();

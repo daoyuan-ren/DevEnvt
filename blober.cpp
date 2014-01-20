@@ -4,7 +4,7 @@ Blober::Blober()
 {
     contours_poly   = NULL;
     boundRect       = NULL;
-    color = Scalar(0, 255, 127);
+    color           = CL_GREEN;
 #ifdef CIRCLE
     center          = NULL;
     radius          = NULL;
@@ -20,7 +20,7 @@ void Blober::create(int size){
     blob_num        = size;
     contours_poly   = new vector< vector<Point> >(size);
     boundRect       = new vector<Rect>(size);
-    color = Scalar(0, 255, 127);
+    color           = CL_GREEN;
 #ifdef CIRCLE
     center          = new vector<Point2f>(size);
     radius          = new vector<float>(size);
@@ -67,14 +67,29 @@ void Blober::paint_blobs(Mat &drawing){
     for( int i = 0; i < boundRect->size(); i++ )
     {
 #ifdef POLY
-        drawContours( drawing, blobs.contours_poly, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
+        drawContours( drawing, *contours_poly, i, CL_YELLOW, 1, 8, vector<Vec4i>(), 0, Point() );
 #endif
         rectangle(drawing, (*boundRect)[i].tl(), (*boundRect)[i].br(), color, 2);
 #ifdef CIRCLE
         circle(drawing, (*center)[i], (int)(*radius)[i], *color, 2);
 #endif
     }
+}
 
+void Blober::paint_blobs(Mat &drawing, int shape_t){
+    for( int i = 0; i < boundRect->size(); i++ )
+    {
+#ifdef POLY
+        if(shape_t == PT_POLY)
+            drawContours( drawing, *contours_poly, i, CL_YELLOW, 1, 8, vector<Vec4i>(), 0, Point() );
+#endif
+        if(shape_t == PT_RECT)
+            rectangle(drawing, (*boundRect)[i].tl(), (*boundRect)[i].br(), color, 2);
+#ifdef CIRCLE
+        if(shape_t == PT_CIRC)
+            circle(drawing, (*center)[i], (int)(*radius)[i], *color, 2);
+#endif
+    }
 }
 
 void Blober::paint_label(QImage* image){

@@ -39,10 +39,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    player->wait();
-    fmanager->wait();
+    if(player != NULL){
+        player->stop_play();
+        player->quit();
+    }
+    if(fmanager != NULL){
+        fmanager->terminate();
+        fmanager->quit();
+    }
+    if(mem_timer != NULL)
+        mem_timer->stop();
 
-    mem_timer->stop();
     delete player;
     delete fmanager;
     delete mem_timer;
@@ -411,4 +418,11 @@ void MainWindow::on_pushButton_work_clicked()
         }
     }
     return;
+}
+
+void MainWindow::on_radioButton_poly_clicked()
+{
+    if(fmanager != NULL){
+        fmanager->setOperat(OP_POLY);
+    }
 }

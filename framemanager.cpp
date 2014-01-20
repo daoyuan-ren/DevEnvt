@@ -43,7 +43,6 @@ FrameManager::FrameManager(VideoCapture cap, QList<QImage> *iBuf, QList<QImage>*
 
     bg.set("nmixtures", 3);
     bg.set("history", HISTORY);
-//    bg.bShadowDetection = true;
     bg.set("detectShadows", true);
 
     this->cap = cap;
@@ -107,7 +106,6 @@ void FrameManager::process(){
             dilate(fore, fore, cv::Mat());
             cvtColor(back, grey_back, CV_RGB2GRAY);
             cvtColor(grey_back, grey_back, CV_GRAY2BGR);
-
             cvtColor(fore, drawing, CV_GRAY2BGR);
             blober.find_blobs(fore, spinBox_ctSize->value(), shadow_detect);
 
@@ -132,7 +130,10 @@ void FrameManager::process(){
                     edge(grey, grey_back, st_back);
                     break;
                 case OP_BORDER:
-                    border(grey, drawing, grey_back, st_back);
+                    border(drawing, grey_back, st_back);
+                    break;
+                case OP_POLY:
+                    poly(st_back);
                     break;
                 case OP_MOSAIC:
                     mosaic(grey, st_back);
@@ -141,12 +142,12 @@ void FrameManager::process(){
                     break;
                 }
             }
-            blober.paint_blobs(drawing);
+            blober.paint_blobs(drawing, PT_RECT);
 #ifdef BLOB_ON
             if(pain_blob == true){
-                blober.paint_blobs(back);
-//                blober.paint_blobs(grey);
-                blober.paint_blobs(st_back);
+                blober.paint_blobs(back, PT_RECT);
+//                blober.paint_blobs(grey, PT_RECT);
+                blober.paint_blobs(st_back, PT_RECT);
             }
 #endif
 
@@ -212,6 +213,10 @@ void FrameManager::blur(Mat &mat, Mat& st_back){
     }
 }
 
+void FrameManager::poly(Mat &st_back){
+    blober.paint_blobs(st_back, PT_POLY);
+}
+
 void FrameManager::mosaic(Mat &mat, Mat &st_back){
     int dist = 10;
     Scalar mean_val;
@@ -262,7 +267,7 @@ void FrameManager::edge(Mat &mat, const Mat& back, Mat& st_back){
     }
 }
 
-void FrameManager::border(Mat &mat, const Mat& fore, const Mat& back, Mat& st_back){
+void FrameManager::border(const Mat& fore, const Mat& back, Mat& st_back){
     Mat sobel_x, sobel_y, sobel;
     for(unsigned int i = 0; i <blober.rects()->size(); i++){
         Rect rec = blober.rects()->at(i);
