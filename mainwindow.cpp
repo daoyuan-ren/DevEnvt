@@ -17,10 +17,18 @@ MainWindow::MainWindow(QWidget *parent) :
     height      = 0;
     alloc_idx   = 0;
     background  = NULL;
+#ifndef STL_LIST
     imgBuffer   = new QList<QImage>();
     gryBuffer   = new QList<QImage>();
     dbgBuffer   = new QList<QImage>();
     backBuffer  = new QList<QImage>();
+#endif
+#ifdef STL_LIST
+    imgBuffer   = new std::list<QImage>();
+    gryBuffer   = new std::list<QImage>();
+    dbgBuffer   = new std::list<QImage>();
+    backBuffer  = new std::list<QImage>();
+#endif
     fps_str     = "";
     status_str  = "";
     interval.tv_sec  = 3;
@@ -60,19 +68,19 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_select_clicked()
 {
     QFileDialog dialog;
-    QString fileName = dialog.getOpenFileName(this, tr("Open File"), QDir::currentPath(),tr("Videos(*.avi)"));
+
+    //QString fileName = dialog.getOpenFileName(this, tr("Open File"), QDir::currentPath(),tr("Videos(*.avi)"));
+    QString fileName = dialog.getOpenFileName(this, tr("Open File"), "/home/ren/Videos",tr("Videos(*.avi)"));
     if(fileName.isEmpty())
         return;
 
-//    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath());
-//    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath());
     if(dialog.close() == true)
         process(fileName,false);
 }
 
 void MainWindow::on_actionOpen_triggered()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath(),tr("Videos(*.avi)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "/home/ren/Videos",tr("Videos(*.avi)"));
     if(fileName.isEmpty())
         return;
     process(fileName, false);
@@ -181,13 +189,22 @@ void MainWindow::on_actionQuit_triggered()
 void MainWindow::process(QString fileName, bool live){
 
     if(live == false) {
-        if(cap.isOpened())
+        if(cap.isOpened()){
             cap.release();
+            if(fmanager != NULL){
+                fmanager->quit();
+                delete fmanager;
+            }
+        }
         cap.open(fileName.toStdString());
     }
     if(live == true) {
-        if(cap.isOpened())
+        if(cap.isOpened()){
             cap.release();
+            if(fmanager != NULL){
+                delete fmanager;
+            }
+        }
         cap.open(0);
     }
 
@@ -283,6 +300,7 @@ void MainWindow::on_radioButton_orig_clicked()
     player->set_label(ORIGINAL);
 }
 
+#ifndef STL_LIST
 void MainWindow::memManage(){
 #ifdef MESSAGE_ON
             cout << "@MainWindow.memManage(): 1" << endl;
@@ -318,7 +336,53 @@ void MainWindow::memManage(){
                 player->mutex.unlock();
             }
 }
+#endif
 
+#ifdef STL_LIST
+void MainWindow::memManage(){
+#ifdef MESSAGE_ON
+            cout << "@MainWindow.memManage(): 1" << endl;
+#endif
+            std::list<QImage>::iterator beg, end;
+            if(player->get_frame_ctr() > 30){
+                player->mutex.lock();
+                beg = imgBuffer->begin();
+                end = imgBuffer->end();
+                advance(end, player->get_frame_ctr());
+
+                imgBuffer->erase(beg, end);
+#ifdef MESSAGE_ON
+                cout << "new allocated iBuffer with size " << imgBuffer->size() << endl;
+#endif
+                beg = gryBuffer->begin();
+                end = gryBuffer->end();
+                advance(end, player->get_frame_ctr());
+                gryBuffer->erase(beg, end);
+#ifdef MESSAGE_ON
+                cout << "new allocated gBuffer with size " << gryBuffer->size() << endl;
+#endif
+                beg = dbgBuffer->begin();
+                end = dbgBuffer->end();
+                advance(end, player->get_frame_ctr());
+                dbgBuffer->erase(beg, end);
+#ifdef MESSAGE_ON
+                cout << "new allocated dBuffer with size " << dbgBuffer->size() << endl;
+#endif
+                beg = backBuffer->begin();
+                end = backBuffer->end();
+                advance(end, player->get_frame_ctr());
+                backBuffer->erase(beg, end);
+#ifdef MESSAGE_ON
+                cout << "new allocated bBuffer with size " << backBuffer->size() << endl;
+#endif
+                alloc_idx = player->get_frame_ctr();
+                player->update_frame_ctr(0);
+                player->mutex.unlock();
+            }
+}
+#endif
+
+#ifndef STL_LIST
 void MainWindow::labelUpdate(){
 #ifdef MESSAGE_ON
             cout << "@MainWindow.labelUpdate(): 1" << endl;
@@ -330,7 +394,21 @@ void MainWindow::labelUpdate(){
     ui->label_status->setText(player->get_status());
     return;
 }
+#endif
 
+#ifdef STL_LIST
+void MainWindow::labelUpdate(){
+#ifdef MESSAGE_ON
+            cout << "@MainWindow.labelUpdate(): 1" << endl;
+#endif
+    ui->label_fps->setText(QString::number(fps));
+    player->mutex.lock();
+    ui->lcdNumber_buffer->display((int)imgBuffer->size() - player->get_frame_ctr());
+    player->mutex.unlock();
+    ui->label_status->setText(player->get_status());
+    return;
+}
+#endif
 void MainWindow::on_checkBox_privacy_clicked()
 {
     if(fmanager != NULL){
@@ -369,7 +447,7 @@ void MainWindow::on_radioButton_border_clicked()
 void MainWindow::on_actionOpen_Background_triggered()
 {
     QFileDialog dialog;
-    QString fileName = dialog.getOpenFileName(this, tr("Open File"), "/home/ren", tr("Images(*.png *.jpg *.tiff)"));
+    QString fileName = dialog.getOpenFileName(this, tr("Open File"), "/home/ren/Videos", tr("Images(*.png *.jpg *.tiff)"));
     if(fileName.isEmpty())
         return;
     background = new QImage(fileName);
@@ -425,4 +503,12 @@ void MainWindow::on_radioButton_poly_clicked()
     if(fmanager != NULL){
         fmanager->setOperat(OP_POLY);
     }
+}
+
+void MainWindow::on_actionLIVE_triggered()
+{
+    if(player->state() == PLAYING){
+        player->stop_play();
+    }
+    process(QString::fromStdString(""), true);
 }

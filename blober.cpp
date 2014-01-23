@@ -31,7 +31,7 @@ int Blober::size(){
     return blob_num;
 }
 
-void Blober::find_blobs(Mat &frame, int blob_minSize, bool shadow_detect){
+void Blober::find_blobs(Mat &frame, int blob_minSize, bool shadow_detect, int epsilon){
     Mat temp;
     frame.copyTo(temp);
     cv::findContours(temp, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
@@ -40,7 +40,7 @@ void Blober::find_blobs(Mat &frame, int blob_minSize, bool shadow_detect){
     for(int i = 0; i < blob_num; i++)
     {
         if(contours[i].size() >= blob_minSize){
-            approxPolyDP( Mat(contours[i]), (*contours_poly)[i], 3, true );
+            approxPolyDP( Mat(contours[i]), (*contours_poly)[i], epsilon, true );
             (*boundRect)[i] = boundingRect( Mat((*contours_poly)[i]) );
 #ifdef CIRELE
             minEnclosingCircle( (Mat)(*contours_poly)[i], (*center)[i], (*radius)[i] );
@@ -67,7 +67,7 @@ void Blober::paint_blobs(Mat &drawing){
     for( int i = 0; i < boundRect->size(); i++ )
     {
 #ifdef POLY
-        drawContours( drawing, *contours_poly, i, CL_YELLOW, 1, 8, vector<Vec4i>(), 0, Point() );
+        drawContours( drawing, *contours_poly, i, CL_BLUE, 2, 8, vector<Vec4i>(), 0, Point() );
 #endif
         rectangle(drawing, (*boundRect)[i].tl(), (*boundRect)[i].br(), color, 2);
 #ifdef CIRCLE
@@ -81,7 +81,7 @@ void Blober::paint_blobs(Mat &drawing, int shape_t){
     {
 #ifdef POLY
         if(shape_t == PT_POLY)
-            drawContours( drawing, *contours_poly, i, CL_YELLOW, 1, 8, vector<Vec4i>(), 0, Point() );
+            drawContours( drawing, *contours_poly, i, CL_BLUE, 2, 8, vector<Vec4i>(), 0, Point() );
 #endif
         if(shape_t == PT_RECT)
             rectangle(drawing, (*boundRect)[i].tl(), (*boundRect)[i].br(), color, 2);

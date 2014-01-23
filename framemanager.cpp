@@ -27,7 +27,7 @@ FrameManager::FrameManager(QObject *parent) :
     player              = NULL;
     spinBox_ctSize      = NULL;
 }
-
+#ifndef STL_LIST
 FrameManager::FrameManager(VideoCapture cap, QList<QImage> *iBuf, QList<QImage>* gBuf, QList<QImage> *dBuf, QList<QImage> *bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back){
     interval.tv_sec     = 0;
     interval.tv_nsec    = 100000000L; //1 000 000 000nsec = 1sec
@@ -55,6 +55,50 @@ FrameManager::FrameManager(VideoCapture cap, QList<QImage> *iBuf, QList<QImage>*
     this->player= player;
     this->spinBox_ctSize = spinBox_ctSize;
 }
+#endif
+#ifdef STL_LIST
+FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back){
+        interval.tv_sec     = 0;
+        interval.tv_nsec    = 100000000L; //1 000 000 000nsec = 1sec
+        buffered_frame_idx  = 0;
+        in_privacy_mode     = false;
+        pain_blob           = true;
+        shadow_detect       = true;
+        pixel_operation     = OP_DEFAULT;
+
+        state_t             = ST_PROC;
+    //    timer               = new QTimer(0);
+    //    connect(timer_ptr, SIGNAL(timeout()), this, SLOT(imageUpdate()));
+
+        bg.set("nmixtures", 3);
+        bg.set("history", HISTORY);
+        bg.set("detectShadows", true);
+
+        this->cap = cap;
+        static_background   = s_back;
+        imgBuffer       = stl_iBuf;
+        gryBuffer       = stl_gBuf;
+        dbgBuffer       = stl_dBuf;
+        backBuffer      = stl_bBuf;
+
+        this->player= player;
+        this->spinBox_ctSize = spinBox_ctSize;
+}
+#endif
+FrameManager::~FrameManager(){
+    terminate();
+
+    player->stop_play();
+    if(timer != NULL)
+        delete timer;
+    if(static_background != NULL)
+        delete static_background;
+    imgBuffer->clear();
+    gryBuffer->clear();
+    dbgBuffer->clear();
+    backBuffer->clear();
+
+}
 
 void FrameManager::inPrivacy(bool privacy_mode){
     in_privacy_mode = privacy_mode;
@@ -80,6 +124,7 @@ int FrameManager::state(){
    return this->state_t;
 }
 
+#ifndef STL_LIST
 void FrameManager::process(){
 #ifdef MESSAGE_ON
     cout << "start to process" << endl;
@@ -107,7 +152,7 @@ void FrameManager::process(){
             cvtColor(back, grey_back, CV_RGB2GRAY);
             cvtColor(grey_back, grey_back, CV_GRAY2BGR);
             cvtColor(fore, drawing, CV_GRAY2BGR);
-            blober.find_blobs(fore, spinBox_ctSize->value(), shadow_detect);
+            blober.find_blobs(fore, spinBox_ctSize->value(), shadow_detect, 2);
 
             if(static_background != NULL){
                 st_back = QImage2Mat(*static_background);
@@ -175,12 +220,20 @@ void FrameManager::process(){
             }
 #endif
             player->mutex.lock();
-            imgBuffer->append(image);
-            gryBuffer->append(grey_image);
-            dbgBuffer->append(fore_ground);
-            backBuffer->append(back_ground);
-            buffered_frame_idx++;
-            player->mutex.unlock();
+            try{
+                imgBuffer->append(image);
+                gryBuffer->append(grey_image);
+                dbgBuffer->append(fore_ground);
+                backBuffer->append(back_ground);
+                buffered_frame_idx++;
+                player->mutex.unlock();
+            } catch(std::bad_alloc& balc){
+                cerr << i << ": bad allocation caught at " << buffered_frame_idx << "th frame." << endl;
+                //imgBuffer->removeFirst();
+                player->mutex.unlock();
+                //continue;
+            }
+
 
 #ifdef MESSAGE_ON
             cout << "<" << buffered_frame_idx << "> " << "processing @fmanager.run(): " << currentThreadId() << endl;
@@ -191,6 +244,124 @@ void FrameManager::process(){
                 sleep(5);
         }
 }
+#endif
+
+#ifdef STL_LIST
+void FrameManager::process(){
+#ifdef MESSAGE_ON
+    cout << "start to process" << endl;
+    cout << "@fmanager.process(): " << currentThreadId() << endl;
+#endif
+//        fps     = cap.get(CV_CAP_PROP_FPS);
+//        width   = cap.get(CV_CAP_PROP_FRAME_WIDTH);
+//        height  = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
+
+        Mat frame, back, fore;
+        Mat drawing, grey, grey_back, st_back;
+        QImage image, grey_image, fore_ground, back_ground;
+
+        for(int i = 0;; i++) {
+            cap >> frame;
+            cvtColor(frame, grey, CV_RGB2GRAY);
+            cvtColor(grey, grey, CV_GRAY2BGR);
+            image = Mat2QImage(frame);
+
+            GaussianBlur(frame, frame, Size(7, 7), 1.5, 1.5);
+            bg.operator ()(frame, fore, 0.01);
+            bg.getBackgroundImage(back);
+            erode(fore, fore, cv::Mat());
+            dilate(fore, fore, cv::Mat());
+            cvtColor(back, grey_back, CV_RGB2GRAY);
+            cvtColor(grey_back, grey_back, CV_GRAY2BGR);
+            cvtColor(fore, drawing, CV_GRAY2BGR);
+            blober.find_blobs(fore, spinBox_ctSize->value(), shadow_detect, 2);
+
+            if(static_background != NULL){
+                st_back = QImage2Mat(*static_background);
+                cvtColor(st_back, st_back, CV_RGB2GRAY);
+                cvtColor(st_back, st_back, CV_GRAY2BGR);
+            }
+            else
+                st_back = grey_back;
+
+            /*** add the pixel operation on range of interest ***/
+            if(in_privacy_mode == true){
+                switch (pixel_operation){
+                case OP_BLACK:
+                    black_out(st_back);
+                    break;
+                case OP_BLUR:
+                    blur(grey, st_back);
+                    break;
+                case OP_EDGE:
+                    edge(grey, grey_back, st_back);
+                    break;
+                case OP_BORDER:
+                    border(drawing, grey_back, st_back);
+                    break;
+                case OP_POLY:
+                    poly(st_back);
+                    break;
+                case OP_MOSAIC:
+                    mosaic(grey, st_back);
+                    break;
+                default:
+                    break;
+                }
+            }
+            blober.paint_blobs(drawing, PT_RECT);
+#ifdef BLOB_ON
+            if(pain_blob == true){
+                blober.paint_blobs(back, PT_RECT);
+//                blober.paint_blobs(grey, PT_RECT);
+                blober.paint_blobs(st_back, PT_RECT);
+            }
+#endif
+
+{
+//                cv::findContours(fore, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+//                bigcons.clear();
+//                for(int i = 0; i < contours.size(); i++){
+//                    if(contours.at(i).size() > 200) {
+//                        bigcons.push_back(contours.at(i));
+//                    }
+//                }
+//                cv::drawContours(frame, bigcons, -1, cv::Scalar(0, 255, 0), 2);
+//                QImage grey_image(fore.data, frame.cols, frame.rows, QImage::Format_Indexed8);
+}
+            fore_ground = Mat2QImage(drawing);
+            blober.paint_label(&fore_ground);
+            back_ground = Mat2QImage(back);
+            grey_image  = Mat2QImage(st_back);
+#ifdef LABEL_ON
+            if(pain_blob == true){
+                blober.paint_label(&back_ground);
+                blober.paint_label(&grey_image);
+            }
+#endif
+            player->mutex.lock();
+            try{
+                imgBuffer->push_back(image);
+                gryBuffer->push_back(grey_image);
+                dbgBuffer->push_back(fore_ground);
+                backBuffer->push_back(back_ground);
+                buffered_frame_idx++;
+                player->mutex.unlock();
+            } catch(std::bad_alloc& balc){
+                cerr << i << ": bad allocation caught at " << buffered_frame_idx << "th frame." << endl;
+                player->mutex.unlock();
+                //continue;
+            }
+#ifdef MESSAGE_ON
+            cout << "<" << buffered_frame_idx << "> " << "processing @fmanager.run(): " << currentThreadId() << endl;
+#endif
+            if(state_t == ST_PROC)
+                nanosleep(&interval, NULL);
+            else
+                sleep(5);
+        }
+}
+#endif
 
 void FrameManager::black_out(Mat& st_back){
     for(unsigned int i = 0; i <blober.rects()->size(); i++){

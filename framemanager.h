@@ -41,7 +41,14 @@ class FrameManager : public QThread
     Q_OBJECT
 public:
     explicit FrameManager(QObject *parent = 0);
+#ifndef STL_LIST
     FrameManager(VideoCapture cap, QList<QImage>* iBuf, QList<QImage>* gBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back = NULL);
+#endif
+#ifdef STL_LIST
+    FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back = NULL);
+#endif
+
+    ~FrameManager();
 
     QImage Mat2QImage(cv::Mat const& src);
     cv::Mat QImage2Mat(QImage const& src);
@@ -80,11 +87,20 @@ private:
     QSpinBox* spinBox_ctSize;
 
     QImage* static_background;
+#ifndef STL_LIST
     QList<QImage>* imgBuffer;
     QList<QImage>* gryBuffer;
     QList<QImage>* dbgBuffer;
     QList<QImage>* backBuffer;
     QList<QImage>  swap;
+#endif
+#ifdef STL_LIST
+    std::list<QImage>* imgBuffer;
+    std::list<QImage>* gryBuffer;
+    std::list<QImage>* dbgBuffer;
+    std::list<QImage>* backBuffer;
+    std::list<QImage>  swap;
+#endif
 
     VideoCapture cap;
     BackgroundSubtractorMOG2 bg;

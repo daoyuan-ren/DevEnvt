@@ -144,6 +144,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_live">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>LIVE</string>
        </property>
@@ -384,6 +387,7 @@
     </property>
     <addaction name="actionOpen"/>
     <addaction name="actionOpen_Background"/>
+    <addaction name="actionLIVE"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -420,6 +424,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+B</string>
+   </property>
+  </action>
+  <action name="actionLIVE">
+   <property name="text">
+    <string>LIVE</string>
    </property>
   </action>
  </widget>

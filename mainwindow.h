@@ -12,6 +12,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <list>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -51,11 +52,20 @@ private:
     Ui::MainWindow *ui;
 
     QImage*        background;
+#ifndef STL_LIST
     QList<QImage>* imgBuffer;
     QList<QImage>* gryBuffer;
     QList<QImage>* dbgBuffer;
     QList<QImage>* backBuffer;
     QList<QImage>  swap;
+#endif
+#ifdef STL_LIST
+    std::list<QImage>* imgBuffer;
+    std::list<QImage>* gryBuffer;
+    std::list<QImage>* dbgBuffer;
+    std::list<QImage>* backBuffer;
+    std::list<QImage>  swap;
+#endif
     QTimer* mem_timer;
     QTimer* lup_timer;
 
@@ -112,9 +122,9 @@ private:
     void on_checkBox_rect_clicked();
     void on_radioButton_mosaic_clicked();
     void on_checkBox_shadow_clicked();
-
     void on_pushButton_work_clicked();
     void on_radioButton_poly_clicked();
+    void on_actionLIVE_triggered();
 };
 
 #endif // MAINWINDOW_H

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Mon Jan 20 14:44:42 2014
+** Created: Wed Jan 22 11:55:32 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -40,6 +40,7 @@ public:
     QAction *actionOpen;
     QAction *actionQuit;
     QAction *actionOpen_Background;
+    QAction *actionLIVE;
     QWidget *centralWidget;
     QWidget *horizontalLayoutWidget;
     QHBoxLayout *horizontalLayout;
@@ -104,6 +105,8 @@ public:
         actionQuit->setObjectName(QString::fromUtf8("actionQuit"));
         actionOpen_Background = new QAction(MainWindow);
         actionOpen_Background->setObjectName(QString::fromUtf8("actionOpen_Background"));
+        actionLIVE = new QAction(MainWindow);
+        actionLIVE->setObjectName(QString::fromUtf8("actionLIVE"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -194,6 +197,7 @@ public:
 
         pushButton_live = new QPushButton(horizontalLayoutWidget);
         pushButton_live->setObjectName(QString::fromUtf8("pushButton_live"));
+        pushButton_live->setEnabled(false);
 
         horizontalLayout->addWidget(pushButton_live);
 
@@ -346,6 +350,7 @@ public:
         menuBar->addAction(menuFile->menuAction());
         menuFile->addAction(actionOpen);
         menuFile->addAction(actionOpen_Background);
+        menuFile->addAction(actionLIVE);
         menuFile->addSeparator();
         menuFile->addAction(actionQuit);
 
@@ -363,6 +368,7 @@ public:
         actionQuit->setShortcut(QApplication::translate("MainWindow", "Ctrl+Q", 0, QApplication::UnicodeUTF8));
         actionOpen_Background->setText(QApplication::translate("MainWindow", "Open Background", 0, QApplication::UnicodeUTF8));
         actionOpen_Background->setShortcut(QApplication::translate("MainWindow", "Ctrl+B", 0, QApplication::UnicodeUTF8));
+        actionLIVE->setText(QApplication::translate("MainWindow", "LIVE", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("MainWindow", "FPS:", 0, QApplication::UnicodeUTF8));
         label_fps->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("MainWindow", "Status:", 0, QApplication::UnicodeUTF8));
