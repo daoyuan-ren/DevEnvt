@@ -10,6 +10,7 @@ FrameManager::FrameManager(QObject *parent) :
     pain_blob           = true;
     shadow_detect       = true;
     pixel_operation     = OP_DEFAULT;
+    poly_acuracy        = 1;
 
     state_t             = ST_PROC;
     timer               = NULL;
@@ -36,6 +37,9 @@ FrameManager::FrameManager(VideoCapture cap, QList<QImage> *iBuf, QList<QImage>*
     pain_blob           = true;
     shadow_detect       = true;
     pixel_operation     = OP_DEFAULT;
+    poly_acuracy        = 1;
+    mosaic_size         = 10;
+    gau_sigma           = 2.5;
 
     state_t             = ST_PROC;
 //    timer               = new QTimer(0);
@@ -55,8 +59,7 @@ FrameManager::FrameManager(VideoCapture cap, QList<QImage> *iBuf, QList<QImage>*
     this->player= player;
     this->spinBox_ctSize = spinBox_ctSize;
 }
-#endif
-#ifdef STL_LIST
+#else
 FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back){
         interval.tv_sec     = 0;
         interval.tv_nsec    = 100000000L; //1 000 000 000nsec = 1sec
@@ -65,6 +68,9 @@ FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage
         pain_blob           = true;
         shadow_detect       = true;
         pixel_operation     = OP_DEFAULT;
+        poly_acuracy        = 1;
+        mosaic_size         = 10;
+        gau_sigma           = 2.5;
 
         state_t             = ST_PROC;
     //    timer               = new QTimer(0);
@@ -76,10 +82,10 @@ FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage
 
         this->cap = cap;
         static_background   = s_back;
-        imgBuffer       = stl_iBuf;
-        gryBuffer       = stl_gBuf;
-        dbgBuffer       = stl_dBuf;
-        backBuffer      = stl_bBuf;
+        imgBuffer           = stl_iBuf;
+        gryBuffer           = stl_gBuf;
+        dbgBuffer           = stl_dBuf;
+        backBuffer          = stl_bBuf;
 
         this->player= player;
         this->spinBox_ctSize = spinBox_ctSize;
@@ -120,6 +126,18 @@ void FrameManager::setState(int state_t){
     this->state_t = state_t;
 }
 
+void FrameManager::setAcuracy(int acuracy){
+    this->poly_acuracy = acuracy;
+}
+
+void FrameManager::setMosaicSize(int mosaic_size){
+    this->mosaic_size = mosaic_size;
+}
+
+void FrameManager::setSigma(double gau_sigma){
+    this->gau_sigma = gau_sigma;
+}
+
 int FrameManager::state(){
    return this->state_t;
 }
@@ -152,7 +170,7 @@ void FrameManager::process(){
             cvtColor(back, grey_back, CV_RGB2GRAY);
             cvtColor(grey_back, grey_back, CV_GRAY2BGR);
             cvtColor(fore, drawing, CV_GRAY2BGR);
-            blober.find_blobs(fore, spinBox_ctSize->value(), shadow_detect, 2);
+            blober.find_blobs(fore, spinBox_ctSize->value(), shadow_detect, poly_acurcy);
 
             if(static_background != NULL){
                 st_back = QImage2Mat(*static_background);
@@ -244,9 +262,7 @@ void FrameManager::process(){
                 sleep(5);
         }
 }
-#endif
-
-#ifdef STL_LIST
+#else
 void FrameManager::process(){
 #ifdef MESSAGE_ON
     cout << "start to process" << endl;
@@ -274,7 +290,7 @@ void FrameManager::process(){
             cvtColor(back, grey_back, CV_RGB2GRAY);
             cvtColor(grey_back, grey_back, CV_GRAY2BGR);
             cvtColor(fore, drawing, CV_GRAY2BGR);
-            blober.find_blobs(fore, spinBox_ctSize->value(), shadow_detect, 2);
+            blober.find_blobs(fore, spinBox_ctSize->value(), shadow_detect, poly_acuracy);
 
             if(static_background != NULL){
                 st_back = QImage2Mat(*static_background);
@@ -379,7 +395,7 @@ void FrameManager::blur(Mat &mat, Mat& st_back){
         if(rec.width <= 0 || rec.height <= 0)
             continue;
         Mat roi = mat(rec);
-        GaussianBlur(roi, roi, Size(9, 9), 2.5, 2.5);
+        GaussianBlur(roi, roi, Size(9, 9), gau_sigma, gau_sigma);
         roi.copyTo(st_back(rec));
     }
 }
@@ -389,7 +405,6 @@ void FrameManager::poly(Mat &st_back){
 }
 
 void FrameManager::mosaic(Mat &mat, Mat &st_back){
-    int dist = 10;
     Scalar mean_val;
     for(unsigned int i = 0; i < blober.rects()->size(); i++){
         Rect rec = blober.rects()->at(i);
@@ -398,22 +413,22 @@ void FrameManager::mosaic(Mat &mat, Mat &st_back){
         Mat roi = mat(rec);
         cvtColor(roi, roi, CV_BGR2GRAY);
         int m = 0;
-        for(m; m < roi.rows - dist; m+=dist){
+        for(m; m < roi.rows - mosaic_size; m+=mosaic_size){
             int n = 0;
-            for(n; n < roi.cols - dist; n+=dist){
-                Mat block = roi(Rect(n, m, dist,dist));
+            for(n; n < roi.cols - mosaic_size; n+=mosaic_size){
+                Mat block = roi(Rect(n, m, mosaic_size,mosaic_size));
                 mean_val = mean(block);
-                block = Mat::ones(dist, dist, block.type())*(unsigned char)mean_val[0];
+                block = Mat::ones(mosaic_size, mosaic_size, block.type())*(unsigned char)mean_val[0];
             }
-            Mat block = roi(Rect(n, m, roi.cols-n,dist));
+            Mat block = roi(Rect(n, m, roi.cols-n,mosaic_size));
             mean_val = mean(block);
-            block = Mat::ones(dist, roi.cols-n, block.type())*(unsigned char)mean_val[0];
+            block = Mat::ones(mosaic_size, roi.cols-n, block.type())*(unsigned char)mean_val[0];
         }
         int n = 0;
-        for(n; n < roi.cols - dist; n+=dist){
-            Mat block = roi(Rect(n, m, dist, roi.rows-m));
+        for(n; n < roi.cols - mosaic_size; n+=mosaic_size){
+            Mat block = roi(Rect(n, m, mosaic_size, roi.rows-m));
             mean_val = mean(block);
-            block = Mat::ones(roi.rows-m, dist, block.type())*(unsigned char)mean_val[0];
+            block = Mat::ones(roi.rows-m, mosaic_size, block.type())*(unsigned char)mean_val[0];
         }
         Mat block = roi(Rect(n, m, roi.cols-n,roi.rows-m));
         mean_val = mean(block);

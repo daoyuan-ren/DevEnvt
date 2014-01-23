@@ -58,8 +58,7 @@ private:
     QList<QImage>* dbgBuffer;
     QList<QImage>* backBuffer;
     QList<QImage>  swap;
-#endif
-#ifdef STL_LIST
+#else
     std::list<QImage>* imgBuffer;
     std::list<QImage>* gryBuffer;
     std::list<QImage>* dbgBuffer;
@@ -125,6 +124,9 @@ private:
     void on_pushButton_work_clicked();
     void on_radioButton_poly_clicked();
     void on_actionLIVE_triggered();
+    void on_spinBox_polyAcy_valueChanged(int arg1);
+    void on_spinBox_moasicSize_valueChanged(int arg1);
+    void on_doubleSpinBox_gauSigma_valueChanged(double arg1);
 };
 
 #endif // MAINWINDOW_H

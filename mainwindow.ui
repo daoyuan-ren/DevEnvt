@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1103</width>
-    <height>518</height>
+    <width>1177</width>
+    <height>520</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -201,7 +201,7 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>1101</width>
+      <width>1171</width>
       <height>31</height>
      </rect>
     </property>
@@ -286,12 +286,67 @@
      <rect>
       <x>1020</x>
       <y>30</y>
-      <width>153</width>
+      <width>151</width>
       <height>391</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="8" column="0">
+      <widget class="QRadioButton" name="radioButton_mosaic">
+       <property name="text">
+        <string>mosaic</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QRadioButton" name="radioButton_blur">
+       <property name="text">
+        <string>blur</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QRadioButton" name="radioButton_poly">
+       <property name="text">
+        <string>poly</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QRadioButton" name="radioButton_edge">
+       <property name="text">
+        <string>edge</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="0">
+      <widget class="QRadioButton" name="radioButton_default">
+       <property name="text">
+        <string>default</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QRadioButton" name="radioButton_border">
+       <property name="text">
+        <string>border</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QRadioButton" name="radioButton_black">
+       <property name="text">
+        <string>black</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -304,68 +359,52 @@
        </property>
       </spacer>
      </item>
-     <item>
+     <item row="7" column="1">
+      <widget class="QSpinBox" name="spinBox_polyAcy">
+       <property name="minimum">
+        <number>5</number>
+       </property>
+       <property name="maximum">
+        <number>9</number>
+       </property>
+       <property name="singleStep">
+        <number>2</number>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QSpinBox" name="spinBox_moasicSize">
+       <property name="minimum">
+        <number>10</number>
+       </property>
+       <property name="maximum">
+        <number>30</number>
+       </property>
+       <property name="singleStep">
+        <number>10</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="2">
       <widget class="QCheckBox" name="checkBox_privacy">
        <property name="text">
-        <string>privacy</string>
+        <string>anonymous mode</string>
        </property>
        <property name="checked">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QRadioButton" name="radioButton_black">
-       <property name="text">
-        <string>black</string>
+     <item row="3" column="1">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_gauSigma">
+       <property name="minimum">
+        <double>2.500000000000000</double>
        </property>
-       <property name="checked">
-        <bool>false</bool>
+       <property name="maximum">
+        <double>10.000000000000000</double>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="radioButton_blur">
-       <property name="text">
-        <string>blur</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="radioButton_edge">
-       <property name="text">
-        <string>edge</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="radioButton_border">
-       <property name="text">
-        <string>border</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="radioButton_poly">
-       <property name="text">
-        <string>poly</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="radioButton_mosaic">
-       <property name="text">
-        <string>mosaic</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="radioButton_default">
-       <property name="text">
-        <string>default</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
+       <property name="singleStep">
+        <double>2.500000000000000</double>
        </property>
       </widget>
      </item>
@@ -377,7 +416,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1103</width>
+     <width>1177</width>
      <height>27</height>
     </rect>
    </property>

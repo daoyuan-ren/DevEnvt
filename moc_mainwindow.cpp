@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'mainwindow.h'
 **
-** Created: Thu Jan 23 14:08:04 2014
+** Created: Thu Jan 23 17:17:12 2014
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      26,   14, // methods
+      29,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -57,6 +57,9 @@ static const uint qt_meta_data_MainWindow[] = {
      669,   11,   11,   11, 0x08,
      698,   11,   11,   11, 0x08,
      728,   11,   11,   11, 0x08,
+     759,  754,   11,   11, 0x08,
+     796,  754,   11,   11, 0x08,
+     836,  754,   11,   11, 0x08,
 
        0        // eod
 };
@@ -86,7 +89,10 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "on_checkBox_shadow_clicked()\0"
     "on_pushButton_work_clicked()\0"
     "on_radioButton_poly_clicked()\0"
-    "on_actionLIVE_triggered()\0"
+    "on_actionLIVE_triggered()\0arg1\0"
+    "on_spinBox_polyAcy_valueChanged(int)\0"
+    "on_spinBox_moasicSize_valueChanged(int)\0"
+    "on_doubleSpinBox_gauSigma_valueChanged(double)\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -121,10 +127,12 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 23: _t->on_pushButton_work_clicked(); break;
         case 24: _t->on_radioButton_poly_clicked(); break;
         case 25: _t->on_actionLIVE_triggered(); break;
+        case 26: _t->on_spinBox_polyAcy_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 27: _t->on_spinBox_moasicSize_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 28: _t->on_doubleSpinBox_gauSigma_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
         default: ;
         }
     }
-    Q_UNUSED(_a);
 }
 
 const QMetaObjectExtraData MainWindow::staticMetaObjectExtraData = {
@@ -159,9 +167,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 26)
+        if (_id < 29)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 26;
+        _id -= 29;
     }
     return _id;
 }

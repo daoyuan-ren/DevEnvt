@@ -22,8 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     gryBuffer   = new QList<QImage>();
     dbgBuffer   = new QList<QImage>();
     backBuffer  = new QList<QImage>();
-#endif
-#ifdef STL_LIST
+#else
     imgBuffer   = new std::list<QImage>();
     gryBuffer   = new std::list<QImage>();
     dbgBuffer   = new std::list<QImage>();
@@ -70,7 +69,7 @@ void MainWindow::on_pushButton_select_clicked()
     QFileDialog dialog;
 
     //QString fileName = dialog.getOpenFileName(this, tr("Open File"), QDir::currentPath(),tr("Videos(*.avi)"));
-    QString fileName = dialog.getOpenFileName(this, tr("Open File"), "/home/ren/Videos",tr("Videos(*.avi)"));
+    QString fileName = dialog.getOpenFileName(this, tr("Open File"), "/home/ren/Videos",tr("Videos(*.avi *.avi.ln)"));
     if(fileName.isEmpty())
         return;
 
@@ -80,7 +79,7 @@ void MainWindow::on_pushButton_select_clicked()
 
 void MainWindow::on_actionOpen_triggered()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "/home/ren/Videos",tr("Videos(*.avi)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "/home/ren/Videos",tr("Videos(*.avi *.avi.ln)"));
     if(fileName.isEmpty())
         return;
     process(fileName, false);
@@ -336,9 +335,7 @@ void MainWindow::memManage(){
                 player->mutex.unlock();
             }
 }
-#endif
-
-#ifdef STL_LIST
+#else
 void MainWindow::memManage(){
 #ifdef MESSAGE_ON
             cout << "@MainWindow.memManage(): 1" << endl;
@@ -394,9 +391,7 @@ void MainWindow::labelUpdate(){
     ui->label_status->setText(player->get_status());
     return;
 }
-#endif
-
-#ifdef STL_LIST
+#else
 void MainWindow::labelUpdate(){
 #ifdef MESSAGE_ON
             cout << "@MainWindow.labelUpdate(): 1" << endl;
@@ -409,6 +404,7 @@ void MainWindow::labelUpdate(){
     return;
 }
 #endif
+
 void MainWindow::on_checkBox_privacy_clicked()
 {
     if(fmanager != NULL){
@@ -468,7 +464,6 @@ void MainWindow::on_checkBox_rect_clicked()
     return;
 }
 
-
 void MainWindow::on_radioButton_mosaic_clicked()
 {
     if(fmanager != NULL)
@@ -511,4 +506,25 @@ void MainWindow::on_actionLIVE_triggered()
         player->stop_play();
     }
     process(QString::fromStdString(""), true);
+}
+
+void MainWindow::on_spinBox_polyAcy_valueChanged(int arg1)
+{
+    if(fmanager != NULL){
+        fmanager->setAcuracy(ui->spinBox_polyAcy->value());
+    }
+}
+
+void MainWindow::on_spinBox_moasicSize_valueChanged(int arg1)
+{
+    if(fmanager != NULL){
+        fmanager->setMosaicSize(ui->spinBox_moasicSize->value());
+    }
+}
+
+void MainWindow::on_doubleSpinBox_gauSigma_valueChanged(double arg1)
+{
+    if(fmanager != NULL){
+        fmanager->setSigma(ui->doubleSpinBox_gauSigma->value());
+    }
 }

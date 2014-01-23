@@ -35,9 +35,7 @@ public:
 #ifndef STL_LIST
     PlayThread(QLabel* iLabel, QLabel* dLabel, QList<QImage>* iBuf, QList<QImage>* gBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, QTimer* timer_ptr, int* fps);
     PlayThread(QLabel* iLabel, QLabel* dLabel, QList<QImage>* iBuf, QList<QImage>* gBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, int* fps);
-#endif
-
-#ifdef STL_LIST
+#else
     PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, QTimer* timer_ptr, int* fps);
     PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, int* fps);
 #endif
@@ -64,8 +62,7 @@ private:
     QList<QImage>* gryBuffer;
     QList<QImage>* dbgBuffer;
     QList<QImage>* backBuffer;
-#endif
-#ifdef STL_LIST
+#else
     std::list<QImage>* imgBuffer;
     std::list<QImage>* gryBuffer;
     std::list<QImage>* dbgBuffer;

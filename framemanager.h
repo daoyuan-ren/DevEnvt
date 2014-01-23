@@ -43,8 +43,7 @@ public:
     explicit FrameManager(QObject *parent = 0);
 #ifndef STL_LIST
     FrameManager(VideoCapture cap, QList<QImage>* iBuf, QList<QImage>* gBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back = NULL);
-#endif
-#ifdef STL_LIST
+#else
     FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back = NULL);
 #endif
 
@@ -69,6 +68,9 @@ public:
     void shadow(bool shadow_detect);
     void setOperat(int operation);
     void setState(int state_t);
+    void setAcuracy(int acuracy);
+    void setMosaicSize(int mosaic_size);
+    void setSigma(double gau_sigma);
 
 
     int  state();
@@ -80,6 +82,9 @@ private:
     bool shadow_detect;
     int  pixel_operation;
     int  state_t;
+    int  poly_acuracy;
+    int  mosaic_size;
+    double gau_sigma;
     unsigned int buffered_frame_idx;
 
     timespec interval;
@@ -93,8 +98,7 @@ private:
     QList<QImage>* dbgBuffer;
     QList<QImage>* backBuffer;
     QList<QImage>  swap;
-#endif
-#ifdef STL_LIST
+#else
     std::list<QImage>* imgBuffer;
     std::list<QImage>* gryBuffer;
     std::list<QImage>* dbgBuffer;

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Wed Jan 22 11:55:32 2014
+** Created: Thu Jan 23 17:34:19 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -15,6 +15,8 @@
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
 #include <QtGui/QCheckBox>
+#include <QtGui/QDoubleSpinBox>
+#include <QtGui/QGridLayout>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLCDNumber>
@@ -29,7 +31,6 @@
 #include <QtGui/QStatusBar>
 #include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
-#include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -74,16 +75,19 @@ public:
     QRadioButton *radioButton_back;
     QRadioButton *radioButton_fore;
     QWidget *verticalLayoutWidget;
-    QVBoxLayout *verticalLayout;
-    QSpacerItem *verticalSpacer;
-    QCheckBox *checkBox_privacy;
-    QRadioButton *radioButton_black;
-    QRadioButton *radioButton_blur;
-    QRadioButton *radioButton_edge;
-    QRadioButton *radioButton_border;
-    QRadioButton *radioButton_poly;
+    QGridLayout *gridLayout;
     QRadioButton *radioButton_mosaic;
+    QRadioButton *radioButton_blur;
+    QRadioButton *radioButton_poly;
+    QRadioButton *radioButton_edge;
     QRadioButton *radioButton_default;
+    QRadioButton *radioButton_border;
+    QRadioButton *radioButton_black;
+    QSpacerItem *verticalSpacer;
+    QSpinBox *spinBox_polyAcy;
+    QSpinBox *spinBox_moasicSize;
+    QCheckBox *checkBox_privacy;
+    QDoubleSpinBox *doubleSpinBox_gauSigma;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QToolBar *mainToolBar;
@@ -93,7 +97,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1103, 518);
+        MainWindow->resize(1177, 520);
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -229,7 +233,7 @@ public:
 
         horizontalLayoutWidget_3 = new QWidget(centralWidget);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
-        horizontalLayoutWidget_3->setGeometry(QRect(0, 0, 1101, 31));
+        horizontalLayoutWidget_3->setGeometry(QRect(0, 0, 1171, 31));
         horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_3);
         horizontalLayout_3->setSpacing(6);
         horizontalLayout_3->setContentsMargins(11, 11, 11, 11);
@@ -280,63 +284,87 @@ public:
 
         verticalLayoutWidget = new QWidget(centralWidget);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(1020, 30, 153, 391));
-        verticalLayout = new QVBoxLayout(verticalLayoutWidget);
-        verticalLayout->setSpacing(6);
-        verticalLayout->setContentsMargins(11, 11, 11, 11);
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        verticalLayout->setContentsMargins(0, 0, 0, 0);
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        verticalLayoutWidget->setGeometry(QRect(1020, 30, 151, 391));
+        gridLayout = new QGridLayout(verticalLayoutWidget);
+        gridLayout->setSpacing(6);
+        gridLayout->setContentsMargins(11, 11, 11, 11);
+        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        gridLayout->setContentsMargins(0, 0, 0, 0);
+        radioButton_mosaic = new QRadioButton(verticalLayoutWidget);
+        radioButton_mosaic->setObjectName(QString::fromUtf8("radioButton_mosaic"));
 
-        verticalLayout->addItem(verticalSpacer);
-
-        checkBox_privacy = new QCheckBox(verticalLayoutWidget);
-        checkBox_privacy->setObjectName(QString::fromUtf8("checkBox_privacy"));
-        checkBox_privacy->setChecked(true);
-
-        verticalLayout->addWidget(checkBox_privacy);
-
-        radioButton_black = new QRadioButton(verticalLayoutWidget);
-        radioButton_black->setObjectName(QString::fromUtf8("radioButton_black"));
-        radioButton_black->setChecked(false);
-
-        verticalLayout->addWidget(radioButton_black);
+        gridLayout->addWidget(radioButton_mosaic, 8, 0, 1, 1);
 
         radioButton_blur = new QRadioButton(verticalLayoutWidget);
         radioButton_blur->setObjectName(QString::fromUtf8("radioButton_blur"));
 
-        verticalLayout->addWidget(radioButton_blur);
-
-        radioButton_edge = new QRadioButton(verticalLayoutWidget);
-        radioButton_edge->setObjectName(QString::fromUtf8("radioButton_edge"));
-
-        verticalLayout->addWidget(radioButton_edge);
-
-        radioButton_border = new QRadioButton(verticalLayoutWidget);
-        radioButton_border->setObjectName(QString::fromUtf8("radioButton_border"));
-
-        verticalLayout->addWidget(radioButton_border);
+        gridLayout->addWidget(radioButton_blur, 3, 0, 1, 1);
 
         radioButton_poly = new QRadioButton(verticalLayoutWidget);
         radioButton_poly->setObjectName(QString::fromUtf8("radioButton_poly"));
 
-        verticalLayout->addWidget(radioButton_poly);
+        gridLayout->addWidget(radioButton_poly, 7, 0, 1, 1);
 
-        radioButton_mosaic = new QRadioButton(verticalLayoutWidget);
-        radioButton_mosaic->setObjectName(QString::fromUtf8("radioButton_mosaic"));
+        radioButton_edge = new QRadioButton(verticalLayoutWidget);
+        radioButton_edge->setObjectName(QString::fromUtf8("radioButton_edge"));
 
-        verticalLayout->addWidget(radioButton_mosaic);
+        gridLayout->addWidget(radioButton_edge, 4, 0, 1, 1);
 
         radioButton_default = new QRadioButton(verticalLayoutWidget);
         radioButton_default->setObjectName(QString::fromUtf8("radioButton_default"));
         radioButton_default->setChecked(true);
 
-        verticalLayout->addWidget(radioButton_default);
+        gridLayout->addWidget(radioButton_default, 9, 0, 1, 1);
+
+        radioButton_border = new QRadioButton(verticalLayoutWidget);
+        radioButton_border->setObjectName(QString::fromUtf8("radioButton_border"));
+
+        gridLayout->addWidget(radioButton_border, 5, 0, 1, 1);
+
+        radioButton_black = new QRadioButton(verticalLayoutWidget);
+        radioButton_black->setObjectName(QString::fromUtf8("radioButton_black"));
+        radioButton_black->setChecked(false);
+
+        gridLayout->addWidget(radioButton_black, 2, 0, 1, 1);
+
+        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        gridLayout->addItem(verticalSpacer, 0, 0, 1, 1);
+
+        spinBox_polyAcy = new QSpinBox(verticalLayoutWidget);
+        spinBox_polyAcy->setObjectName(QString::fromUtf8("spinBox_polyAcy"));
+        spinBox_polyAcy->setMinimum(5);
+        spinBox_polyAcy->setMaximum(9);
+        spinBox_polyAcy->setSingleStep(2);
+
+        gridLayout->addWidget(spinBox_polyAcy, 7, 1, 1, 1);
+
+        spinBox_moasicSize = new QSpinBox(verticalLayoutWidget);
+        spinBox_moasicSize->setObjectName(QString::fromUtf8("spinBox_moasicSize"));
+        spinBox_moasicSize->setMinimum(10);
+        spinBox_moasicSize->setMaximum(30);
+        spinBox_moasicSize->setSingleStep(10);
+
+        gridLayout->addWidget(spinBox_moasicSize, 8, 1, 1, 1);
+
+        checkBox_privacy = new QCheckBox(verticalLayoutWidget);
+        checkBox_privacy->setObjectName(QString::fromUtf8("checkBox_privacy"));
+        checkBox_privacy->setChecked(true);
+
+        gridLayout->addWidget(checkBox_privacy, 1, 0, 1, 2);
+
+        doubleSpinBox_gauSigma = new QDoubleSpinBox(verticalLayoutWidget);
+        doubleSpinBox_gauSigma->setObjectName(QString::fromUtf8("doubleSpinBox_gauSigma"));
+        doubleSpinBox_gauSigma->setMinimum(2.5);
+        doubleSpinBox_gauSigma->setMaximum(10);
+        doubleSpinBox_gauSigma->setSingleStep(2.5);
+
+        gridLayout->addWidget(doubleSpinBox_gauSigma, 3, 1, 1, 1);
 
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1103, 27));
+        menuBar->setGeometry(QRect(0, 0, 1177, 27));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         MainWindow->setMenuBar(menuBar);
@@ -389,14 +417,14 @@ public:
         radioButton_grey->setText(QApplication::translate("MainWindow", "grey", 0, QApplication::UnicodeUTF8));
         radioButton_back->setText(QApplication::translate("MainWindow", "background", 0, QApplication::UnicodeUTF8));
         radioButton_fore->setText(QApplication::translate("MainWindow", "foreground", 0, QApplication::UnicodeUTF8));
-        checkBox_privacy->setText(QApplication::translate("MainWindow", "privacy", 0, QApplication::UnicodeUTF8));
-        radioButton_black->setText(QApplication::translate("MainWindow", "black", 0, QApplication::UnicodeUTF8));
-        radioButton_blur->setText(QApplication::translate("MainWindow", "blur", 0, QApplication::UnicodeUTF8));
-        radioButton_edge->setText(QApplication::translate("MainWindow", "edge", 0, QApplication::UnicodeUTF8));
-        radioButton_border->setText(QApplication::translate("MainWindow", "border", 0, QApplication::UnicodeUTF8));
-        radioButton_poly->setText(QApplication::translate("MainWindow", "poly", 0, QApplication::UnicodeUTF8));
         radioButton_mosaic->setText(QApplication::translate("MainWindow", "mosaic", 0, QApplication::UnicodeUTF8));
+        radioButton_blur->setText(QApplication::translate("MainWindow", "blur", 0, QApplication::UnicodeUTF8));
+        radioButton_poly->setText(QApplication::translate("MainWindow", "poly", 0, QApplication::UnicodeUTF8));
+        radioButton_edge->setText(QApplication::translate("MainWindow", "edge", 0, QApplication::UnicodeUTF8));
         radioButton_default->setText(QApplication::translate("MainWindow", "default", 0, QApplication::UnicodeUTF8));
+        radioButton_border->setText(QApplication::translate("MainWindow", "border", 0, QApplication::UnicodeUTF8));
+        radioButton_black->setText(QApplication::translate("MainWindow", "black", 0, QApplication::UnicodeUTF8));
+        checkBox_privacy->setText(QApplication::translate("MainWindow", "anonymous mode", 0, QApplication::UnicodeUTF8));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

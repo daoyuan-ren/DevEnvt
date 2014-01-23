@@ -58,9 +58,7 @@ PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, QList<QImage>* iBuf, QLis
     timer_ptr   = new QTimer(0);
     connect(timer_ptr, SIGNAL(timeout()), this, SLOT(imageUpdate()));
 }
-#endif
-
-#ifdef STL_LIST
+#else
 PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, QTimer* timer, int* fps)
 {
     imgLabel    = iLabel;
@@ -154,9 +152,7 @@ void PlayThread::imageUpdate() {
     frame_pos++;
     mutex.unlock();
 }
-#endif
-
-#ifdef STL_LIST
+#else
 void PlayThread::imageUpdate() {
 #ifdef MESSAGE_ON
     cout << "@player.imageUpdate(): " << currentThreadId() << endl;
