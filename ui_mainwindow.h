@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Thu Jan 23 17:34:19 2014
+** Created: Fri Jan 24 12:22:15 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -220,6 +220,10 @@ public:
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
         label = new QLabel(horizontalLayoutWidget_2);
         label->setObjectName(QString::fromUtf8("label"));
+        sizePolicy.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
+        label->setSizePolicy(sizePolicy);
+        label->setMinimumSize(QSize(507, 389));
+        label->setMaximumSize(QSize(507, 389));
         label->setStyleSheet(QString::fromUtf8("border-color: qconicalgradient(cx:0, cy:0, angle:135, stop:0 rgba(255, 255, 0, 69), stop:0.375 rgba(255, 255, 0, 69), stop:0.423533 rgba(251, 255, 0, 145), stop:0.45 rgba(247, 255, 0, 208), stop:0.477581 rgba(255, 244, 71, 130), stop:0.518717 rgba(255, 218, 71, 130), stop:0.55 rgba(255, 255, 0, 255), stop:0.57754 rgba(255, 203, 0, 130), stop:0.625 rgba(255, 255, 0, 69), stop:1 rgba(255, 255, 0, 69));"));
         label->setScaledContents(true);
 
@@ -227,6 +231,10 @@ public:
 
         label_debug = new QLabel(horizontalLayoutWidget_2);
         label_debug->setObjectName(QString::fromUtf8("label_debug"));
+        sizePolicy.setHeightForWidth(label_debug->sizePolicy().hasHeightForWidth());
+        label_debug->setSizePolicy(sizePolicy);
+        label_debug->setMinimumSize(QSize(506, 389));
+        label_debug->setMaximumSize(QSize(506, 389));
         label_debug->setScaledContents(true);
 
         horizontalLayout_2->addWidget(label_debug);
@@ -284,7 +292,7 @@ public:
 
         verticalLayoutWidget = new QWidget(centralWidget);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(1020, 30, 151, 391));
+        verticalLayoutWidget->setGeometry(QRect(1020, 30, 152, 391));
         gridLayout = new QGridLayout(verticalLayoutWidget);
         gridLayout->setSpacing(6);
         gridLayout->setContentsMargins(11, 11, 11, 11);

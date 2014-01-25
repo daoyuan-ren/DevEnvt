@@ -77,6 +77,10 @@ void MainWindow::on_pushButton_select_clicked()
         process(fileName,false);
 }
 
+void MainWindow::setBackground(QImage *background){
+    this->background = background;
+}
+
 void MainWindow::on_actionOpen_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "/home/ren/Videos",tr("Videos(*.avi *.avi.ln)"));

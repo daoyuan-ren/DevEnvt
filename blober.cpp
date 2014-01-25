@@ -53,21 +53,21 @@ void Blober::find_blobs(Mat &frame, int blob_minSize, bool shadow_detect, int ep
         }
     }
     {
-    // find the shadow down-top.
-    //    if(shadow_detect == true){
-    //        Mat sub;
-    //        double min_val, max_val;
-    //        for(int i = 0; i < boundRect->size(); i++){
-    //            if((*boundRect)[i].width > 0 && (*boundRect)[i].height > 0){
-    //                sub = frame((*boundRect)[i]);
-    //                int cut = sub.rows-1;
-    //                for(; cut > 0 && (unsigned char)max_val < 128; cut--){
-    //                    minMaxLoc(sub(Rect(0, cut, sub.cols,1)), &min_val, &max_val);
-    //                }
-    //                (*boundRect)[i].height = cut+1;
-    //            }
-    //        }
-    //    }
+        // find the shadow down-top.
+        //    if(shadow_detect == true){
+        //        Mat sub;
+        //        double min_val, max_val;
+        //        for(int i = 0; i < boundRect->size(); i++){
+        //            if((*boundRect)[i].width > 0 && (*boundRect)[i].height > 0){
+        //                sub = frame((*boundRect)[i]);
+        //                int cut = sub.rows-1;
+        //                for(; cut > 0 && (unsigned char)max_val < 128; cut--){
+        //                    minMaxLoc(sub(Rect(0, cut, sub.cols,1)), &min_val, &max_val);
+        //                }
+        //                (*boundRect)[i].height = cut+1;
+        //            }
+        //        }
+        //    }
     }
 }
 
@@ -85,8 +85,12 @@ void Blober::paint_blobs(Mat &drawing){
 }
 
 void Blober::paint_blobs(Mat &drawing, int shape_t){
+
+    if(contours_poly->empty())
+        return;
     for( int i = 0; i < boundRect->size(); i++ )
     {
+
 #ifdef POLY
         if(shape_t == PT_POLY)
             drawContours( drawing, *contours_poly, i, CL_BLUE, 2, 8, vector<Vec4i>(), 0, Point() );
@@ -101,6 +105,8 @@ void Blober::paint_blobs(Mat &drawing, int shape_t){
 }
 
 void Blober::paint_label(QImage* image){
+    if(image->isNull())
+        return;
     for(int i = 0; i < blob_num; i++){
         QPainter* painter = new QPainter(image); // sorry i forgot the "&"
         painter->setPen(Qt::red);

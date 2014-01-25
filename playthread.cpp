@@ -176,7 +176,14 @@ void PlayThread::imageUpdate() {
         advance(g_itr, frame_pos);
         advance(b_itr, frame_pos);
         advance(d_itr, frame_pos);
+
         imgLabel->setPixmap(QPixmap::fromImage(*i_itr));
+        if((*i_itr).isNull()){
+            frame_pos++;
+            mutex.unlock();
+            return;
+        }
+
         switch(label_t){
         case ORIGINAL:
             dbgLabel->setPixmap(QPixmap::fromImage(*i_itr));
@@ -193,8 +200,7 @@ void PlayThread::imageUpdate() {
         default:
             break;
         }
-    }
-    else{
+    } else {
         status  = QString::fromStdString("Buffering");
 #ifdef MESSAGE_ON
         cout << "image buffer empty" << endl;

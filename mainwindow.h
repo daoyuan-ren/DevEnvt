@@ -95,7 +95,10 @@ private:
 
 //    Blob findBlobs(Mat& frame, Mat& drawing, int blob_minSize);
     void paintBlobs(QImage* frame, Blober& blober);
+
+public:
     void process(QString fileName, bool live);
+    void setBackground(QImage* background);
 
     private slots:
 #ifndef PLAYER
