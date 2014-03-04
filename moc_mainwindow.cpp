@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'mainwindow.h'
 **
-** Created: Sat Jan 25 14:39:47 2014
+** Created: Tue Mar 4 16:13:23 2014
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      29,   14, // methods
+      30,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -60,6 +60,7 @@ static const uint qt_meta_data_MainWindow[] = {
      759,  754,   11,   11, 0x08,
      796,  754,   11,   11, 0x08,
      836,  754,   11,   11, 0x08,
+     883,   11,   11,   11, 0x08,
 
        0        // eod
 };
@@ -93,6 +94,7 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "on_spinBox_polyAcy_valueChanged(int)\0"
     "on_spinBox_moasicSize_valueChanged(int)\0"
     "on_doubleSpinBox_gauSigma_valueChanged(double)\0"
+    "on_radioButton_color_clicked()\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -130,6 +132,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 26: _t->on_spinBox_polyAcy_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 27: _t->on_spinBox_moasicSize_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 28: _t->on_doubleSpinBox_gauSigma_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
+        case 29: _t->on_radioButton_color_clicked(); break;
         default: ;
         }
     }
@@ -167,9 +170,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 29)
+        if (_id < 30)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 29;
+        _id -= 30;
     }
     return _id;
 }

@@ -19,11 +19,13 @@ MainWindow::MainWindow(QWidget *parent) :
     background  = NULL;
 #ifndef STL_LIST
     imgBuffer   = new QList<QImage>();
+    clrBuffer   = new QList<QImage>();
     gryBuffer   = new QList<QImage>();
     dbgBuffer   = new QList<QImage>();
     backBuffer  = new QList<QImage>();
 #else
     imgBuffer   = new std::list<QImage>();
+    clrBuffer   = new std::list<QImage>();
     gryBuffer   = new std::list<QImage>();
     dbgBuffer   = new std::list<QImage>();
     backBuffer  = new std::list<QImage>();
@@ -41,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //clock used to update the label in ui
     lup_timer = new QTimer(this);
     connect(lup_timer, SIGNAL(timeout()), this, SLOT(labelUpdate()));
-    player = new PlayThread(ui->label, ui->label_debug, imgBuffer, gryBuffer, dbgBuffer, backBuffer, &fps);
+    player = new PlayThread(ui->label, ui->label_debug, imgBuffer,clrBuffer, gryBuffer, dbgBuffer, backBuffer, &fps);
 }
 
 MainWindow::~MainWindow()
@@ -89,7 +91,7 @@ void MainWindow::on_actionOpen_triggered()
     process(fileName, false);
 }
 
-/************* replaced by FrameManager.Mat2QImage() ************************/
+/************* replaced by FrameManager.Mat2QImage() ***********************
 #ifndef FMANAGER
 QImage MainWindow::Mat2QImage(cv::Mat const& src)
 {
@@ -108,7 +110,8 @@ QImage MainWindow::Mat2QImage(cv::Mat const& src)
     return dest2;
 }
 #endif
-/************* replaced by FrameManager.QImage2Mat() ************************/
+*/
+/************* replaced by FrameManager.QImage2Mat() ***********************
 #ifndef FMANAGER
 cv::Mat MainWindow::QImage2Mat(QImage const& src)
 {
@@ -118,6 +121,7 @@ cv::Mat MainWindow::QImage2Mat(QImage const& src)
      return result;
 }
 #endif
+*/
 void MainWindow::on_pushButton_apply_clicked()
 {
     if(!cap.isOpened())
@@ -126,7 +130,7 @@ void MainWindow::on_pushButton_apply_clicked()
     player->start();
 }
 
-/************* replaced by Player.imageUpdate() ************************/
+/************* replaced by Player.imageUpdate() ***********************
 #ifndef PLAYER
 
 void MainWindow::imageUpdate() {
@@ -155,8 +159,8 @@ void MainWindow::imageUpdate() {
     player->mutex.unlock();
 }
 #endif
-
-/************* replaced by Player.play() *******************************/
+*/
+/************* replaced by Player.play() ******************************
 #ifndef PLAYER
 void MainWindow::play(){
 #ifdef MESSAGE_ON
@@ -167,7 +171,8 @@ void MainWindow::play(){
     ui->label_status->setText(QString::fromStdString("Playing"));
 }
 #endif
-/************* replaced by Player.play() *******************************/
+*/
+/************* replaced by Player.play() ******************************
 #ifndef PLAYER
 void *MainWindow::play_function(void *arg) {
     fps = ui->fps_spinBox->value();
@@ -175,12 +180,14 @@ void *MainWindow::play_function(void *arg) {
     ui->label_status->setText(QString::fromStdString("Playing"));
 }
 #endif
-/************* replaced by Player.stop_play() **************************/
+*/
+/************* replaced by Player.stop_play() *************************
 #ifndef PLAYER
 void MainWindow::stop(){
     mem_timer->stop();
 }
 #endif
+*/
 void MainWindow::on_actionQuit_triggered()
 {
     player->stop_play();
@@ -212,9 +219,23 @@ void MainWindow::process(QString fileName, bool live){
     }
 
     if(cap.isOpened()){
-        fmanager = new FrameManager(cap, imgBuffer, gryBuffer, dbgBuffer, backBuffer, player, ui->spinBox_ctSize, background);
+        fmanager = new FrameManager(cap, imgBuffer, clrBuffer, gryBuffer, dbgBuffer, backBuffer, player, ui->spinBox_ctSize, background);
         fmanager->inPrivacy(ui->checkBox_privacy->isChecked());
         fmanager->pain_rect(ui->checkBox_rect->isChecked());
+        if(ui->radioButton_black->isChecked())
+            fmanager->setOperat(OP_BLACK);
+        else if(ui->radioButton_blur->isChecked())
+            fmanager->setOperat(OP_BLUR);
+        else if(ui->radioButton_border->isChecked())
+            fmanager->setOperat(OP_BORDER);
+        else if(ui->radioButton_edge->isChecked())
+            fmanager->setOperat(OP_EDGE);
+        else if(ui->radioButton_mosaic->isChecked())
+            fmanager->setOperat(OP_MOSAIC);
+        else if(ui->radioButton_poly->isChecked())
+            fmanager->setOperat(OP_POLY);
+        else
+            fmanager->setOperat(OP_DEFAULT);
         fmanager->start(QThread::NormalPriority);
         player->start(QThread::HighPriority);
         mem_timer->start(3000);
@@ -303,6 +324,7 @@ void MainWindow::on_radioButton_orig_clicked()
     player->set_label(ORIGINAL);
 }
 
+
 #ifndef STL_LIST
 void MainWindow::memManage(){
 #ifdef MESSAGE_ON
@@ -354,6 +376,13 @@ void MainWindow::memManage(){
                 imgBuffer->erase(beg, end);
 #ifdef MESSAGE_ON
                 cout << "new allocated iBuffer with size " << imgBuffer->size() << endl;
+#endif
+                beg = clrBuffer->begin();
+                end = clrBuffer->end();
+                advance(end, player->get_frame_ctr());
+                clrBuffer->erase(beg, end);
+#ifdef MESSAGE_ON
+                cout << "new allocated cBuffer with size " << clrBuffer->size() << endl;
 #endif
                 beg = gryBuffer->begin();
                 end = gryBuffer->end();
@@ -530,5 +559,12 @@ void MainWindow::on_doubleSpinBox_gauSigma_valueChanged(double arg1)
 {
     if(fmanager != NULL){
         fmanager->setSigma(ui->doubleSpinBox_gauSigma->value());
+    }
+}
+
+void MainWindow::on_radioButton_color_clicked()
+{
+    if(player != NULL){
+        player->set_label(COLOR);
     }
 }

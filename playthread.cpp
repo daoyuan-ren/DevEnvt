@@ -59,11 +59,12 @@ PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, QList<QImage>* iBuf, QLis
     connect(timer_ptr, SIGNAL(timeout()), this, SLOT(imageUpdate()));
 }
 #else
-PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, QTimer* timer, int* fps)
+PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, QTimer* timer, int* fps)
 {
     imgLabel    = iLabel;
     dbgLabel    = dLabel;
     imgBuffer   = stl_iBuf;
+    clrBuffer   = stl_cBuf;
     gryBuffer   = stl_gBuf;
     dbgBuffer   = stl_dBuf;
     backBuffer  = stl_bBuf;
@@ -76,11 +77,12 @@ PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, l
     timer_ptr   = timer;
 }
 
-PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, int* fps)
+PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, int* fps)
 {
     imgLabel    = iLabel;
     dbgLabel    = dLabel;
     imgBuffer   = stl_iBuf;
+    clrBuffer   = stl_cBuf;
     gryBuffer   = stl_gBuf;
     dbgBuffer   = stl_dBuf;
     backBuffer  = stl_bBuf;
@@ -167,18 +169,21 @@ void PlayThread::imageUpdate() {
         cout << "video buffering" << endl;
 #endif
     } else if(!imgBuffer->empty()){
-        list<QImage>::iterator i_itr, g_itr, b_itr, d_itr;
+        list<QImage>::iterator i_itr, c_itr, g_itr, b_itr, d_itr;
         i_itr = imgBuffer->begin();
+        c_itr = clrBuffer->begin();
         g_itr = gryBuffer->begin();
         b_itr = backBuffer->begin();
         d_itr = dbgBuffer->begin();
         advance(i_itr, frame_pos);
+        advance(c_itr, frame_pos);
         advance(g_itr, frame_pos);
         advance(b_itr, frame_pos);
         advance(d_itr, frame_pos);
 
         imgLabel->setPixmap(QPixmap::fromImage(*i_itr));
         if((*i_itr).isNull()){
+            cerr << "empty image @" << frame_pos << endl;
             frame_pos++;
             mutex.unlock();
             return;
@@ -187,6 +192,9 @@ void PlayThread::imageUpdate() {
         switch(label_t){
         case ORIGINAL:
             dbgLabel->setPixmap(QPixmap::fromImage(*i_itr));
+            break;
+        case COLOR:
+            dbgLabel->setPixmap(QPixmap::fromImage(*c_itr));
             break;
         case GREYSCALE:
             dbgLabel->setPixmap(QPixmap::fromImage(*g_itr));

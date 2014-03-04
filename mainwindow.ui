@@ -289,16 +289,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="radioButton_grey">
-       <property name="text">
-        <string>grey</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QRadioButton" name="radioButton_back">
        <property name="text">
         <string>background</string>
@@ -312,6 +302,23 @@
        </property>
        <property name="checked">
         <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="radioButton_color">
+       <property name="text">
+        <string>color</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="radioButton_grey">
+       <property name="text">
+        <string>grey</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -339,6 +346,9 @@
        <property name="text">
         <string>blur</string>
        </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item row="7" column="0">
@@ -361,7 +371,7 @@
         <string>default</string>
        </property>
        <property name="checked">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>

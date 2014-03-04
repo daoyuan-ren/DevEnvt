@@ -18,12 +18,18 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     playthread.cpp \
     blober.cpp \
-    framemanager.cpp
+    framemanager.cpp \
+    package_bgs/lb/LBMixtureOfGaussians.cpp \
+    package_bgs/lb/BGModelMog.cpp \
+    package_bgs/lb/BGModel.cpp
 
 HEADERS  += mainwindow.h \
     playthread.h \
     blober.h \
-    framemanager.h
+    framemanager.h \
+    package_bgs/lb/LBMixtureOfGaussians.h \
+    package_bgs/lb/BGModelMog.h \
+    package_bgs/lb/BGModel.h
 
 FORMS    += mainwindow.ui
 

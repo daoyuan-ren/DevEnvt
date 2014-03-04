@@ -1,4 +1,5 @@
 #include "framemanager.h"
+#include "package_bgs/lb/LBMixtureOfGaussians.h"
 
 FrameManager::FrameManager(QObject *parent) :
     QThread(parent)
@@ -9,7 +10,7 @@ FrameManager::FrameManager(QObject *parent) :
     in_privacy_mode     = false;
     pain_blob           = true;
     shadow_detect       = true;
-    pixel_operation     = OP_DEFAULT;
+    //pixel_operation     = OP_DEFAULT;
     poly_acuracy        = 1;
 
     state_t             = ST_PROC;
@@ -60,21 +61,21 @@ FrameManager::FrameManager(VideoCapture cap, QList<QImage> *iBuf, QList<QImage>*
     this->spinBox_ctSize = spinBox_ctSize;
 }
 #else
-FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back){
+FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back){
         interval.tv_sec     = 0;
         interval.tv_nsec    = 100000000L; //1 000 000 000nsec = 1sec
         buffered_frame_idx  = 0;
         in_privacy_mode     = false;
         pain_blob           = true;
         shadow_detect       = true;
-        pixel_operation     = OP_DEFAULT;
+        //pixel_operation     = OP_DEFAULT;
         poly_acuracy        = 1;
         mosaic_size         = 10;
         gau_sigma           = 2.5;
 
         state_t             = ST_PROC;
-    //    timer               = new QTimer(0);
-    //    connect(timer_ptr, SIGNAL(timeout()), this, SLOT(imageUpdate()));
+//        timer               = new QTimer(0);
+//        connect(timer_ptr, SIGNAL(timeout()), this, SLOT(imageUpdate()));
 
         bg.set("nmixtures", 3);
         bg.set("history", HISTORY);
@@ -83,6 +84,7 @@ FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage
         this->cap = cap;
         static_background   = s_back;
         imgBuffer           = stl_iBuf;
+        clrBuffer           = stl_cBuf;
         gryBuffer           = stl_gBuf;
         dbgBuffer           = stl_dBuf;
         backBuffer          = stl_bBuf;
@@ -273,29 +275,38 @@ void FrameManager::process(){
 //        height  = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
 
         Mat frame, back, fore;
-        Mat drawing, grey, grey_back, st_back;
-        QImage image, grey_image, fore_ground, back_ground;
+        Mat drawing, grey, grey_back, st_back, st_back_grey;
+        QImage image, clr_image, grey_image, fore_ground, back_ground;
+        LBMixtureOfGaussians* bgs = new LBMixtureOfGaussians;
 
-        for(int i = 0;; i++) {
+        for(unsigned int i = 0;; i++) {
             cap >> frame;
             cvtColor(frame, grey, CV_RGB2GRAY);
             cvtColor(grey, grey, CV_GRAY2BGR);
             image = Mat2QImage(frame);
 
-            GaussianBlur(frame, frame, Size(7, 7), 1.5, 1.5);
-            bg.operator ()(frame, fore, 0.01);
-            bg.getBackgroundImage(back);
-            erode(fore, fore, cv::Mat());
-            dilate(fore, fore, cv::Mat());
+            GaussianBlur(frame, frame, Size(3, 3), 1.5, 1.5);
+
+            /*** subtracting backgrounds from frame using different algorithms ***/
+            //bg.operator ()(frame, fore, 0.01);
+            //bg.getBackgroundImage(back);
+            bgs->process(frame, fore, back);
+
+            //erode(fore, fore, cv::Mat());
+            //dilate(fore, fore, cv::Mat());
             cvtColor(back, grey_back, CV_RGB2GRAY);
             cvtColor(grey_back, grey_back, CV_GRAY2BGR);
+
+            /*** in case using the LBMixtureOfGaussianDetector ***/
+            cvtColor(fore, fore, CV_RGB2GRAY);
             cvtColor(fore, drawing, CV_GRAY2BGR);
+            //cvtColor(fore, drawing, CV_RGB2BGR);
             blober.find_blobs(fore, spinBox_ctSize->value(), shadow_detect, poly_acuracy);
 
             if(static_background != NULL){
                 st_back = QImage2Mat(*static_background);
-                cvtColor(st_back, st_back, CV_RGB2GRAY);
-                cvtColor(st_back, st_back, CV_GRAY2BGR);
+                cvtColor(st_back, st_back_grey, CV_RGB2GRAY);
+                cvtColor(st_back_grey, st_back_grey, CV_GRAY2BGR);
             }
             else
                 st_back = grey_back;
@@ -304,22 +315,22 @@ void FrameManager::process(){
             if(in_privacy_mode == true){
                 switch (pixel_operation){
                 case OP_BLACK:
-                    black_out(st_back);
+                    black_out(st_back, st_back_grey);
                     break;
                 case OP_BLUR:
-                    blur(grey, st_back);
+                    blur(frame, grey, st_back, st_back_grey);
                     break;
                 case OP_EDGE:
-                    edge(grey, grey_back, st_back);
+                    edge(frame, grey, back, grey_back, st_back, st_back_grey);
                     break;
                 case OP_BORDER:
-                    border(drawing, grey_back, st_back);
+                    border(drawing, back, grey_back, st_back, st_back_grey);
                     break;
                 case OP_POLY:
-                    poly(st_back);
+                    poly(st_back, st_back_grey);
                     break;
                 case OP_MOSAIC:
-                    mosaic(grey, st_back);
+                    mosaic(frame, grey, st_back, st_back_grey);
                     break;
                 default:
                     break;
@@ -331,6 +342,7 @@ void FrameManager::process(){
                 blober.paint_blobs(back, PT_RECT);
 //                blober.paint_blobs(grey, PT_RECT);
                 blober.paint_blobs(st_back, PT_RECT);
+                blober.paint_blobs(st_back_grey, PT_RECT);
             }
 #endif
 
@@ -348,16 +360,19 @@ void FrameManager::process(){
             fore_ground = Mat2QImage(drawing);
             blober.paint_label(&fore_ground);
             back_ground = Mat2QImage(back);
-            grey_image  = Mat2QImage(st_back);
+            clr_image   = Mat2QImage(st_back);
+            grey_image  = Mat2QImage(st_back_grey);
 #ifdef LABEL_ON
             if(pain_blob == true){
                 blober.paint_label(&back_ground);
+                blober.paint_label(&clr_image);
                 blober.paint_label(&grey_image);
             }
 #endif
             player->mutex.lock();
             try{
                 imgBuffer->push_back(image);
+                clrBuffer->push_back(clr_image);
                 gryBuffer->push_back(grey_image);
                 dbgBuffer->push_back(fore_ground);
                 backBuffer->push_back(back_ground);
@@ -371,25 +386,31 @@ void FrameManager::process(){
 #ifdef MESSAGE_ON
             cout << "<" << buffered_frame_idx << "> " << "processing @fmanager.run(): " << currentThreadId() << endl;
 #endif
-            if(state_t == ST_PROC)
+            if(state_t == ST_PROC){
+                if(player->state() == BUFFERING && imgBuffer->size()-player->get_frame_ctr() > player->get_fps()*2)
+                    player->start();
+                interval.tv_nsec = 1000000000 / (3*player->get_fps());
                 nanosleep(&interval, NULL);
+            }
             else
-                sleep(5);
+                sleep(3);
         }
 }
 #endif
 
-void FrameManager::black_out(Mat& st_back){
+void FrameManager::black_out(Mat& st_back, Mat& st_back_grey){
     for(unsigned int i = 0; i <blober.rects()->size(); i++){
         Rect rec = blober.rects()->at(i);
         if(rec.width <= 0 || rec.height <= 0)
             continue;
         Mat roi = st_back(rec);
         roi = Mat::zeros(rec.height, rec.width, roi.type());
+        roi = st_back_grey(rec);
+        roi = Mat::zeros(rec.height, rec.width, roi.type());
     }
 }
 
-void FrameManager::blur(Mat &mat, Mat& st_back){
+void FrameManager::blur(Mat &mat, Mat& grey, Mat& st_back, Mat& st_back_grey){
     for(unsigned int i = 0; i < blober.rects()->size(); i++){
         Rect rec = blober.rects()->at(i);
         if(rec.width <= 0 || rec.height <= 0)
@@ -397,63 +418,87 @@ void FrameManager::blur(Mat &mat, Mat& st_back){
         Mat roi = mat(rec);
         GaussianBlur(roi, roi, Size(9, 9), gau_sigma, gau_sigma);
         roi.copyTo(st_back(rec));
+
+        roi = grey(rec);
+        GaussianBlur(roi, roi, Size(9, 9), gau_sigma, gau_sigma);
+        roi.copyTo(st_back_grey(rec));
     }
 }
 
-void FrameManager::poly(Mat &st_back){
+void FrameManager::poly(Mat &st_back, Mat& st_back_grey){
     blober.paint_blobs(st_back, PT_POLY);
+    blober.paint_blobs(st_back_grey, PT_POLY);
 }
 
-void FrameManager::mosaic(Mat &mat, Mat &st_back){
+void FrameManager::mosaic(Mat &mat, Mat& grey, Mat &st_back, Mat& st_back_grey){
     Scalar mean_val;
     for(unsigned int i = 0; i < blober.rects()->size(); i++){
         Rect rec = blober.rects()->at(i);
         if(rec.width <= 0 || rec.height <= 0)
             continue;
-        Mat roi = mat(rec);
-        cvtColor(roi, roi, CV_BGR2GRAY);
+        Mat roi     = mat(rec);
+        Mat groi    = grey(rec);
+        cvtColor(groi, groi, CV_BGR2GRAY);
         int m = 0;
         for(m; m < roi.rows - mosaic_size; m+=mosaic_size){
             int n = 0;
             for(n; n < roi.cols - mosaic_size; n+=mosaic_size){
+                Mat gblock = groi(Rect(n, m, mosaic_size, mosaic_size));
+                mean_val = mean(gblock);
+                gblock = Mat::ones(mosaic_size, mosaic_size, gblock.type())*(unsigned char)mean_val[0];
+
                 Mat block = roi(Rect(n, m, mosaic_size,mosaic_size));
                 mean_val = mean(block);
-                block = Mat::ones(mosaic_size, mosaic_size, block.type())*(unsigned char)mean_val[0];
+                cv::Mat(mosaic_size, mosaic_size, block.type(), Scalar(mean_val[0], mean_val[1], mean_val[2])).copyTo(block);
             }
-            Mat block = roi(Rect(n, m, roi.cols-n,mosaic_size));
+            Mat gblock = groi(Rect(n, m, groi.cols-n, mosaic_size));
+            mean_val = mean(gblock);
+            gblock = Mat::ones(mosaic_size, groi.cols-n, gblock.type())*(unsigned char)mean_val[0];
+
+            Mat block = roi(Rect(n, m, groi.cols-n, mosaic_size));
             mean_val = mean(block);
-            block = Mat::ones(mosaic_size, roi.cols-n, block.type())*(unsigned char)mean_val[0];
+            cv::Mat(mosaic_size, groi.cols-n, block.type(), Scalar(mean_val[0], mean_val[1], mean_val[2])).copyTo(block);
         }
         int n = 0;
         for(n; n < roi.cols - mosaic_size; n+=mosaic_size){
-            Mat block = roi(Rect(n, m, mosaic_size, roi.rows-m));
-            mean_val = mean(block);
-            block = Mat::ones(roi.rows-m, mosaic_size, block.type())*(unsigned char)mean_val[0];
-        }
-        Mat block = roi(Rect(n, m, roi.cols-n,roi.rows-m));
-        mean_val = mean(block);
-        block = Mat::ones(roi.rows-m, roi.cols-n, block.type())*(unsigned char)mean_val[0];
+            Mat gblock = groi(Rect(n, m, mosaic_size, groi.rows-m));
+            mean_val = mean(gblock);
+            gblock = Mat::ones(groi.rows-m, mosaic_size, gblock.type())*(unsigned char)mean_val[0];
 
-        cvtColor(roi, roi, CV_GRAY2BGR);
+            Mat block = roi(Rect(n, m, mosaic_size, groi.rows-m));
+            mean_val = mean(block);
+            cv::Mat(groi.rows-m, mosaic_size, block.type(), Scalar(mean_val[0], mean_val[1], mean_val[2])).copyTo(block);
+        }
+        Mat gblock = groi(Rect(n, m, groi.cols-n, groi.rows-m));
+        mean_val = mean(gblock);
+        gblock = Mat::ones(groi.rows-m, groi.cols-n, gblock.type())*(unsigned char)mean_val[0];
+
+        Mat block = roi(Rect(n, m, groi.cols-n, groi.rows-m));
+        mean_val = mean(block);
+        cv::Mat(groi.rows-m, groi.cols-n, block.type(), Scalar(mean_val[0], mean_val[1], mean_val[2])).copyTo(block);
+
+        cvtColor(groi, groi, CV_GRAY2BGR);
         roi.copyTo(st_back(rec));
+        groi.copyTo(st_back_grey(rec));
     }
 }
 
-void FrameManager::edge(Mat &mat, const Mat& back, Mat& st_back){
+void FrameManager::edge(Mat &mat, Mat& grey, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey){
     Mat sobel_x, sobel_y, sobel;
     for(unsigned int i = 0; i < blober.rects()->size(); i++){
         Rect rec = blober.rects()->at(i);
         if(rec.width <= 0 || rec.height <= 0)
             continue;
-        Mat roi = mat(rec);
+        Mat roi = grey(rec);
         GaussianBlur(roi, roi, Size(7, 7), 1.5, 1.5);
         Sobel(roi, sobel_x, -1, 0, 1);
         Sobel(roi, sobel_y, -1, 1, 0);
         st_back(rec) = sobel_x+sobel_y+back(rec);
+        st_back_grey(rec) = sobel_x+sobel_y+grey_back(rec);
     }
 }
 
-void FrameManager::border(const Mat& fore, const Mat& back, Mat& st_back){
+void FrameManager::border(const Mat& fore, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey){
     Mat sobel_x, sobel_y, sobel;
     for(unsigned int i = 0; i <blober.rects()->size(); i++){
         Rect rec = blober.rects()->at(i);
@@ -463,6 +508,7 @@ void FrameManager::border(const Mat& fore, const Mat& back, Mat& st_back){
         Sobel(fore(rec), sobel_x, -1, 0, 1);
         Sobel(fore(rec), sobel_y, -1, 1, 0);
         st_back(rec) = sobel_x+sobel_y+back(rec);
+        st_back_grey(rec) = sobel_x+sobel_y+grey_back(rec);
     }
 }
 

@@ -19,8 +19,9 @@ using namespace std;
 //define the pictures to be shown
 #define ORIGINAL    10
 #define GREYSCALE   11
-#define BACKGROUND  12
-#define FOREGROUND  13
+#define COLOR       12
+#define BACKGROUND  13
+#define FOREGROUND  14
 
 //#define DEBUG
 //#define MESSAGE_ON
@@ -36,8 +37,8 @@ public:
     PlayThread(QLabel* iLabel, QLabel* dLabel, QList<QImage>* iBuf, QList<QImage>* gBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, QTimer* timer_ptr, int* fps);
     PlayThread(QLabel* iLabel, QLabel* dLabel, QList<QImage>* iBuf, QList<QImage>* gBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, int* fps);
 #else
-    PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, QTimer* timer_ptr, int* fps);
-    PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, int* fps);
+    PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, QTimer* timer_ptr, int* fps);
+    PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, int* fps);
 #endif
     virtual ~PlayThread(){};
     virtual void run();
@@ -51,6 +52,7 @@ public:
     void    set_label(int lbl);
     void    update_frame_ctr(int position);
     int     get_frame_ctr();
+    int     get_fps(){return *fps;}
 
     QMutex mutex;
 
@@ -59,11 +61,13 @@ private:
     QLabel* dbgLabel;
 #ifndef STL_LIST
     QList<QImage>* imgBuffer;
+    QList<QImage>* clrBuffer;
     QList<QImage>* gryBuffer;
     QList<QImage>* dbgBuffer;
     QList<QImage>* backBuffer;
 #else
     std::list<QImage>* imgBuffer;
+    std::list<QImage>* clrBuffer;
     std::list<QImage>* gryBuffer;
     std::list<QImage>* dbgBuffer;
     std::list<QImage>* backBuffer;

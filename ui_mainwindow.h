@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Fri Jan 24 12:22:15 2014
+** Created: Tue Mar 4 17:27:09 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -71,9 +71,10 @@ public:
     QCheckBox *checkBox_shadow;
     QCheckBox *checkBox_rect;
     QRadioButton *radioButton_orig;
-    QRadioButton *radioButton_grey;
     QRadioButton *radioButton_back;
     QRadioButton *radioButton_fore;
+    QRadioButton *radioButton_color;
+    QRadioButton *radioButton_grey;
     QWidget *verticalLayoutWidget;
     QGridLayout *gridLayout;
     QRadioButton *radioButton_mosaic;
@@ -273,12 +274,6 @@ public:
 
         horizontalLayout_3->addWidget(radioButton_orig);
 
-        radioButton_grey = new QRadioButton(horizontalLayoutWidget_3);
-        radioButton_grey->setObjectName(QString::fromUtf8("radioButton_grey"));
-        radioButton_grey->setChecked(true);
-
-        horizontalLayout_3->addWidget(radioButton_grey);
-
         radioButton_back = new QRadioButton(horizontalLayoutWidget_3);
         radioButton_back->setObjectName(QString::fromUtf8("radioButton_back"));
 
@@ -289,6 +284,17 @@ public:
         radioButton_fore->setChecked(false);
 
         horizontalLayout_3->addWidget(radioButton_fore);
+
+        radioButton_color = new QRadioButton(horizontalLayoutWidget_3);
+        radioButton_color->setObjectName(QString::fromUtf8("radioButton_color"));
+
+        horizontalLayout_3->addWidget(radioButton_color);
+
+        radioButton_grey = new QRadioButton(horizontalLayoutWidget_3);
+        radioButton_grey->setObjectName(QString::fromUtf8("radioButton_grey"));
+        radioButton_grey->setChecked(true);
+
+        horizontalLayout_3->addWidget(radioButton_grey);
 
         verticalLayoutWidget = new QWidget(centralWidget);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
@@ -305,6 +311,7 @@ public:
 
         radioButton_blur = new QRadioButton(verticalLayoutWidget);
         radioButton_blur->setObjectName(QString::fromUtf8("radioButton_blur"));
+        radioButton_blur->setChecked(true);
 
         gridLayout->addWidget(radioButton_blur, 3, 0, 1, 1);
 
@@ -320,7 +327,7 @@ public:
 
         radioButton_default = new QRadioButton(verticalLayoutWidget);
         radioButton_default->setObjectName(QString::fromUtf8("radioButton_default"));
-        radioButton_default->setChecked(true);
+        radioButton_default->setChecked(false);
 
         gridLayout->addWidget(radioButton_default, 9, 0, 1, 1);
 
@@ -422,9 +429,10 @@ public:
         checkBox_shadow->setText(QApplication::translate("MainWindow", "shadowDet", 0, QApplication::UnicodeUTF8));
         checkBox_rect->setText(QApplication::translate("MainWindow", "rectangle", 0, QApplication::UnicodeUTF8));
         radioButton_orig->setText(QApplication::translate("MainWindow", "original", 0, QApplication::UnicodeUTF8));
-        radioButton_grey->setText(QApplication::translate("MainWindow", "grey", 0, QApplication::UnicodeUTF8));
         radioButton_back->setText(QApplication::translate("MainWindow", "background", 0, QApplication::UnicodeUTF8));
         radioButton_fore->setText(QApplication::translate("MainWindow", "foreground", 0, QApplication::UnicodeUTF8));
+        radioButton_color->setText(QApplication::translate("MainWindow", "color", 0, QApplication::UnicodeUTF8));
+        radioButton_grey->setText(QApplication::translate("MainWindow", "grey", 0, QApplication::UnicodeUTF8));
         radioButton_mosaic->setText(QApplication::translate("MainWindow", "mosaic", 0, QApplication::UnicodeUTF8));
         radioButton_blur->setText(QApplication::translate("MainWindow", "blur", 0, QApplication::UnicodeUTF8));
         radioButton_poly->setText(QApplication::translate("MainWindow", "poly", 0, QApplication::UnicodeUTF8));

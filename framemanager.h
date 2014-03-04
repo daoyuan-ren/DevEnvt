@@ -44,7 +44,7 @@ public:
 #ifndef STL_LIST
     FrameManager(VideoCapture cap, QList<QImage>* iBuf, QList<QImage>* gBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back = NULL);
 #else
-    FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back = NULL);
+    FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back = NULL);
 #endif
 
     ~FrameManager();
@@ -53,12 +53,12 @@ public:
     cv::Mat QImage2Mat(QImage const& src);
 
     void process();
-    void black_out(Mat& st_back);
-    void blur(Mat& mat, Mat& st_back);
-    void poly(Mat& st_back);
-    void mosaic(Mat &mat, Mat &st_back);
-    void edge(Mat& mat, const Mat& back, Mat& st_back);
-    void border(const Mat& fore, const Mat& back, Mat& st_back);
+    void black_out(Mat& st_back, Mat& st_back_grey);
+    void blur(Mat& mat, Mat& grey, Mat& st_back, Mat& st_back_grey);
+    void poly(Mat& st_back, Mat& st_back_grey);
+    void mosaic(Mat &mat, Mat& grey, Mat &st_back, Mat& st_back_grey);
+    void edge(Mat& mat, Mat& grey, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey);
+    void border(const Mat& fore, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey);
 
     void gamma_correction(Mat& mat, const double gamma);
     unsigned int buffered_frame();
@@ -94,12 +94,14 @@ private:
     QImage* static_background;
 #ifndef STL_LIST
     QList<QImage>* imgBuffer;
+    QList<QImage>* clrBuffer;
     QList<QImage>* gryBuffer;
     QList<QImage>* dbgBuffer;
     QList<QImage>* backBuffer;
     QList<QImage>  swap;
 #else
     std::list<QImage>* imgBuffer;
+    std::list<QImage>* clrBuffer;
     std::list<QImage>* gryBuffer;
     std::list<QImage>* dbgBuffer;
     std::list<QImage>* backBuffer;
