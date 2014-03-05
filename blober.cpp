@@ -32,7 +32,7 @@ int Blober::size(){
 }
 
 void Blober::cv_shadow_detect(Mat &frame){
-    threshold(frame, frame, 128, 255);
+    threshold(frame, frame, 128, 255, cv::THRESH_BINARY);
 }
 
 void Blober::find_blobs(Mat &frame, int blob_minSize, bool shadow_detect, int epsilon){
