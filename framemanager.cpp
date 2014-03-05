@@ -9,9 +9,11 @@ FrameManager::FrameManager(QObject *parent) :
     buffered_frame_idx  = 0;
     in_privacy_mode     = false;
     pain_blob           = true;
-    shadow_detect       = true;
+    shadow_detect       = false;
+    with_shape          = false;
     //pixel_operation     = OP_DEFAULT;
     poly_acuracy        = 1;
+    edge_thd            = 15;
 
     state_t             = ST_PROC;
     timer               = NULL;
@@ -67,11 +69,13 @@ FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage
         buffered_frame_idx  = 0;
         in_privacy_mode     = false;
         pain_blob           = true;
-        shadow_detect       = true;
+        shadow_detect       = false;
+        with_shape          = false;
         //pixel_operation     = OP_DEFAULT;
         poly_acuracy        = 1;
         mosaic_size         = 10;
         gau_sigma           = 2.5;
+        edge_thd            = 15;
 
         state_t             = ST_PROC;
 //        timer               = new QTimer(0);
@@ -124,6 +128,10 @@ void FrameManager::setOperat(int operation){
     pixel_operation = operation;
 }
 
+void FrameManager::setShape(bool with_shape){
+    this->with_shape = with_shape;
+}
+
 void FrameManager::setState(int state_t){
     this->state_t = state_t;
 }
@@ -138,6 +146,11 @@ void FrameManager::setMosaicSize(int mosaic_size){
 
 void FrameManager::setSigma(double gau_sigma){
     this->gau_sigma = gau_sigma;
+}
+
+void FrameManager::setEdgeThd(int edge_thd){
+    if(edge_thd >= 0 && edge_thd <= 255)
+        this->edge_thd = edge_thd;
 }
 
 int FrameManager::state(){
@@ -274,7 +287,7 @@ void FrameManager::process(){
 //        width   = cap.get(CV_CAP_PROP_FRAME_WIDTH);
 //        height  = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
 
-        Mat frame, back, fore;
+        Mat frame, frame_gau, back, fore;
         Mat drawing, grey, grey_back, st_back, st_back_grey;
         QImage image, clr_image, grey_image, fore_ground, back_ground;
         LBMixtureOfGaussians* bgs = new LBMixtureOfGaussians;
@@ -285,12 +298,12 @@ void FrameManager::process(){
             cvtColor(grey, grey, CV_GRAY2BGR);
             image = Mat2QImage(frame);
 
-            GaussianBlur(frame, frame, Size(3, 3), 1.5, 1.5);
+            GaussianBlur(frame, frame_gau, Size(5, 5), 1.5, 1.5);
 
             /*** subtracting backgrounds from frame using different algorithms ***/
             //bg.operator ()(frame, fore, 0.01);
             //bg.getBackgroundImage(back);
-            bgs->process(frame, fore, back);
+            bgs->process(frame_gau, fore, back);
 
             //erode(fore, fore, cv::Mat());
             //dilate(fore, fore, cv::Mat());
@@ -310,7 +323,6 @@ void FrameManager::process(){
             }
             else
                 st_back = grey_back;
-
             /*** add the pixel operation on range of interest ***/
             if(in_privacy_mode == true){
                 switch (pixel_operation){
@@ -318,7 +330,7 @@ void FrameManager::process(){
                     black_out(st_back, st_back_grey);
                     break;
                 case OP_BLUR:
-                    blur(frame, grey, st_back, st_back_grey);
+                    blur(frame, drawing, grey, st_back, st_back_grey);
                     break;
                 case OP_EDGE:
                     edge(frame, grey, back, grey_back, st_back, st_back_grey);
@@ -336,13 +348,13 @@ void FrameManager::process(){
                     break;
                 }
             }
-            blober.paint_blobs(drawing, PT_RECT);
+
 #ifdef BLOB_ON
             if(pain_blob == true){
-                blober.paint_blobs(back, PT_RECT);
-//                blober.paint_blobs(grey, PT_RECT);
-                blober.paint_blobs(st_back, PT_RECT);
-                blober.paint_blobs(st_back_grey, PT_RECT);
+                blober.paint_blobs(back, PT_RECT, CL_GREEN);
+                blober.paint_blobs(drawing, PT_RECT, CL_GREEN);
+                blober.paint_blobs(st_back, PT_RECT, CL_GREEN);
+                blober.paint_blobs(st_back_grey, PT_RECT, CL_GREEN);
             }
 #endif
 
@@ -410,24 +422,36 @@ void FrameManager::black_out(Mat& st_back, Mat& st_back_grey){
     }
 }
 
-void FrameManager::blur(Mat &mat, Mat& grey, Mat& st_back, Mat& st_back_grey){
+void FrameManager::blur(Mat &mat, const Mat& fore, Mat& grey, Mat& st_back, Mat& st_back_grey){
+
     for(unsigned int i = 0; i < blober.rects()->size(); i++){
-        Rect rec = blober.rects()->at(i);
+        Rect rec    = blober.rects()->at(i);
         if(rec.width <= 0 || rec.height <= 0)
             continue;
-        Mat roi = mat(rec);
-        GaussianBlur(roi, roi, Size(9, 9), gau_sigma, gau_sigma);
-        roi.copyTo(st_back(rec));
+        Mat roi     = mat(rec);
+        Mat roi_c   = grey(rec);
+        Mat mask    = fore(rec);
+        Mat roi_gau, roi_c_gau, inv_mask;
 
-        roi = grey(rec);
-        GaussianBlur(roi, roi, Size(9, 9), gau_sigma, gau_sigma);
-        roi.copyTo(st_back_grey(rec));
+        GaussianBlur(roi, roi_gau, Size(9, 9), gau_sigma, gau_sigma);
+        GaussianBlur(roi_c, roi_c_gau, Size(9, 9), gau_sigma, gau_sigma);
+        bitwise_and(roi_gau,mask,roi_gau);
+        bitwise_and(roi_c_gau,mask,roi_c_gau);
+        bitwise_not(mask, inv_mask);
+        bitwise_and(roi,inv_mask,roi);
+        bitwise_and(roi_c,inv_mask,roi_c);
+        roi += roi_gau;
+        roi_c += roi_c_gau;
+        roi.copyTo(st_back(rec));
+        roi_c.copyTo(st_back_grey(rec));
     }
+    if(with_shape == true)
+        poly(st_back, st_back_grey, CL_SKY);
 }
 
-void FrameManager::poly(Mat &st_back, Mat& st_back_grey){
-    blober.paint_blobs(st_back, PT_POLY);
-    blober.paint_blobs(st_back_grey, PT_POLY);
+void FrameManager::poly(Mat &st_back, Mat& st_back_grey, Scalar color){
+    blober.paint_blobs(st_back, PT_POLY, color);
+    blober.paint_blobs(st_back_grey, PT_POLY, color);
 }
 
 void FrameManager::mosaic(Mat &mat, Mat& grey, Mat &st_back, Mat& st_back_grey){
@@ -481,6 +505,8 @@ void FrameManager::mosaic(Mat &mat, Mat& grey, Mat &st_back, Mat& st_back_grey){
         roi.copyTo(st_back(rec));
         groi.copyTo(st_back_grey(rec));
     }
+    if(with_shape == true)
+        poly(st_back, st_back_grey, CL_SKY);
 }
 
 void FrameManager::edge(Mat &mat, Mat& grey, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey){
@@ -493,9 +519,13 @@ void FrameManager::edge(Mat &mat, Mat& grey, const Mat& back, const Mat& grey_ba
         GaussianBlur(roi, roi, Size(7, 7), 1.5, 1.5);
         Sobel(roi, sobel_x, -1, 0, 1);
         Sobel(roi, sobel_y, -1, 1, 0);
-        st_back(rec) = sobel_x+sobel_y+back(rec);
-        st_back_grey(rec) = sobel_x+sobel_y+grey_back(rec);
+        sobel = sobel_x + sobel_y;
+        threshold(sobel, sobel, edge_thd, 255, THRESH_TOZERO);
+        st_back(rec) = sobel + back(rec);
+        st_back_grey(rec) = sobel + grey_back(rec);
     }
+    if(with_shape)
+        poly(st_back, st_back_grey, CL_SKY);
 }
 
 void FrameManager::border(const Mat& fore, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey){

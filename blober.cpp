@@ -31,13 +31,17 @@ int Blober::size(){
     return blob_num;
 }
 
+void Blober::cv_shadow_detect(Mat &frame){
+    threshold(frame, frame, 128, 255);
+}
+
 void Blober::find_blobs(Mat &frame, int blob_minSize, bool shadow_detect, int epsilon){
     if(frame.empty())
         return;
     Mat temp;
     frame.copyTo(temp);
     if(shadow_detect == true){
-        cv::threshold(temp, temp, 128, 255, temp.type());
+        cv_shadow_detect(temp);
     }
     cv::findContours(temp, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
     create(contours.size());
@@ -54,7 +58,7 @@ void Blober::find_blobs(Mat &frame, int blob_minSize, bool shadow_detect, int ep
     }
     {
         // find the shadow down-top.
-        //    if(shadow_detect == true){
+        /*    if(shadow_detect == true){
         //        Mat sub;
         //        double min_val, max_val;
         //        for(int i = 0; i < boundRect->size(); i++){
@@ -68,6 +72,7 @@ void Blober::find_blobs(Mat &frame, int blob_minSize, bool shadow_detect, int ep
         //            }
         //        }
         //    }
+        */
     }
 }
 
@@ -84,7 +89,7 @@ void Blober::paint_blobs(Mat &drawing){
     }
 }
 
-void Blober::paint_blobs(Mat &drawing, int shape_t){
+void Blober::paint_blobs(Mat &drawing, int shape_t, Scalar color){
 
     if(contours_poly->empty())
         return;
@@ -93,7 +98,7 @@ void Blober::paint_blobs(Mat &drawing, int shape_t){
 
 #ifdef POLY
         if(shape_t == PT_POLY)
-            drawContours( drawing, *contours_poly, i, CL_BLUE, 2, 8, vector<Vec4i>(), 0, Point() );
+            drawContours( drawing, *contours_poly, i, color, 2, 8, vector<Vec4i>(), 0, Point() );
 #endif
         if(shape_t == PT_RECT)
             rectangle(drawing, (*boundRect)[i].tl(), (*boundRect)[i].br(), color, 2);

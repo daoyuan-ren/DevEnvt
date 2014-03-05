@@ -20,6 +20,7 @@ using namespace std;
 #define CL_RED      Scalar(255, 0, 0)
 #define CL_GREEN    Scalar(0, 255, 127)
 #define CL_BLUE     Scalar(255, 0, 0)
+#define CL_SKY      Scalar(255, 255, 0)
 #define CL_YELLOW   Scalar(0, 255, 255)
 
 class Blober
@@ -43,7 +44,8 @@ public:
     void find_blobs(Mat& frame, int blob_minSize, bool shadow_detect, int epsilon = 3);
     void paint_label(QImage* image);
     void paint_blobs(Mat& drawing);
-    void paint_blobs(Mat &drawing, int shape_t);
+    void paint_blobs(Mat &drawing, int shape_t, Scalar color = CL_BLUE);
+    void cv_shadow_detect(Mat& frame);
     string drawText(int x, int y, int width, int height);
 
     vector<Rect>* rects();

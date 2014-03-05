@@ -568,3 +568,17 @@ void MainWindow::on_radioButton_color_clicked()
         player->set_label(COLOR);
     }
 }
+
+void MainWindow::on_checkBox_shape_clicked()
+{
+    if(fmanager != NULL){
+        fmanager->setShape(ui->checkBox_shape->isChecked());
+    }
+
+}
+
+void MainWindow::on_spinBox_egThd_valueChanged(const QString &arg1)
+{
+    if(fmanager != NULL)
+        fmanager->setEdgeThd(ui->spinBox_egThd->value());
+}

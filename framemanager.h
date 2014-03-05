@@ -54,8 +54,8 @@ public:
 
     void process();
     void black_out(Mat& st_back, Mat& st_back_grey);
-    void blur(Mat& mat, Mat& grey, Mat& st_back, Mat& st_back_grey);
-    void poly(Mat& st_back, Mat& st_back_grey);
+    void blur(Mat& mat, const Mat& fore, Mat& grey, Mat& st_back, Mat& st_back_grey);
+    void poly(Mat& st_back, Mat& st_back_grey, Scalar color = CL_BLUE);
     void mosaic(Mat &mat, Mat& grey, Mat &st_back, Mat& st_back_grey);
     void edge(Mat& mat, Mat& grey, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey);
     void border(const Mat& fore, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey);
@@ -66,11 +66,13 @@ public:
     void inPrivacy(bool privacy_mode);
     void pain_rect(bool paint_blob);
     void shadow(bool shadow_detect);
+    void setShape(bool with_shape);
     void setOperat(int operation);
     void setState(int state_t);
     void setAcuracy(int acuracy);
     void setMosaicSize(int mosaic_size);
     void setSigma(double gau_sigma);
+    void setEdgeThd(int edge_thd);
 
 
     int  state();
@@ -80,8 +82,10 @@ private:
     bool in_privacy_mode;
     bool pain_blob;
     bool shadow_detect;
+    bool with_shape;
     int  pixel_operation;
     int  state_t;
+    int  edge_thd;
     int  poly_acuracy;
     int  mosaic_size;
     double gau_sigma;

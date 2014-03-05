@@ -133,6 +133,8 @@ public:
     void on_spinBox_moasicSize_valueChanged(int arg1);
     void on_doubleSpinBox_gauSigma_valueChanged(double arg1);
     void on_radioButton_color_clicked();
+    void on_checkBox_shape_clicked();
+    void on_spinBox_egThd_valueChanged(const QString &arg1);
 };
 
 #endif // MAINWINDOW_H
