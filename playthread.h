@@ -47,6 +47,7 @@ public:
     int     state();
     int     label();
     void    set_label(int lbl);
+    void    set_lock(bool lock_input);
     void    update_frame_ctr(int position);
     int     get_frame_ctr();
     int     get_fps(){return *fps;}
@@ -73,6 +74,7 @@ private:
     unsigned int played_frame_cnt;
     int state_t;
     int label_t;
+    bool lock_input;
 
 private slots:
     void imageUpdate();

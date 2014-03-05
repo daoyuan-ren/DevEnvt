@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Wed Mar 5 16:00:25 2014
+** Created: Wed Mar 5 17:50:26 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -67,6 +67,7 @@ public:
     QLabel *label_debug;
     QWidget *horizontalLayoutWidget_3;
     QHBoxLayout *horizontalLayout_3;
+    QCheckBox *checkBox_lockImage;
     QSpacerItem *horizontalSpacer_2;
     QCheckBox *checkBox_shadow;
     QCheckBox *checkBox_rect;
@@ -167,7 +168,7 @@ public:
         spinBox_ctSize->setObjectName(QString::fromUtf8("spinBox_ctSize"));
         spinBox_ctSize->setMaximum(999);
         spinBox_ctSize->setSingleStep(10);
-        spinBox_ctSize->setValue(150);
+        spinBox_ctSize->setValue(120);
 
         horizontalLayout->addWidget(spinBox_ctSize);
 
@@ -250,6 +251,12 @@ public:
         horizontalLayout_3->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
+        checkBox_lockImage = new QCheckBox(horizontalLayoutWidget_3);
+        checkBox_lockImage->setObjectName(QString::fromUtf8("checkBox_lockImage"));
+        checkBox_lockImage->setChecked(true);
+
+        horizontalLayout_3->addWidget(checkBox_lockImage);
+
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_3->addItem(horizontalSpacer_2);
@@ -441,6 +448,7 @@ public:
         pushButton_work->setText(QApplication::translate("MainWindow", "Halt", 0, QApplication::UnicodeUTF8));
         label->setText(QString());
         label_debug->setText(QString());
+        checkBox_lockImage->setText(QApplication::translate("MainWindow", "Lock", 0, QApplication::UnicodeUTF8));
         checkBox_shadow->setText(QApplication::translate("MainWindow", "shadowDet", 0, QApplication::UnicodeUTF8));
         checkBox_rect->setText(QApplication::translate("MainWindow", "rectangle", 0, QApplication::UnicodeUTF8));
         radioButton_orig->setText(QApplication::translate("MainWindow", "original", 0, QApplication::UnicodeUTF8));

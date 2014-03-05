@@ -24,7 +24,7 @@ PlayThread::PlayThread()
 }
 
 #ifdef STL_LIST
-PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, QTimer* timer, int* fps)
+PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, QTimer* timer, int* fps):lock_input(true)
 {
     imgLabel    = iLabel;
     dbgLabel    = dLabel;
@@ -42,7 +42,7 @@ PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, l
     timer_ptr   = timer;
 }
 
-PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, int* fps)
+PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, int* fps):lock_input(true)
 {
     imgLabel    = iLabel;
     dbgLabel    = dLabel;
@@ -97,7 +97,13 @@ void PlayThread::imageUpdate() {
         advance(b_itr, frame_pos);
         advance(d_itr, frame_pos);
 
-        imgLabel->setPixmap(QPixmap::fromImage(*i_itr));
+        if(lock_input == true){
+            QPixmap lock_screen((*i_itr).width(),(*i_itr).height());
+            lock_screen.fill(Qt::black);
+            imgLabel->setPixmap(lock_screen);
+        }
+        else
+            imgLabel->setPixmap(QPixmap::fromImage(*i_itr));
         if((*i_itr).isNull()){
             cerr << "empty image @" << frame_pos << endl;
             frame_pos++;
@@ -177,4 +183,8 @@ int PlayThread::label(){
 
 void PlayThread::set_label(int lbl){
     label_t = lbl;
+}
+
+void PlayThread::set_lock(bool lock_input){
+    this->lock_input = lock_input;
 }

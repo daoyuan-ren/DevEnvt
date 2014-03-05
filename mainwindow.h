@@ -135,6 +135,7 @@ public:
     void on_radioButton_color_clicked();
     void on_checkBox_shape_clicked();
     void on_spinBox_egThd_valueChanged(const QString &arg1);
+    void on_checkBox_lockImage_clicked();
 };
 
 #endif // MAINWINDOW_H

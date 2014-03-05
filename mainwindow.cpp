@@ -534,3 +534,9 @@ void MainWindow::on_spinBox_egThd_valueChanged(const QString &arg1)
     if(fmanager != NULL)
         fmanager->setEdgeThd(ui->spinBox_egThd->value());
 }
+
+void MainWindow::on_checkBox_lockImage_clicked()
+{
+    if(player != NULL)
+        player->set_lock(ui->checkBox_lockImage->isChecked());
+}
