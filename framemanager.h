@@ -41,9 +41,7 @@ class FrameManager : public QThread
     Q_OBJECT
 public:
     explicit FrameManager(QObject *parent = 0);
-#ifndef STL_LIST
-    FrameManager(VideoCapture cap, QList<QImage>* iBuf, QList<QImage>* gBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back = NULL);
-#else
+#ifdef STL_LIST
     FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back = NULL);
 #endif
 
@@ -96,14 +94,7 @@ private:
     QSpinBox* spinBox_ctSize;
 
     QImage* static_background;
-#ifndef STL_LIST
-    QList<QImage>* imgBuffer;
-    QList<QImage>* clrBuffer;
-    QList<QImage>* gryBuffer;
-    QList<QImage>* dbgBuffer;
-    QList<QImage>* backBuffer;
-    QList<QImage>  swap;
-#else
+#ifdef STL_LIST
     std::list<QImage>* imgBuffer;
     std::list<QImage>* clrBuffer;
     std::list<QImage>* gryBuffer;
