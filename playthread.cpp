@@ -24,7 +24,7 @@ PlayThread::PlayThread()
 }
 
 #ifdef STL_LIST
-PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, QTimer* timer, int* fps):lock_input(true)
+PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, QTimer* timer, int* fps, bool lock_input)
 {
     imgLabel    = iLabel;
     dbgLabel    = dLabel;
@@ -40,9 +40,10 @@ PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, l
     label_t     = GREYSCALE;
     status      = QString::fromStdString("No Input Video");
     timer_ptr   = timer;
+    this->lock_input = lock_input;
 }
 
-PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, int* fps):lock_input(true)
+PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, int* fps, bool lock_input)
 {
     imgLabel    = iLabel;
     dbgLabel    = dLabel;
@@ -59,6 +60,7 @@ PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, l
     status      = QString::fromStdString("No Input Video");
     timer_ptr   = new QTimer(0);
     connect(timer_ptr, SIGNAL(timeout()), this, SLOT(imageUpdate()));
+    this->lock_input = lock_input;
 }
 #endif
 

@@ -11,9 +11,11 @@ FrameManager::FrameManager(QObject *parent) :
     pain_blob           = true;
     shadow_detect       = false;
     with_shape          = false;
+    shadow_cut          = false;
     //pixel_operation     = OP_DEFAULT;
     poly_acuracy        = 1;
     edge_thd            = 15;
+    shadow_cut_value    = 3;
 
     state_t             = ST_PROC;
     timer               = NULL;
@@ -40,11 +42,13 @@ FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage
         pain_blob           = true;
         shadow_detect       = false;
         with_shape          = false;
+        shadow_cut          = false;
         //pixel_operation     = OP_DEFAULT;
         poly_acuracy        = 1;
         mosaic_size         = 10;
         gau_sigma           = 2.5;
         edge_thd            = 15;
+        shadow_cut_value    = 3;
 
         state_t             = ST_PROC;
 //        timer               = new QTimer(0);
@@ -120,6 +124,14 @@ void FrameManager::setSigma(double gau_sigma){
 void FrameManager::setEdgeThd(int edge_thd){
     if(edge_thd >= 0 && edge_thd <= 255)
         this->edge_thd = edge_thd;
+}
+
+void FrameManager::setShadowCut(double shadow_cut_value){
+    this->shadow_cut_value = shadow_cut_value;
+}
+
+void FrameManager::cutShadow(bool shadow_cut){
+    this->shadow_cut = shadow_cut;
 }
 
 int FrameManager::state(){
@@ -291,11 +303,16 @@ void FrameManager::blur(Mat &mat, const Mat& fore, Mat& grey, Mat& st_back, Mat&
         bitwise_and(roi_c,inv_mask,roi_c);
         roi += roi_gau;
         roi_c += roi_c_gau;
+        //drawMiddleLine(mask, mask, 0);
+        if(shadow_cut == true)
+            drawShadowCut(mask, roi, mask, shadow_cut_value);
         roi.copyTo(st_back(rec));
         roi_c.copyTo(st_back_grey(rec));
+
+
     }
     if(with_shape == true)
-        poly(st_back, st_back_grey, CL_SKY);
+        poly(st_back, st_back_grey, CL_CYAN);
 }
 
 void FrameManager::poly(Mat &st_back, Mat& st_back_grey, Scalar color){
@@ -355,7 +372,7 @@ void FrameManager::mosaic(Mat &mat, Mat& grey, Mat &st_back, Mat& st_back_grey){
         groi.copyTo(st_back_grey(rec));
     }
     if(with_shape == true)
-        poly(st_back, st_back_grey, CL_SKY);
+        poly(st_back, st_back_grey, CL_CYAN);
 }
 
 void FrameManager::edge(Mat &mat, Mat& grey, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey){
@@ -374,7 +391,7 @@ void FrameManager::edge(Mat &mat, Mat& grey, const Mat& back, const Mat& grey_ba
         st_back_grey(rec) = sobel + grey_back(rec);
     }
     if(with_shape)
-        poly(st_back, st_back_grey, CL_SKY);
+        poly(st_back, st_back_grey, CL_CYAN);
 }
 
 void FrameManager::border(const Mat& fore, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey){
@@ -435,4 +452,79 @@ void FrameManager::gamma_correction(Mat &mat, const double gamma){
 
 unsigned int FrameManager::buffered_frame(){
     return buffered_frame_idx;
+}
+
+vector<Point>* FrameManager::drawMiddleLine(const Mat &fore, Mat& frame, int direct_t){
+
+    Mat fore_c1;
+    if(fore.channels() == 3)
+        cvtColor(fore,fore_c1, CV_BGR2GRAY);
+
+    vector<Point>* middle_dots_in = new vector<Point>();
+    vector<Point>* middle_dots_out = new vector<Point>();
+
+    for(int i = 5; i < fore_c1.rows-10; i+=5){
+        int l = 0; int r = fore_c1.cols-1;
+        while(l < r){
+            if(fore_c1.at<uchar>(i,l) != 0 && fore_c1.at<uchar>(i,r) != 0){
+                middle_dots_in->push_back(Point((l+r/2),i));
+                break;
+            }
+            l = fore_c1.at<uchar>(i,l) == 0 ? l+1 : l;
+            r = fore_c1.at<uchar>(i,r) == 0 ? r-1 : r;
+        }
+        int i_l = fore_c1.cols/2 -1;
+        int i_r = fore_c1.cols/2;
+        while( i_l >= 0 && i_r < fore_c1.cols){
+            if(fore_c1.at<uchar>(i,i_l) == 0 && fore_c1.at<uchar>(i,i_r) == 0){
+                middle_dots_out->push_back(Point((i_l+i_r/2),i));
+                break;
+            }
+                i_l = fore_c1.at<uchar>(i,i_l) != 0 ? i_l-1 : i_l;
+                i_r = fore_c1.at<uchar>(i,i_r) != 0 ? i_r+1 : i_r;
+        }
+    }
+
+    while(middle_dots_in->size()>=2 || middle_dots_out->size()>=2){
+        Point p1, p2;
+        if(middle_dots_in->size() >= 2){
+            p1 = middle_dots_in->back();
+            middle_dots_in->pop_back();
+            p2 = middle_dots_in->back();
+            middle_dots_in->pop_back();
+            line(frame, p2, p1, CL_RED, 2);
+        }
+
+        if(middle_dots_out->size() >= 2){
+            p1 = middle_dots_out->back();
+            middle_dots_out->pop_back();
+            p2 = middle_dots_out->back();
+            middle_dots_out->pop_back();
+            line(frame, p2, p1, CL_BLUE, 2);
+        }
+    }
+    line(frame, Point(frame.cols/2, 0), Point(frame.cols/2, frame.rows-1), CL_YELLOW, 2);
+    return middle_dots_in;
+}
+
+void FrameManager::drawShadowCut(const Mat &fore, Mat &frame, Mat& result, double thresh){
+    Mat fore_c1;
+    if(fore.channels() == 3)
+        cvtColor(fore,fore_c1, CV_BGR2GRAY);
+
+    Scalar mValue, cValue;
+    for(int i = fore.rows-1; i > fore.rows/2; i--){
+        Mat line = frame(Rect(0, i, fore.cols, 1));
+        Mat mask = fore_c1(Rect(0, i, fore.cols, 1));
+        mValue = mean(line, mask);
+
+        Mat cut = frame(Rect(0, i-1, fore.cols, 1));
+        Mat cut_mask = fore_c1(Rect(0, i-1, fore.cols, 1));
+        cValue = mean(cut, cut_mask);
+        absdiff(mValue, cValue, mValue);
+        if(mValue[0]>thresh && mValue[1]>thresh && mValue[2]>thresh){
+            cv::line(result, Point(0, i), Point(fore.cols-1, i), CL_GREY, 2);
+            break;
+        }
+    }
 }

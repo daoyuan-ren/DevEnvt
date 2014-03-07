@@ -65,13 +65,15 @@ public:
     void pain_rect(bool paint_blob);
     void shadow(bool shadow_detect);
     void setShape(bool with_shape);
+    void cutShadow(bool shadow_cut);
+
     void setOperat(int operation);
     void setState(int state_t);
     void setAcuracy(int acuracy);
     void setMosaicSize(int mosaic_size);
     void setSigma(double gau_sigma);
     void setEdgeThd(int edge_thd);
-
+    void setShadowCut(double shadow_cut_value);
 
     int  state();
 
@@ -79,14 +81,17 @@ public:
 private:
     bool in_privacy_mode;
     bool pain_blob;
-    bool shadow_detect;
     bool with_shape;
+    bool shadow_cut;
+    // used for opencv shadow_detection
+    bool shadow_detect;
     int  pixel_operation;
     int  state_t;
     int  edge_thd;
     int  poly_acuracy;
     int  mosaic_size;
     double gau_sigma;
+    double shadow_cut_value;
     unsigned int buffered_frame_idx;
 
     timespec interval;
@@ -108,6 +113,9 @@ private:
 
     Blober blober;
     PlayThread* player;
+
+    vector<Point>* drawMiddleLine(const Mat& fore, Mat& frame, int direc_t);
+    void drawShadowCut(const Mat& fore, Mat& frame, Mat& result, double thresh);
 
 signals:
     

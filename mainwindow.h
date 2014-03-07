@@ -136,6 +136,8 @@ public:
     void on_checkBox_shape_clicked();
     void on_spinBox_egThd_valueChanged(const QString &arg1);
     void on_checkBox_lockImage_clicked();
+    void on_checkBox_shadowCut_clicked();
+    void on_doubleSpinBox_shadowCutValut_valueChanged(double arg1);
 };
 
 #endif // MAINWINDOW_H

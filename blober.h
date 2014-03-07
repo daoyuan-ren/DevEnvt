@@ -17,11 +17,13 @@ using namespace std;
 #define PT_RECT 11
 #define PT_CIRC 12
 
-#define CL_RED      Scalar(255, 0, 0)
+#define CL_RED      Scalar(0, 0, 255)
 #define CL_GREEN    Scalar(0, 255, 127)
 #define CL_BLUE     Scalar(255, 0, 0)
-#define CL_SKY      Scalar(255, 255, 0)
+#define CL_CYAN     Scalar(255, 255, 0)
 #define CL_YELLOW   Scalar(0, 255, 255)
+#define CL_GREY     Scalar(127, 127, 127)
+#define CL_MEGENTA  Scalar(255, 0, 255)
 
 class Blober
 {

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Wed Mar 5 17:50:26 2014
+** Created: Fri Mar 7 11:06:28 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -78,6 +78,7 @@ public:
     QRadioButton *radioButton_grey;
     QWidget *verticalLayoutWidget;
     QGridLayout *gridLayout;
+    QDoubleSpinBox *doubleSpinBox_gauSigma;
     QSpinBox *spinBox_egThd;
     QRadioButton *radioButton_poly;
     QSpinBox *spinBox_polyAcy;
@@ -87,11 +88,12 @@ public:
     QRadioButton *radioButton_edge;
     QSpacerItem *verticalSpacer;
     QSpinBox *spinBox_moasicSize;
-    QDoubleSpinBox *doubleSpinBox_gauSigma;
     QCheckBox *checkBox_shape;
     QRadioButton *radioButton_border;
     QRadioButton *radioButton_black;
     QRadioButton *radioButton_default;
+    QCheckBox *checkBox_shadowCut;
+    QDoubleSpinBox *doubleSpinBox_shadowCutValut;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QToolBar *mainToolBar;
@@ -189,7 +191,8 @@ public:
 
         fps_spinBox = new QSpinBox(horizontalLayoutWidget);
         fps_spinBox->setObjectName(QString::fromUtf8("fps_spinBox"));
-        fps_spinBox->setValue(5);
+        fps_spinBox->setMaximum(30);
+        fps_spinBox->setValue(4);
 
         horizontalLayout->addWidget(fps_spinBox);
 
@@ -253,7 +256,7 @@ public:
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
         checkBox_lockImage = new QCheckBox(horizontalLayoutWidget_3);
         checkBox_lockImage->setObjectName(QString::fromUtf8("checkBox_lockImage"));
-        checkBox_lockImage->setChecked(true);
+        checkBox_lockImage->setChecked(false);
 
         horizontalLayout_3->addWidget(checkBox_lockImage);
 
@@ -296,12 +299,13 @@ public:
 
         radioButton_color = new QRadioButton(horizontalLayoutWidget_3);
         radioButton_color->setObjectName(QString::fromUtf8("radioButton_color"));
+        radioButton_color->setChecked(true);
 
         horizontalLayout_3->addWidget(radioButton_color);
 
         radioButton_grey = new QRadioButton(horizontalLayoutWidget_3);
         radioButton_grey->setObjectName(QString::fromUtf8("radioButton_grey"));
-        radioButton_grey->setChecked(true);
+        radioButton_grey->setChecked(false);
 
         horizontalLayout_3->addWidget(radioButton_grey);
 
@@ -313,6 +317,14 @@ public:
         gridLayout->setContentsMargins(11, 11, 11, 11);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         gridLayout->setContentsMargins(0, 0, 0, 0);
+        doubleSpinBox_gauSigma = new QDoubleSpinBox(verticalLayoutWidget);
+        doubleSpinBox_gauSigma->setObjectName(QString::fromUtf8("doubleSpinBox_gauSigma"));
+        doubleSpinBox_gauSigma->setMinimum(2.5);
+        doubleSpinBox_gauSigma->setMaximum(10);
+        doubleSpinBox_gauSigma->setSingleStep(2.5);
+
+        gridLayout->addWidget(doubleSpinBox_gauSigma, 3, 1, 1, 1);
+
         spinBox_egThd = new QSpinBox(verticalLayoutWidget);
         spinBox_egThd->setObjectName(QString::fromUtf8("spinBox_egThd"));
         spinBox_egThd->setMaximum(255);
@@ -368,18 +380,10 @@ public:
 
         gridLayout->addWidget(spinBox_moasicSize, 9, 1, 1, 1);
 
-        doubleSpinBox_gauSigma = new QDoubleSpinBox(verticalLayoutWidget);
-        doubleSpinBox_gauSigma->setObjectName(QString::fromUtf8("doubleSpinBox_gauSigma"));
-        doubleSpinBox_gauSigma->setMinimum(2.5);
-        doubleSpinBox_gauSigma->setMaximum(10);
-        doubleSpinBox_gauSigma->setSingleStep(2.5);
-
-        gridLayout->addWidget(doubleSpinBox_gauSigma, 3, 1, 1, 1);
-
         checkBox_shape = new QCheckBox(verticalLayoutWidget);
         checkBox_shape->setObjectName(QString::fromUtf8("checkBox_shape"));
 
-        gridLayout->addWidget(checkBox_shape, 11, 1, 1, 1);
+        gridLayout->addWidget(checkBox_shape, 12, 1, 1, 1);
 
         radioButton_border = new QRadioButton(verticalLayoutWidget);
         radioButton_border->setObjectName(QString::fromUtf8("radioButton_border"));
@@ -397,6 +401,19 @@ public:
         radioButton_default->setChecked(false);
 
         gridLayout->addWidget(radioButton_default, 2, 0, 1, 1);
+
+        checkBox_shadowCut = new QCheckBox(verticalLayoutWidget);
+        checkBox_shadowCut->setObjectName(QString::fromUtf8("checkBox_shadowCut"));
+
+        gridLayout->addWidget(checkBox_shadowCut, 11, 0, 1, 1);
+
+        doubleSpinBox_shadowCutValut = new QDoubleSpinBox(verticalLayoutWidget);
+        doubleSpinBox_shadowCutValut->setObjectName(QString::fromUtf8("doubleSpinBox_shadowCutValut"));
+        doubleSpinBox_shadowCutValut->setMaximum(10);
+        doubleSpinBox_shadowCutValut->setSingleStep(0.5);
+        doubleSpinBox_shadowCutValut->setValue(3);
+
+        gridLayout->addWidget(doubleSpinBox_shadowCutValut, 11, 1, 1, 1);
 
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
@@ -465,6 +482,7 @@ public:
         radioButton_border->setText(QApplication::translate("MainWindow", "border", 0, QApplication::UnicodeUTF8));
         radioButton_black->setText(QApplication::translate("MainWindow", "black", 0, QApplication::UnicodeUTF8));
         radioButton_default->setText(QApplication::translate("MainWindow", "default", 0, QApplication::UnicodeUTF8));
+        checkBox_shadowCut->setText(QApplication::translate("MainWindow", "shadow", 0, QApplication::UnicodeUTF8));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //clock used to update the label in ui
     lup_timer = new QTimer(this);
     connect(lup_timer, SIGNAL(timeout()), this, SLOT(labelUpdate()));
-    player = new PlayThread(ui->label, ui->label_debug, imgBuffer,clrBuffer, gryBuffer, dbgBuffer, backBuffer, &fps);
+    player = new PlayThread(ui->label, ui->label_debug, imgBuffer,clrBuffer, gryBuffer, dbgBuffer, backBuffer, &fps, ui->checkBox_lockImage->isChecked());
 }
 
 MainWindow::~MainWindow()
@@ -539,4 +539,16 @@ void MainWindow::on_checkBox_lockImage_clicked()
 {
     if(player != NULL)
         player->set_lock(ui->checkBox_lockImage->isChecked());
+}
+
+void MainWindow::on_checkBox_shadowCut_clicked()
+{
+    if(fmanager != NULL)
+        fmanager->cutShadow(ui->checkBox_shadowCut->isChecked());
+}
+
+void MainWindow::on_doubleSpinBox_shadowCutValut_valueChanged(double arg1)
+{
+    if(fmanager != NULL)
+        fmanager->setShadowCut(ui->doubleSpinBox_shadowCutValut->value());
 }

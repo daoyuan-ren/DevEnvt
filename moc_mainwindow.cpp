@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'mainwindow.h'
 **
-** Created: Wed Mar 5 17:53:21 2014
+** Created: Fri Mar 7 11:24:52 2014
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      33,   14, // methods
+      35,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -64,6 +64,8 @@ static const uint qt_meta_data_MainWindow[] = {
      914,   11,   11,   11, 0x08,
      942,  754,   11,   11, 0x08,
      981,   11,   11,   11, 0x08,
+    1013,   11,   11,   11, 0x08,
+    1045,  754,   11,   11, 0x08,
 
        0        // eod
 };
@@ -101,6 +103,8 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "on_checkBox_shape_clicked()\0"
     "on_spinBox_egThd_valueChanged(QString)\0"
     "on_checkBox_lockImage_clicked()\0"
+    "on_checkBox_shadowCut_clicked()\0"
+    "on_doubleSpinBox_shadowCutValut_valueChanged(double)\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -142,6 +146,8 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 30: _t->on_checkBox_shape_clicked(); break;
         case 31: _t->on_spinBox_egThd_valueChanged((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 32: _t->on_checkBox_lockImage_clicked(); break;
+        case 33: _t->on_checkBox_shadowCut_clicked(); break;
+        case 34: _t->on_doubleSpinBox_shadowCutValut_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -179,9 +185,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 33)
+        if (_id < 35)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 33;
+        _id -= 35;
     }
     return _id;
 }
