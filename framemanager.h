@@ -66,6 +66,7 @@ public:
     void shadow(bool shadow_detect);
     void setShape(bool with_shape);
     void cutShadow(bool shadow_cut);
+    void drawMiddle(bool middle_line);
 
     void setOperat(int operation);
     void setState(int state_t);
@@ -83,6 +84,7 @@ private:
     bool pain_blob;
     bool with_shape;
     bool shadow_cut;
+    bool middle_line;
     // used for opencv shadow_detection
     bool shadow_detect;
     int  pixel_operation;
@@ -114,8 +116,18 @@ private:
     Blober blober;
     PlayThread* player;
 
-    vector<Point>* drawMiddleLine(const Mat& fore, Mat& frame, int direc_t);
-    void drawShadowCut(const Mat& fore, Mat& frame, Mat& result, double thresh);
+    vector<Point>* middleLine(const Mat& fore);
+    void drawMiddleLine(const Mat& fore, Mat& frame, bool geo_mLine = false, Scalar color = CL_ORANGE, int thickness = 2);
+    void drawMiddleLine(const Mat& fore, vector<Mat> frame, bool geo_mLine = false, Scalar color = CL_ORANGE, int thickness = 2);
+    int shadowCut(const Mat& fore, Mat& frame, double thresh);
+    void drawShadowCut(const Mat& fore, Mat& frame, Mat& result, double thresh, Scalar color = CL_GREY, int thickness = 2);
+    void drawShadowCut(const Mat& fore, Mat& frame, vector<Mat> result, double thresh, Scalar color = CL_GREY, int thickness = 2);
+    void drawCutLine(int cut_line, Mat& frame, Scalar color = CL_GREY, int thickness = 2);
+    void drawVectorLine(vector<Point> points, Mat& frame, Scalar color = CL_RED, int thickness = 2);
+    void drawVectorLine(vector<Point> points, vector<Mat> frames, Scalar color = CL_RED, int thickness = 2);
+
+
+    void hog(const Mat& frame);
 
 signals:
     

@@ -552,3 +552,9 @@ void MainWindow::on_doubleSpinBox_shadowCutValut_valueChanged(double arg1)
     if(fmanager != NULL)
         fmanager->setShadowCut(ui->doubleSpinBox_shadowCutValut->value());
 }
+
+void MainWindow::on_checkBox_middleLine_clicked()
+{
+    if(fmanager != NULL)
+        fmanager->drawMiddle(ui->checkBox_middleLine->isChecked());
+}

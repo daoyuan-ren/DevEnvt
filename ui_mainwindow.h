@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Fri Mar 7 11:06:28 2014
+** Created: Fri Mar 7 16:41:52 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -94,6 +94,7 @@ public:
     QRadioButton *radioButton_default;
     QCheckBox *checkBox_shadowCut;
     QDoubleSpinBox *doubleSpinBox_shadowCutValut;
+    QCheckBox *checkBox_middleLine;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QToolBar *mainToolBar;
@@ -311,7 +312,7 @@ public:
 
         verticalLayoutWidget = new QWidget(centralWidget);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(1020, 30, 182, 391));
+        verticalLayoutWidget->setGeometry(QRect(1020, 30, 183, 391));
         gridLayout = new QGridLayout(verticalLayoutWidget);
         gridLayout->setSpacing(6);
         gridLayout->setContentsMargins(11, 11, 11, 11);
@@ -415,6 +416,11 @@ public:
 
         gridLayout->addWidget(doubleSpinBox_shadowCutValut, 11, 1, 1, 1);
 
+        checkBox_middleLine = new QCheckBox(verticalLayoutWidget);
+        checkBox_middleLine->setObjectName(QString::fromUtf8("checkBox_middleLine"));
+
+        gridLayout->addWidget(checkBox_middleLine, 12, 0, 1, 1);
+
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
@@ -483,6 +489,7 @@ public:
         radioButton_black->setText(QApplication::translate("MainWindow", "black", 0, QApplication::UnicodeUTF8));
         radioButton_default->setText(QApplication::translate("MainWindow", "default", 0, QApplication::UnicodeUTF8));
         checkBox_shadowCut->setText(QApplication::translate("MainWindow", "shadow", 0, QApplication::UnicodeUTF8));
+        checkBox_middleLine->setText(QApplication::translate("MainWindow", "middle", 0, QApplication::UnicodeUTF8));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

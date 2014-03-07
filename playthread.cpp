@@ -37,7 +37,7 @@ PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, l
     frame_pos   = 0;
     played_frame_cnt    = 0;
     state_t     = INIT;
-    label_t     = GREYSCALE;
+    label_t     = COLOR;
     status      = QString::fromStdString("No Input Video");
     timer_ptr   = timer;
     this->lock_input = lock_input;
@@ -56,7 +56,7 @@ PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, l
     frame_pos   = 0;
     played_frame_cnt    = 0;
     state_t     = INIT;
-    label_t     = GREYSCALE;
+    label_t     = COLOR;
     status      = QString::fromStdString("No Input Video");
     timer_ptr   = new QTimer(0);
     connect(timer_ptr, SIGNAL(timeout()), this, SLOT(imageUpdate()));

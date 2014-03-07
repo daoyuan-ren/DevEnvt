@@ -138,6 +138,7 @@ public:
     void on_checkBox_lockImage_clicked();
     void on_checkBox_shadowCut_clicked();
     void on_doubleSpinBox_shadowCutValut_valueChanged(double arg1);
+    void on_checkBox_middleLine_clicked();
 };
 
 #endif // MAINWINDOW_H

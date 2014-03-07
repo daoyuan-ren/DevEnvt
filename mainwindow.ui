@@ -345,7 +345,7 @@
      <rect>
       <x>1020</x>
       <y>30</y>
-      <width>182</width>
+      <width>183</width>
       <height>391</height>
      </rect>
     </property>
@@ -507,6 +507,13 @@
        </property>
        <property name="value">
         <double>3.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="12" column="0">
+      <widget class="QCheckBox" name="checkBox_middleLine">
+       <property name="text">
+        <string>middle</string>
        </property>
       </widget>
      </item>
