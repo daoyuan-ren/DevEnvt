@@ -17,6 +17,8 @@ using namespace std;
 #define PT_RECT 11
 #define PT_CIRC 12
 
+#define CL_BLACK    Scalar(0, 0, 0)
+#define CL_BROWM    Scalar(0, 0, 77);
 #define CL_RED      Scalar(0, 0, 255)
 #define CL_GREEN    Scalar(0, 255, 127)
 #define CL_BLUE     Scalar(255, 0, 0)
@@ -24,6 +26,8 @@ using namespace std;
 #define CL_YELLOW   Scalar(0, 255, 255)
 #define CL_GREY     Scalar(127, 127, 127)
 #define CL_MEGENTA  Scalar(255, 0, 255)
+#define CL_ORANGE   Scalar(0, 77, 255)
+#define CL_WHITE    Scalar(255, 255, 255)
 
 class Blober
 {
@@ -53,6 +57,8 @@ public:
     vector<Rect>* rects();
 private:
     int blob_num;
+
+    void vector_print(vector<vector<Point> > ptVectors);
 };
 
 #endif // BLOB_H

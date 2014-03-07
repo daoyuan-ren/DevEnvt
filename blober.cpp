@@ -56,24 +56,6 @@ void Blober::find_blobs(Mat &frame, int blob_minSize, bool shadow_detect, int ep
 #endif
         }
     }
-    {
-        // find the shadow down-top.
-        /*    if(shadow_detect == true){
-        //        Mat sub;
-        //        double min_val, max_val;
-        //        for(int i = 0; i < boundRect->size(); i++){
-        //            if((*boundRect)[i].width > 0 && (*boundRect)[i].height > 0){
-        //                sub = frame((*boundRect)[i]);
-        //                int cut = sub.rows-1;
-        //                for(; cut > 0 && (unsigned char)max_val < 128; cut--){
-        //                    minMaxLoc(sub(Rect(0, cut, sub.cols,1)), &min_val, &max_val);
-        //                }
-        //                (*boundRect)[i].height = cut+1;
-        //            }
-        //        }
-        //    }
-        */
-    }
 }
 
 void Blober::paint_blobs(Mat &drawing){
@@ -97,11 +79,13 @@ void Blober::paint_blobs(Mat &drawing, int shape_t, Scalar color){
     {
 
 #ifdef POLY
-        if(shape_t == PT_POLY)
+        if(shape_t == PT_POLY){
             drawContours( drawing, *contours_poly, i, color, 2, 8, vector<Vec4i>(), 0, Point() );
+        }
 #endif
-        if(shape_t == PT_RECT)
+        if(shape_t == PT_RECT){
             rectangle(drawing, (*boundRect)[i].tl(), (*boundRect)[i].br(), color, 2);
+        }
 #ifdef CIRCLE
         if(shape_t == PT_CIRC)
             circle(drawing, (*center)[i], (int)(*radius)[i], *color, 2);
@@ -130,4 +114,15 @@ string Blober::drawText(int x, int y, int width, int height){
 
 vector<Rect>* Blober::rects(){
     return boundRect;
+}
+
+void Blober::vector_print(vector<vector<Point> > ptVectors){
+    cout << "[" << ptVectors.size() << "]" << endl;
+    for(vector<vector<Point> >::iterator itr = ptVectors.begin(); itr != ptVectors.end(); itr++){
+        cout << "[" << (*itr).size() << "] : ";
+        for(vector<Point>::iterator pitr = (*itr).begin(); pitr != (*itr).end(); pitr++){
+            cout << "(" << (*pitr).x << "," << (*pitr).y << ") ";
+        }
+        cout << endl;
+    }
 }
