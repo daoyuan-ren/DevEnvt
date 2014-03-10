@@ -116,18 +116,23 @@ private:
     Blober blober;
     PlayThread* player;
 
-    vector<Point>* middleLine(const Mat& fore);
-    void drawMiddleLine(const Mat& fore, Mat& frame, bool geo_mLine = false, Scalar color = CL_ORANGE, int thickness = 2);
-    void drawMiddleLine(const Mat& fore, vector<Mat> frame, bool geo_mLine = false, Scalar color = CL_ORANGE, int thickness = 2);
-    int shadowCut(const Mat& fore, Mat& frame, double thresh);
-    void drawShadowCut(const Mat& fore, Mat& frame, Mat& result, double thresh, Scalar color = CL_GREY, int thickness = 2);
-    void drawShadowCut(const Mat& fore, Mat& frame, vector<Mat> result, double thresh, Scalar color = CL_GREY, int thickness = 2);
+    vector<Point>* middleLine(const Mat& fore, int cut);
+    void drawMiddleLine(const Mat& fore, Mat& frame, bool geo_mLine = false, Scalar color = CL_ORANGE, int thickness = 2, int cut = 0);
+    void drawMiddleLine(const Mat& fore, vector<Mat> frame, int cut = 0, bool geo_mLine = false, Scalar color = CL_ORANGE, int thickness = 2);
+    int greyShadowCut(const Mat& fore, Mat& frame, double thresh);
+    int rgbShadowCut(const Mat& fore, Mat& frame, double thresh);
+    int hsvShadowCut(const Mat& fore, Mat& frame, double thresh);
+    int hsvShadowCut(const Mat& fore, Mat& frame, Mat& bg_frame, double thresh);
+    int drawShadowCut(const Mat& fore, Mat& frame, Mat& result, double thresh, Scalar color = CL_GREY, int thickness = 2);
+    int drawShadowCut(const Mat& fore, Mat& frame, vector<Mat> result, double thresh, Scalar color = CL_GREY, int thickness = 2);
+    void drawShadowCut(const Mat& fore, Mat& frame, Mat& bg_frame, vector<Mat> result, double thresh, Scalar color = CL_GREY, int thickness = 2);
     void drawCutLine(int cut_line, Mat& frame, Scalar color = CL_GREY, int thickness = 2);
     void drawVectorLine(vector<Point> points, Mat& frame, Scalar color = CL_RED, int thickness = 2);
     void drawVectorLine(vector<Point> points, vector<Mat> frames, Scalar color = CL_RED, int thickness = 2);
 
-
     void hog(const Mat& frame);
+    bool scalarLarger (Scalar sc1, Scalar sc2);
+    Scalar maxElement(const Mat& mat);
 
 signals:
     

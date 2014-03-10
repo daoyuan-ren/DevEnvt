@@ -293,8 +293,10 @@ void FrameManager::blur(Mat &mat, const Mat& fore, Mat& grey, Mat& st_back, Mat&
 
     for(unsigned int i = 0; i < blober.rects()->size(); i++){
         Rect rec    = blober.rects()->at(i);
+
         if(rec.width <= 0 || rec.height <= 0)
             continue;
+        Mat rat; mat(rec).copyTo(rat);//GaussianBlur(rat, rat, Size(9, 9), gau_sigma, gau_sigma);
         Mat roi     = mat(rec);
         Mat roi_c   = grey(rec);
         Mat mask    = fore(rec);
@@ -310,24 +312,26 @@ void FrameManager::blur(Mat &mat, const Mat& fore, Mat& grey, Mat& st_back, Mat&
         roi += roi_gau;
         roi_c += roi_c_gau;
 
+        int cut_line = 0;
         if(shadow_cut == true){
             vector<Mat> vecs;
             vecs.push_back(mask);
             vecs.push_back(roi);
             vecs.push_back(roi_c);
-            drawShadowCut(mask, roi, vecs, shadow_cut_value, CL_MEGENTA);
+            cut_line = drawShadowCut(mask, rat, vecs, shadow_cut_value, CL_MEGENTA);
         }
         if(middle_line == true){
             vector<Mat> frames;
             frames.push_back(mask);
             frames.push_back(roi);
             frames.push_back(roi_c);
-            drawMiddleLine(mask, frames);
+            drawMiddleLine(mask, frames, cut_line);
         }
 
         roi.copyTo(st_back(rec));
         roi_c.copyTo(st_back_grey(rec));
     }
+    //imshow("debug", fore);
     if(with_shape == true)
         poly(st_back, st_back_grey, CL_CYAN);
 }
@@ -471,13 +475,16 @@ unsigned int FrameManager::buffered_frame(){
     return buffered_frame_idx;
 }
 
-vector<Point>* FrameManager::middleLine(const Mat &fore){
+vector<Point>* FrameManager::middleLine(const Mat &fore, int cut){
     Mat fore_c1;
     if(fore.channels() == 3)
         cvtColor(fore,fore_c1, CV_BGR2GRAY);
 
+    if(cut <= 0)
+        cut = fore_c1.rows - 5;
+
     vector<Point>* middle_dots = new vector<Point>();
-    for(int i = 5; i < fore_c1.rows-5; i+=5){
+    for(int i = 5; i < cut; i+=5){
         int begin = 0; int end = 0;
         for(int n = 0; n < fore_c1.cols; n++){
             if(fore_c1.at<uchar>(i,n) != 0 && begin == 0){
@@ -491,8 +498,8 @@ vector<Point>* FrameManager::middleLine(const Mat &fore){
     return middle_dots;
 }
 
-void FrameManager::drawMiddleLine(const Mat &fore, Mat &frame, bool geo_mLine, Scalar color, int thickness){
-    vector<Point>* middle_dots = middleLine(fore);
+void FrameManager::drawMiddleLine(const Mat &fore, Mat &frame, bool geo_mLine, Scalar color, int thickness, int cut){
+    vector<Point>* middle_dots = middleLine(fore, cut);
     if(!middle_dots->empty())
         drawVectorLine(*middle_dots, frame, color, thickness);
 
@@ -500,8 +507,8 @@ void FrameManager::drawMiddleLine(const Mat &fore, Mat &frame, bool geo_mLine, S
         line(frame, Point(frame.cols/2, 0), Point(frame.cols/2, frame.rows-1), CL_YELLOW, 2);
 }
 
-void FrameManager::drawMiddleLine(const Mat &fore, vector<Mat> frame, bool geo_mLine, Scalar color, int thickness){
-    vector<Point>* middle_dots = middleLine(fore);
+void FrameManager::drawMiddleLine(const Mat &fore, vector<Mat> frame, int cut, bool geo_mLine, Scalar color, int thickness){
+    vector<Point>* middle_dots = middleLine(fore, cut);
     if(!middle_dots->empty()){
         for(vector<Mat>::iterator itr= frame.begin(); itr != frame.end(); itr++){
             drawVectorLine(*middle_dots, *itr, color, thickness);
@@ -535,45 +542,152 @@ void FrameManager::drawVectorLine(vector<Point> points, vector<Mat> frames, Scal
     }
 }
 
-int FrameManager::shadowCut(const Mat &fore, Mat &frame, double thresh){
+void FrameManager::drawShadowCut(const Mat &fore, Mat &frame, Mat &bg_frame, vector<Mat> result, double thresh, Scalar color, int thickness){
+    int cut_line = rgbShadowCut(fore, frame, 3);
+    //int sut_line = hsvShadowCut(fore, frame, bg_frame, thresh);
+    for(vector<Mat>::iterator itr = result.begin(); cut_line >= 0 && itr != result.end(); itr++){
+        cv::line(*itr, Point(0, cut_line), Point(fore.cols-1, cut_line), color, thickness);
+        //cv::line(*itr, Point(0, sut_line), Point(fore.cols-1, sut_line), CL_CYAN, thickness);
+    }
+}
+
+//todo: finish.
+// use estimatet the shadow cut in hsv mode.
+int FrameManager::hsvShadowCut(const Mat &fore, Mat &frame, double thresh){
     Mat fore_c1;
     if(fore.channels() == 3)
         cvtColor(fore,fore_c1, CV_BGR2GRAY);
 
-    Scalar mValue, cValue;
-    for(int i = fore.rows-1; i > fore.rows/2; i--){
-        Mat line = frame(Rect(0, i, fore.cols, 1));
-        Mat mask = fore_c1(Rect(0, i, fore.cols, 1));
-        mValue = mean(line, mask);
+    int height = 1;
+    Scalar mValue, mStd, cValue, cStd;
+    for(int i = fore.rows-height; i > fore.rows/2; i--){
+        Mat line = frame(Rect(0, i, fore.cols, height));
+        Mat cut_line = frame(Rect(0, i-height, fore.cols, height));
+        Mat mask = fore_c1(Rect(0, i, fore.cols, height));
+        Mat inv_mask, cut;
+        bitwise_not(mask, inv_mask);
 
-        Mat cut = frame(Rect(0, i-1, fore.cols, 1));
-        Mat cut_mask = fore_c1(Rect(0, i-1, fore.cols, 1));
-        cValue = mean(cut, cut_mask);
+        cvtColor(line, line, CV_BGR2HSV);
+        cvtColor(cut_line, cut_line, CV_BGR2HSV);
+        meanStdDev(line, mValue, mStd, mask);
+        meanStdDev(cut_line, cValue, cStd, mask);
+
         absdiff(mValue, cValue, mValue);
-        if(mValue[0]>thresh && mValue[1]>thresh && mValue[2]>thresh){
+        absdiff(mStd, cStd, mStd);
+        if(mStd[1] > thresh){
             return i;
         }
     }
     return -1;
 }
 
-void FrameManager::drawShadowCut(const Mat &fore, Mat &frame, Mat& result, double thresh, Scalar color, int thickness){
-    int cut = shadowCut(fore, frame, thresh);
-    if(cut >= 0)
-        cv::line(result, Point(0, cut), Point(fore.cols-1, cut), color, thickness);
+int FrameManager::hsvShadowCut(const Mat& fore, Mat& frame, Mat& bg_frame, double thresh){
+    Mat fore_c1;
+    if(fore.channels() == 3)
+        cvtColor(fore,fore_c1, CV_BGR2GRAY);
+
+    Scalar mValue, cValue;
+    for(int i = fore.rows-1; i > fore.rows/2; i--){
+        Mat line    = frame(Rect(0, i, fore.cols, 1));
+        Mat cut     = bg_frame(Rect(0, i, fore.cols, 1));
+        Mat mask    = fore_c1(Rect(0, i, fore.cols, 1));
+        Mat inv_mask;
+        bitwise_not(mask, inv_mask);
+
+        cvtColor(line, line, CV_BGR2HSV);
+        cvtColor(cut, cut, CV_BGR2HSV);
+        mValue = mean(line);
+        cValue = mean(cut);
+
+        absdiff(mValue, cValue, mValue);
+        if(mValue[0]>thresh ){
+            return i;
+        }
+    }
+    return -1;
 }
 
-void FrameManager::drawShadowCut(const Mat &fore, Mat &frame, vector<Mat> result, double thresh, Scalar color, int thickness){
-    int cut_line = shadowCut(fore, frame, thresh);
-    for(vector<Mat>::iterator itr = result.begin(); cut_line >= 0 && itr != result.end(); itr++)
+//todo: finish.
+int FrameManager::greyShadowCut(const Mat &fore, Mat &frame, double thresh){
+    Mat fore_c1, frame_c1, sobel_x, sobel_y;
+    if(fore.channels() == 3)
+        cvtColor(fore,fore_c1, CV_BGR2GRAY);
+    if(frame.channels() == 3)
+        cvtColor(frame, frame_c1, CV_BGR2GRAY);
+    Sobel(frame_c1, sobel_x, -1, 0, 1);
+    Sobel(frame_c1, sobel_y, -1, 1, 0);
+    frame_c1 = sobel_x + sobel_y;
+    //GaussianBlur(frame_c1, frame_c1, Size(3, 3), 1.5, 1.5);
+    //threshold(frame_c1, frame_c1, 25, 255, cv::THRESH_BINARY);
+
+    int height = 1;
+    Scalar mValue, mStdv, cValue, cStdv;
+    for(int i = fore.rows-height; i > fore.rows/3; i--){
+        Mat line = frame_c1(Rect(0, i, fore.cols, height));
+        //Mat mask = fore_c1(Rect(0, i, fore.cols, height));
+        meanStdDev(line, mValue, mStdv);
+
+        Mat cut_line = frame_c1(Rect(0, i-height, fore.cols, height));
+        //Mat cut_mask = fore_c1(Rect(0, i-height, fore.cols, height));
+        //meanStdDev(cut_line, cValue, cStdv, cut_mask);
+
+        //absdiff(mStdv, cStdv, mStdv);
+        if(mStdv[0]>5){
+            //cout << "dev" << mStdv << endl;
+            imshow("frame_debug", frame_c1);
+            imshow("cut_debug", frame_c1(Rect(0, 0, fore.cols, i)));
+            return i;
+        }
+    }
+    return -1;
+}
+
+int FrameManager::rgbShadowCut(const Mat &fore, Mat &frame, double thresh){
+    Mat fore_c1;
+    if(fore.channels() == 3)
+        cvtColor(fore,fore_c1, CV_BGR2GRAY);
+
+    int height = 1;
+    Scalar mValue, mStdv, cValue, cStdv;
+    for(int i = fore.rows-height; i > fore.rows/2; i--){
+        Mat line = frame(Rect(0, i, fore.cols, height));
+        Mat mask = fore_c1(Rect(0, i, fore.cols, height));
+        meanStdDev(line, mValue, mStdv, mask);
+
+        Mat cut = frame(Rect(0, i-height, fore.cols, height));
+        Mat cut_mask = fore_c1(Rect(0, i-height, fore.cols, height));
+        meanStdDev(cut, cValue, cStdv, cut_mask);
+        absdiff(mValue, cValue, mValue);
+        //absdiff(mStdv, cStdv, mStdv);
+        if(mValue[0]>thresh && mValue[1]>thresh && mValue[2]>thresh){
+            //cout << "dev" << mStdv << endl;
+            return i;
+        }
+    }
+    return -1;
+}
+
+int FrameManager::drawShadowCut(const Mat &fore, Mat &frame, Mat& result, double thresh, Scalar color, int thickness){
+    int cut = rgbShadowCut(fore, frame, thresh);
+    if(cut >= 0)
+        cv::line(result, Point(0, cut), Point(fore.cols-1, cut), color, thickness);
+    return cut;
+}
+
+int FrameManager::drawShadowCut(const Mat &fore, Mat &frame, vector<Mat> result, double thresh, Scalar color, int thickness){
+    int cut_line = rgbShadowCut(fore, frame, thresh);
+    //int sut_line = hsvShadowCut(fore, frame, thresh);
+    for(vector<Mat>::iterator itr = result.begin(); cut_line >= 0 && itr != result.end(); itr++){
         cv::line(*itr, Point(0, cut_line), Point(fore.cols-1, cut_line), color, thickness);
+        //cv::line(*itr, Point(0, sut_line), Point(fore.cols-1, sut_line), CL_CYAN, thickness);
+    }
+    return cut_line;
 }
 
 void FrameManager::drawCutLine(int cut_line, Mat &frame, Scalar color, int thickness){
     if(cut_line >= 0 && cut_line <= frame.rows-1)
         cv::line(frame, Point(0, cut_line), Point(frame.cols-1, cut_line), color, thickness);
 }
-
 
 void FrameManager::hog(const Mat &frame){
     HOGDescriptor hog;
@@ -583,4 +697,19 @@ void FrameManager::hog(const Mat &frame){
     hog.compute(frame, ders, Size(32, 32), Size(0,0), locs);
 
 
+}
+
+bool FrameManager::scalarLarger(Scalar sc1, Scalar sc2){
+
+    return (sc1[0] >= sc2[0] && sc1[1] >= sc2[1] && sc1[2] >= sc2[2] && sc1[3] >= sc2[3]) ? true : false;
+}
+
+Scalar FrameManager::maxElement(const Mat &mat){
+    Scalar max = Scalar(0, 0, 0);
+    for(int i = 0; i < mat.rows; i++){
+        for(int j = 0; j < mat.cols; j++){
+            max[0] = max[0] < mat.at<uchar>(i,j) ? max[0] : mat.at<uchar>(i,j);
+        }
+    }
+    return max;
 }
