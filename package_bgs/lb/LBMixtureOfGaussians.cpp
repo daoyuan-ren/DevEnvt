@@ -16,7 +16,7 @@ along with BGSLibrary.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "LBMixtureOfGaussians.h"
 
-LBMixtureOfGaussians::LBMixtureOfGaussians() : firstTime(true), showOutput(false), sensitivity(81), bgThreshold(83), learningRate(29), noiseVariance(206)
+LBMixtureOfGaussians::LBMixtureOfGaussians() : firstTime(true), showOutput(false), sensitivity(81), bgThreshold(83), learningRate(49), noiseVariance(206)
 {
   std::cout << "LBMixtureOfGaussians()" << std::endl;
 }

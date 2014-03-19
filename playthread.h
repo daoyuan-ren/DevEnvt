@@ -8,6 +8,9 @@
 #include <QMutex>
 #include <QMainWindow>
 
+#include "roidialog.h"
+#include "camlabel.h"
+
 using namespace std;
 
 // define states of player
@@ -34,8 +37,8 @@ class PlayThread : public QThread
 public:
     PlayThread();
 #ifdef STL_LIST
-    PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, QTimer* timer_ptr, int* fps, bool lock_input);
-    PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, int* fps, bool lock_input);
+    PlayThread(QLabel* iLabel, QLabel* dLabel, ROIDialog* roi_ui, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, list<vector<QImage> >* stl_roiBuf, QTimer* timer_ptr, int* fps, bool lock_input);
+    PlayThread(QLabel* iLabel, QLabel* dLabel, ROIDialog* roi_ui, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, list<vector<QImage> >* stl_roiBuf, int* fps, bool lock_input);
 #endif
     virtual ~PlayThread(){};
     virtual void run();
@@ -55,7 +58,7 @@ public:
     QMutex mutex;
 
 private:
-    QLabel* imgLabel;
+    CamLabel* imgLabel;
     QLabel* dbgLabel;
 #ifdef STL_LIST
     std::list<QImage>* imgBuffer;
@@ -63,8 +66,9 @@ private:
     std::list<QImage>* gryBuffer;
     std::list<QImage>* dbgBuffer;
     std::list<QImage>* backBuffer;
-    std::list<QImage>  swap;
+    std::list<vector<QImage> >* roiBuffer;
 #endif
+    ROIDialog* roi_ui;
     QTimer* timer_ptr;
     QString status;
 

@@ -42,7 +42,7 @@ class FrameManager : public QThread
 public:
     explicit FrameManager(QObject *parent = 0);
 #ifdef STL_LIST
-    FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back = NULL);
+    FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, list<vector<QImage> >* stl_roiBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back = NULL);
 #endif
 
     ~FrameManager();
@@ -107,7 +107,7 @@ private:
     std::list<QImage>* gryBuffer;
     std::list<QImage>* dbgBuffer;
     std::list<QImage>* backBuffer;
-    std::list<QImage>  swap;
+    std::list<vector<QImage> >* roiBuffer;
 #endif
 
     VideoCapture cap;
@@ -122,13 +122,16 @@ private:
     int greyShadowCut(const Mat& fore, Mat& frame, double thresh);
     int rgbShadowCut(const Mat& fore, Mat& frame, double thresh);
     int hsvShadowCut(const Mat& fore, Mat& frame, double thresh);
-    int hsvShadowCut(const Mat& fore, Mat& frame, Mat& bg_frame, double thresh);
+    int hsvShadowCut(const Mat& roi_fore, Mat& roi, Mat roi_bg, double alpha, double beta, int tau_s, int tau_h);
     int drawShadowCut(const Mat& fore, Mat& frame, Mat& result, double thresh, Scalar color = CL_GREY, int thickness = 2);
     int drawShadowCut(const Mat& fore, Mat& frame, vector<Mat> result, double thresh, Scalar color = CL_GREY, int thickness = 2);
     void drawShadowCut(const Mat& fore, Mat& frame, Mat& bg_frame, vector<Mat> result, double thresh, Scalar color = CL_GREY, int thickness = 2);
     void drawCutLine(int cut_line, Mat& frame, Scalar color = CL_GREY, int thickness = 2);
     void drawVectorLine(vector<Point> points, Mat& frame, Scalar color = CL_RED, int thickness = 2);
     void drawVectorLine(vector<Point> points, vector<Mat> frames, Scalar color = CL_RED, int thickness = 2);
+
+    Mat cutROI(const Mat frame, const Rect roi, int width = 281, int height = 211);
+    void addROIs(const Mat frame, int width = 281, int height = 211);
 
     void hog(const Mat& frame);
     bool scalarLarger (Scalar sc1, Scalar sc2);

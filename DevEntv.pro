@@ -21,7 +21,10 @@ SOURCES += main.cpp\
     framemanager.cpp \
     package_bgs/lb/LBMixtureOfGaussians.cpp \
     package_bgs/lb/BGModelMog.cpp \
-    package_bgs/lb/BGModel.cpp
+    package_bgs/lb/BGModel.cpp \
+    roidialog.cpp \
+    camlabel.cpp \
+    virtualcamera.cpp
 
 HEADERS  += mainwindow.h \
     playthread.h \
@@ -29,9 +32,13 @@ HEADERS  += mainwindow.h \
     framemanager.h \
     package_bgs/lb/LBMixtureOfGaussians.h \
     package_bgs/lb/BGModelMog.h \
-    package_bgs/lb/BGModel.h
+    package_bgs/lb/BGModel.h \
+    roidialog.h \
+    camlabel.h \
+    virtualcamera.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    roidialog.ui
 
 contains(cv,2){
 	message(build with opencv 2)

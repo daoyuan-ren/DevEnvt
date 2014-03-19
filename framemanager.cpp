@@ -35,7 +35,7 @@ FrameManager::FrameManager(QObject *parent) :
     spinBox_ctSize      = NULL;
 }
 #ifdef STL_LIST
-FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back){
+FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, list<vector<QImage> >* stl_roiBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back){
         interval.tv_sec     = 0;
         interval.tv_nsec    = 100000000L; //1 000 000 000nsec = 1sec
 //        buffered_frame_idx  = 0;
@@ -67,6 +67,7 @@ FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage
         gryBuffer           = stl_gBuf;
         dbgBuffer           = stl_dBuf;
         backBuffer          = stl_bBuf;
+        roiBuffer           = stl_roiBuf;
 
         this->player= player;
         this->spinBox_ctSize = spinBox_ctSize;
@@ -165,6 +166,7 @@ void FrameManager::process(){
             cvtColor(grey, grey, CV_GRAY2BGR);
             image = Mat2QImage(frame);
 
+
             GaussianBlur(frame, frame_gau, Size(5, 5), 1.5, 1.5);
 
             /*** subtracting backgrounds from frame using different algorithms ***/
@@ -183,6 +185,26 @@ void FrameManager::process(){
             //cvtColor(fore, drawing, CV_RGB2BGR);
             blober.find_blobs(fore, spinBox_ctSize->value(), shadow_detect, poly_acuracy);
 
+            int cut_line = 0;
+            if(shadow_cut == true){
+                for(unsigned int i = 0; i < blober.rects()->size(); i++){
+                    Rect rec    = blober.rects()->at(i);
+                    if(rec.width <= 0 || rec.height <= 0)
+                        continue;
+
+                    Mat mask = fore(rec);
+                    Mat rat = back(rec);//GaussianBlur(rat, rat, Size(9, 9), gau_sigma, gau_sigma);
+                    Mat roi     = frame(rec);
+                    Mat roi_c   = grey(rec);
+                    vector<Mat> vecs;
+                    vecs.push_back(mask);
+                    vecs.push_back(roi);
+                    vecs.push_back(roi_c);
+                    drawShadowCut(mask, roi, rat, vecs, shadow_cut_value, CL_MEGENTA);
+                }
+            }
+
+            //addROIs(frame);
             if(static_background != NULL){
                 st_back = QImage2Mat(*static_background);
                 cvtColor(st_back, st_back_grey, CV_RGB2GRAY);
@@ -255,6 +277,7 @@ void FrameManager::process(){
                 gryBuffer->push_back(grey_image);
                 dbgBuffer->push_back(fore_ground);
                 backBuffer->push_back(back_ground);
+                //addROIs(frame);
                 buffered_frame_idx++;
                 player->mutex.unlock();
             } catch(std::bad_alloc& balc){
@@ -313,13 +336,6 @@ void FrameManager::blur(Mat &mat, const Mat& fore, Mat& grey, Mat& st_back, Mat&
         roi_c += roi_c_gau;
 
         int cut_line = 0;
-        if(shadow_cut == true){
-            vector<Mat> vecs;
-            vecs.push_back(mask);
-            vecs.push_back(roi);
-            vecs.push_back(roi_c);
-            cut_line = drawShadowCut(mask, rat, vecs, shadow_cut_value, CL_MEGENTA);
-        }
         if(middle_line == true){
             vector<Mat> frames;
             frames.push_back(mask);
@@ -328,6 +344,10 @@ void FrameManager::blur(Mat &mat, const Mat& fore, Mat& grey, Mat& st_back, Mat&
             drawMiddleLine(mask, frames, cut_line);
         }
 
+        //if(cut_line > 0){
+        //    Mat croi = mat(Rect(rec.x, rec.y, rec.width, cut_line));
+        //    croi.copyTo(st_back(Rect(rec.x, rec.y, rec.width, cut_line)));
+        //} else
         roi.copyTo(st_back(rec));
         roi_c.copyTo(st_back_grey(rec));
     }
@@ -428,6 +448,62 @@ void FrameManager::border(const Mat& fore, const Mat& back, const Mat& grey_back
         st_back_grey(rec) = sobel_x+sobel_y+grey_back(rec);
     }
 }
+
+Mat FrameManager::cutROI(const Mat frame, const Rect roi, int width, int height){
+    //width = roi.width > width ? roi.width : width;
+    height = roi.height > height ? roi.height : height;
+    int z_x = roi.x + roi.width/2;
+    int z_y = roi.y + roi.height/2;
+    if(z_x - width/2 < 0){
+        //width = width/2 + z_x;
+        z_x = 0;
+    } else if(z_x + width/2 >= frame.cols){
+        z_x = frame.cols-1 - width;
+    } else {
+        z_x -= width/2;
+    }
+
+    if(z_y - height/2 < 0){
+        //height = height/2 + z_y;
+        z_y = 0;
+    } else if(z_y + height/2 >= frame.rows){
+        z_y = frame.rows-1 - height;
+    } else {
+        z_y -= height/2;
+    }
+    Mat cut;
+    frame(Rect(z_x, z_y, width, height)).copyTo(cut);
+    return cut;
+}
+
+void FrameManager::addROIs(const Mat frame, int width, int height){
+    vector<QImage> vec;// = new vector<QImage>();
+    for(unsigned int i = 0; i < blober.rects()->size(); i++){
+        Rect rec = blober.rects()->at(i);
+        if(rec.width <= 0 || rec.height <= 0)
+            continue;
+
+        Mat roi = cutROI(frame, rec, width, height);
+        QImage roi_image = Mat2QImage(roi);
+        vec.push_back(roi_image);
+    }
+    roiBuffer->push_back(vec);
+}
+
+/*
+void FrameManager::virtualCams(const Mat frame, int x, int y, int width, int height){
+    vector<QImage> vec;// = new vector<QImage>();
+    for(unsigned int i = 0; i < blober.rects()->size(); i++){
+        Rect rec = blober.rects()->at(i);
+        if(rec.width <= 0 || rec.height <= 0)
+            continue;
+
+        Mat roi = cutROI(frame, rec, width, height);
+        QImage roi_image = Mat2QImage(roi);
+        vec.push_back(roi_image);
+    }
+    roiBuffer->push_back(vec);
+}*/
 
 cv::Mat FrameManager::QImage2Mat(QImage const& src)
 {
@@ -543,12 +619,12 @@ void FrameManager::drawVectorLine(vector<Point> points, vector<Mat> frames, Scal
 }
 
 void FrameManager::drawShadowCut(const Mat &fore, Mat &frame, Mat &bg_frame, vector<Mat> result, double thresh, Scalar color, int thickness){
-    int cut_line = rgbShadowCut(fore, frame, 3);
-    //int sut_line = hsvShadowCut(fore, frame, bg_frame, thresh);
-    for(vector<Mat>::iterator itr = result.begin(); cut_line >= 0 && itr != result.end(); itr++){
-        cv::line(*itr, Point(0, cut_line), Point(fore.cols-1, cut_line), color, thickness);
+    //int cut_line = rgbShadowCut(fore, frame, 3);
+    int sut_line = hsvShadowCut(fore, frame, bg_frame,  0, 4.0, 20, 30);
+    //for(vector<Mat>::iterator itr = result.begin(); cut_line >= 0 && itr != result.end(); itr++){
+        //cv::line(*itr, Point(0, cut_line), Point(fore.cols-1, cut_line), color, thickness);
         //cv::line(*itr, Point(0, sut_line), Point(fore.cols-1, sut_line), CL_CYAN, thickness);
-    }
+    //}
 }
 
 //todo: finish.
@@ -581,27 +657,29 @@ int FrameManager::hsvShadowCut(const Mat &fore, Mat &frame, double thresh){
     return -1;
 }
 
-int FrameManager::hsvShadowCut(const Mat& fore, Mat& frame, Mat& bg_frame, double thresh){
-    Mat fore_c1;
-    if(fore.channels() == 3)
-        cvtColor(fore,fore_c1, CV_BGR2GRAY);
+int FrameManager::hsvShadowCut(const Mat& roi_fore, Mat& roi, Mat roi_bg, double alpha, double beta, int tau_s, int tau_h){
 
+    Mat roi_hsv, bg_hsv, fore_cut;
+    GaussianBlur(roi_bg, roi_bg, Size(5,5), 1.5, 1.5);
+    cvtColor(roi, roi_hsv, CV_BGR2HSV);
+    cvtColor(roi_bg, bg_hsv, CV_BGR2HSV);
+    //roi_fore.copyTo(fore_cut);
     Scalar mValue, cValue;
-    for(int i = fore.rows-1; i > fore.rows/2; i--){
-        Mat line    = frame(Rect(0, i, fore.cols, 1));
-        Mat cut     = bg_frame(Rect(0, i, fore.cols, 1));
-        Mat mask    = fore_c1(Rect(0, i, fore.cols, 1));
-        Mat inv_mask;
-        bitwise_not(mask, inv_mask);
-
-        cvtColor(line, line, CV_BGR2HSV);
-        cvtColor(cut, cut, CV_BGR2HSV);
-        mValue = mean(line);
-        cValue = mean(cut);
-
-        absdiff(mValue, cValue, mValue);
-        if(mValue[0]>thresh ){
-            return i;
+    for(int i = 0; i < roi.rows; i++){
+        for(int j = 0; j < roi.cols; j++){
+            Vec3b r_p = roi_hsv.at<Vec3b>(i,j);
+            Vec3b b_p = bg_hsv.at<Vec3b>(i,j);
+            int d_s = roi_hsv.at<Vec3b>(i,j).val[1] - bg_hsv.at<Vec3b>(i,j).val[1];
+            int d_h = roi_hsv.at<Vec3b>(i,j).val[0] - bg_hsv.at<Vec3b>(i,j).val[0];
+            double r_v = roi_hsv.at<Vec3b>(i,j).val[2] / (bg_hsv.at<Vec3b>(i,j).val[2]+1);
+            d_h = d_h > 0 ? d_h : 0 - d_h;
+            if(( d_s< tau_s) &&
+                (d_h < tau_h) &&
+                (r_v <= beta && r_v >= alpha)){
+                roi.at<Vec3b>(i,j).val[0] = 0;
+                roi.at<Vec3b>(i,j).val[1] = 0;
+                roi.at<Vec3b>(i,j).val[2] = 0;
+            }
         }
     }
     return -1;
@@ -668,18 +746,18 @@ int FrameManager::rgbShadowCut(const Mat &fore, Mat &frame, double thresh){
 }
 
 int FrameManager::drawShadowCut(const Mat &fore, Mat &frame, Mat& result, double thresh, Scalar color, int thickness){
-    int cut = rgbShadowCut(fore, frame, thresh);
+    //int cut = rgbShadowCut(fore, frame, thresh);
+    int cut = hsvShadowCut(fore, frame, result, 0.3, 1.0, 20, 20);
     if(cut >= 0)
-        cv::line(result, Point(0, cut), Point(fore.cols-1, cut), color, thickness);
+        //cv::line(result, Point(0, cut), Point(fore.cols-1, cut), color, thickness);
+        cv::line(result, Point(0, cut), Point(fore.cols-1, cut), CL_CYAN, thickness);
     return cut;
 }
 
 int FrameManager::drawShadowCut(const Mat &fore, Mat &frame, vector<Mat> result, double thresh, Scalar color, int thickness){
     int cut_line = rgbShadowCut(fore, frame, thresh);
-    //int sut_line = hsvShadowCut(fore, frame, thresh);
     for(vector<Mat>::iterator itr = result.begin(); cut_line >= 0 && itr != result.end(); itr++){
         cv::line(*itr, Point(0, cut_line), Point(fore.cols-1, cut_line), color, thickness);
-        //cv::line(*itr, Point(0, sut_line), Point(fore.cols-1, sut_line), CL_CYAN, thickness);
     }
     return cut_line;
 }

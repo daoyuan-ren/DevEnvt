@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QMouseEvent>
 
 #include <opencv2/opencv.hpp>
 #include <opencv/highgui.h>
@@ -24,6 +25,8 @@
 #include "playthread.h"
 #include "blober.h"
 #include "framemanager.h"
+#include "roidialog.h"
+#include "camlabel.h"
 
 //#define DEBUG
 #define FMANAGER
@@ -50,6 +53,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    ROIDialog* roi_ui;
 
     QImage*        background;
 #ifndef STL_LIST
@@ -65,7 +69,7 @@ private:
     std::list<QImage>* gryBuffer;
     std::list<QImage>* dbgBuffer;
     std::list<QImage>* backBuffer;
-    std::list<QImage>  swap;
+    std::list<vector<QImage> >* roiBuffer;
 #endif
     QTimer* mem_timer;
     QTimer* lup_timer;
@@ -78,6 +82,7 @@ private:
     PlayThread* player;
     FrameManager* fmanager;
     Blober blober;
+    VirtualCamera vcam;
 
     int frame_pos;
     unsigned int alloc_idx;
@@ -139,6 +144,7 @@ public:
     void on_checkBox_shadowCut_clicked();
     void on_doubleSpinBox_shadowCutValut_valueChanged(double arg1);
     void on_checkBox_middleLine_clicked();
+    void on_actionCamera_triggered();
 };
 
 #endif // MAINWINDOW_H

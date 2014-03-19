@@ -6,8 +6,6 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
-    MainWindow debug;
-    debug.show();
 
     if(argc == 3){
         QString imageFileName(argv[1]);

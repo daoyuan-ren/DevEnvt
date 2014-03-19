@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Mon Mar 10 11:57:08 2014
+** Created: Wed Mar 19 18:16:48 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -32,6 +32,7 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
 #include <QtGui/QWidget>
+#include "camlabel.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -42,6 +43,7 @@ public:
     QAction *actionQuit;
     QAction *actionOpen_Background;
     QAction *actionLIVE;
+    QAction *actionCamera;
     QWidget *centralWidget;
     QWidget *horizontalLayoutWidget;
     QHBoxLayout *horizontalLayout;
@@ -63,7 +65,7 @@ public:
     QPushButton *pushButton_work;
     QWidget *horizontalLayoutWidget_2;
     QHBoxLayout *horizontalLayout_2;
-    QLabel *label;
+    CamLabel *label;
     QLabel *label_debug;
     QWidget *horizontalLayoutWidget_3;
     QHBoxLayout *horizontalLayout_3;
@@ -97,6 +99,7 @@ public:
     QCheckBox *checkBox_middleLine;
     QMenuBar *menuBar;
     QMenu *menuFile;
+    QMenu *menuWindow;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -118,6 +121,8 @@ public:
         actionOpen_Background->setObjectName(QString::fromUtf8("actionOpen_Background"));
         actionLIVE = new QAction(MainWindow);
         actionLIVE->setObjectName(QString::fromUtf8("actionLIVE"));
+        actionCamera = new QAction(MainWindow);
+        actionCamera->setObjectName(QString::fromUtf8("actionCamera"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -226,7 +231,7 @@ public:
         horizontalLayout_2->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
-        label = new QLabel(horizontalLayoutWidget_2);
+        label = new CamLabel(horizontalLayoutWidget_2);
         label->setObjectName(QString::fromUtf8("label"));
         sizePolicy.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
         label->setSizePolicy(sizePolicy);
@@ -427,6 +432,8 @@ public:
         menuBar->setGeometry(QRect(0, 0, 1204, 27));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
+        menuWindow = new QMenu(menuBar);
+        menuWindow->setObjectName(QString::fromUtf8("menuWindow"));
         MainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
@@ -436,11 +443,13 @@ public:
         MainWindow->setStatusBar(statusBar);
 
         menuBar->addAction(menuFile->menuAction());
+        menuBar->addAction(menuWindow->menuAction());
         menuFile->addAction(actionOpen);
         menuFile->addAction(actionOpen_Background);
         menuFile->addAction(actionLIVE);
         menuFile->addSeparator();
         menuFile->addAction(actionQuit);
+        menuWindow->addAction(actionCamera);
 
         retranslateUi(MainWindow);
 
@@ -457,6 +466,7 @@ public:
         actionOpen_Background->setText(QApplication::translate("MainWindow", "Open Background", 0, QApplication::UnicodeUTF8));
         actionOpen_Background->setShortcut(QApplication::translate("MainWindow", "Ctrl+B", 0, QApplication::UnicodeUTF8));
         actionLIVE->setText(QApplication::translate("MainWindow", "LIVE", 0, QApplication::UnicodeUTF8));
+        actionCamera->setText(QApplication::translate("MainWindow", "Cameras", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("MainWindow", "FPS:", 0, QApplication::UnicodeUTF8));
         label_fps->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("MainWindow", "Status:", 0, QApplication::UnicodeUTF8));
@@ -491,6 +501,7 @@ public:
         checkBox_shadowCut->setText(QApplication::translate("MainWindow", "shadow", 0, QApplication::UnicodeUTF8));
         checkBox_middleLine->setText(QApplication::translate("MainWindow", "middle", 0, QApplication::UnicodeUTF8));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0, QApplication::UnicodeUTF8));
+        menuWindow->setTitle(QApplication::translate("MainWindow", "Window", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

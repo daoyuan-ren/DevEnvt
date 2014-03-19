@@ -8,9 +8,12 @@ using namespace cv;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    roi_ui(new ROIDialog)
 {
     ui->setupUi(this);
+    vcam.setCamera(0, roi_ui->labelWidth(0), roi_ui->labelHeight(0));
+    ui->label->setCamera(&vcam);
     frame_pos   = 0;
     fps         = ui->fps_spinBox->value();
     width       = 0;
@@ -29,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     gryBuffer   = new std::list<QImage>();
     dbgBuffer   = new std::list<QImage>();
     backBuffer  = new std::list<QImage>();
+    roiBuffer   = new std::list<vector<QImage> >();
 #endif
     fps_str     = "";
     status_str  = "";
@@ -43,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //clock used to update the label in ui
     lup_timer = new QTimer(this);
     connect(lup_timer, SIGNAL(timeout()), this, SLOT(labelUpdate()));
-    player = new PlayThread(ui->label, ui->label_debug, imgBuffer,clrBuffer, gryBuffer, dbgBuffer, backBuffer, &fps, ui->checkBox_lockImage->isChecked());
+    player = new PlayThread(ui->label, ui->label_debug, roi_ui, imgBuffer,clrBuffer, gryBuffer, dbgBuffer, backBuffer, roiBuffer, &fps, ui->checkBox_lockImage->isChecked());
 }
 
 MainWindow::~MainWindow()
@@ -219,7 +223,7 @@ void MainWindow::process(QString fileName, bool live){
     }
 
     if(cap.isOpened()){
-        fmanager = new FrameManager(cap, imgBuffer, clrBuffer, gryBuffer, dbgBuffer, backBuffer, player, ui->spinBox_ctSize, background);
+        fmanager = new FrameManager(cap, imgBuffer, clrBuffer, gryBuffer, dbgBuffer, backBuffer, roiBuffer, player, ui->spinBox_ctSize, background);
         fmanager->inPrivacy(ui->checkBox_privacy->isChecked());
         fmanager->pain_rect(ui->checkBox_rect->isChecked());
         if(ui->radioButton_black->isChecked())
@@ -331,6 +335,7 @@ void MainWindow::memManage(){
             cout << "@MainWindow.memManage(): 1" << endl;
 #endif
             std::list<QImage>::iterator beg, end;
+            std::list<vector<QImage> >::iterator rbeg, rend;
             if(player->get_frame_ctr() > 30){
                 player->mutex.lock();
                 beg = imgBuffer->begin();
@@ -368,6 +373,13 @@ void MainWindow::memManage(){
                 backBuffer->erase(beg, end);
 #ifdef MESSAGE_ON
                 cout << "new allocated bBuffer with size " << backBuffer->size() << endl;
+#endif
+                rbeg = roiBuffer->begin();
+                rend = roiBuffer->end();
+                advance(rend, player->get_frame_ctr());
+                roiBuffer->erase(rbeg, rend);
+#ifdef MESSAGE_ON
+                cout << "new allocated roiBuffer with size " << roiBuffer->size() << endl;
 #endif
                 alloc_idx = player->get_frame_ctr();
                 player->update_frame_ctr(0);
@@ -557,4 +569,9 @@ void MainWindow::on_checkBox_middleLine_clicked()
 {
     if(fmanager != NULL)
         fmanager->drawMiddle(ui->checkBox_middleLine->isChecked());
+}
+
+void MainWindow::on_actionCamera_triggered()
+{
+    roi_ui->show();
 }

@@ -24,15 +24,18 @@ PlayThread::PlayThread()
 }
 
 #ifdef STL_LIST
-PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, QTimer* timer, int* fps, bool lock_input)
+PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, ROIDialog* roi_ui, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, list<vector<QImage> >* stl_roiBuf, QTimer* timer, int* fps, bool lock_input)
 {
-    imgLabel    = iLabel;
+    imgLabel    = (CamLabel*)iLabel;
     dbgLabel    = dLabel;
     imgBuffer   = stl_iBuf;
     clrBuffer   = stl_cBuf;
     gryBuffer   = stl_gBuf;
     dbgBuffer   = stl_dBuf;
     backBuffer  = stl_bBuf;
+    roiBuffer   = stl_roiBuf;
+
+    this->roi_ui = roi_ui;
     this->fps   = fps;
     frame_pos   = 0;
     played_frame_cnt    = 0;
@@ -43,15 +46,18 @@ PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, l
     this->lock_input = lock_input;
 }
 
-PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, int* fps, bool lock_input)
+PlayThread::PlayThread(QLabel* iLabel, QLabel* dLabel, ROIDialog* roi_ui, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, list<vector<QImage> >* stl_roiBuf, int* fps, bool lock_input)
 {
-    imgLabel    = iLabel;
+    imgLabel    = (CamLabel*)iLabel;
     dbgLabel    = dLabel;
     imgBuffer   = stl_iBuf;
     clrBuffer   = stl_cBuf;
     gryBuffer   = stl_gBuf;
     dbgBuffer   = stl_dBuf;
     backBuffer  = stl_bBuf;
+    roiBuffer   = stl_roiBuf;
+
+    this->roi_ui = roi_ui;
     this->fps   = fps;
     frame_pos   = 0;
     played_frame_cnt    = 0;
@@ -105,7 +111,8 @@ void PlayThread::imageUpdate() {
             imgLabel->setPixmap(lock_screen);
         }
         else
-            imgLabel->setPixmap(QPixmap::fromImage(*i_itr));
+            //imgLabel->setPixmap(QPixmap::fromImage(*i_itr).scaled(imgLabel->width(), imgLabel->height()));
+            imgLabel->setImage((*i_itr).scaled(imgLabel->width(), imgLabel->height()));
         if((*i_itr).isNull()){
             cerr << "empty image @" << frame_pos << endl;
             frame_pos++;
@@ -137,6 +144,19 @@ void PlayThread::imageUpdate() {
 #ifdef MESSAGE_ON
         cout << "image buffer empty" << endl;
 #endif
+    }
+    if(roi_ui != NULL && roi_ui->isVisible() && !roiBuffer->empty()){
+        list<vector<QImage> >::iterator roi_itr = roiBuffer->begin();
+        advance(roi_itr, frame_pos);
+        if(!(*roi_itr).empty()){
+            vector<QImage>::iterator vec_itr = (*roi_itr).begin();
+            for(int i = 0; i < 4 && vec_itr!=(*roi_itr).end();i++){
+                roi_ui->setImage(*vec_itr, i);
+                vec_itr++;
+            }
+        } else {
+            //roi_ui->setImage();
+        }
     }
 #ifdef MESSAGE_ON
     time_t now = time(NULL);
