@@ -35,7 +35,9 @@ HEADERS  += mainwindow.h \
     package_bgs/lb/BGModel.h \
     roidialog.h \
     camlabel.h \
-    virtualcamera.h
+    virtualcamera.h \
+    package_bgs/lb/Types.h \
+    package_bgs/IBGS.h
 
 FORMS    += mainwindow.ui \
     roidialog.ui

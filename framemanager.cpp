@@ -209,9 +209,10 @@ void FrameManager::process(){
                 st_back = QImage2Mat(*static_background);
                 cvtColor(st_back, st_back_grey, CV_RGB2GRAY);
                 cvtColor(st_back_grey, st_back_grey, CV_GRAY2BGR);
+            } else {
+                st_back = back;
+                st_back_grey = grey_back;
             }
-            else
-                st_back = grey_back;
             /*** add the pixel operation on range of interest ***/
             if(in_privacy_mode == true){
                 switch (pixel_operation){
