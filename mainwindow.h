@@ -21,7 +21,6 @@
 #include <time.h>
 #include <pthread.h>
 
-#include "playthread.h"
 #include "blober.h"
 #include "framemanager.h"
 
@@ -67,7 +66,6 @@ private:
     std::list<QImage>* backBuffer;
     std::list<QImage>  swap;
 #endif
-    QTimer* mem_timer;
     QTimer* lup_timer;
 
     QString fps_str;
@@ -75,7 +73,6 @@ private:
 
     cv::VideoCapture cap;
 
-    PlayThread* player;
     FrameManager* fmanager;
     Blober blober;
 
@@ -107,7 +104,6 @@ public:
     void imageUpdate();
 #endif
     void labelUpdate();
-    void memManage();
     void imageUpdate(QImage image, QImage dbgImage);
     void on_actionQuit_triggered();
     void on_toolButton_play_clicked();

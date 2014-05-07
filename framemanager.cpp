@@ -5,7 +5,7 @@ FrameManager::FrameManager(QObject *parent) :
     QThread(parent)
 {
     interval.tv_sec     = 0;
-    interval.tv_nsec    = 100000000L; //1 000 000 000nsec = 1sec
+    interval.tv_nsec    = 300000000L; //1 000 000 000nsec = 1sec
     buffered_frame_idx  = 0;
     in_privacy_mode     = false;
     pain_blob           = true;
@@ -23,20 +23,14 @@ FrameManager::FrameManager(QObject *parent) :
 //    bg.bShadowDetection = true;
     bg.set("detectShadows", true);
     static_background   = NULL;
-    imgBuffer           = NULL;
-    gryBuffer           = NULL;
-    dbgBuffer           = NULL;
-    backBuffer          = NULL;
 
-    player              = NULL;
     spinBox_ctSize      = NULL;
 }
 
-FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf,
-                           list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize,
+FrameManager::FrameManager(VideoCapture cap, QSpinBox* spinBox_ctSize,
                            QLabel* imgLabel, QLabel* dbgLabel, QImage* s_back){
         interval.tv_sec     = 0;
-        interval.tv_nsec    = 100000000L; //1 000 000 000nsec = 1sec
+        interval.tv_nsec    = 300000000L; //1 000 000 000nsec = 1sec
         buffered_frame_idx  = 0;
         in_privacy_mode     = false;
         pain_blob           = true;
@@ -58,13 +52,7 @@ FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage
 
         this->cap = cap;
         static_background   = s_back;
-        imgBuffer           = stl_iBuf;
-        clrBuffer           = stl_cBuf;
-        gryBuffer           = stl_gBuf;
-        dbgBuffer           = stl_dBuf;
-        backBuffer          = stl_bBuf;
 
-        this->player= player;
         this->spinBox_ctSize = spinBox_ctSize;
         this->imgLabel = imgLabel;
         this->dbgLabel = dbgLabel;
@@ -73,16 +61,10 @@ FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage
 FrameManager::~FrameManager(){
     terminate();
 
-    player->stop_play();
     if(timer != NULL)
         delete timer;
     if(static_background != NULL)
         delete static_background;
-    imgBuffer->clear();
-    gryBuffer->clear();
-    dbgBuffer->clear();
-    backBuffer->clear();
-
 }
 
 void FrameManager::inPrivacy(bool privacy_mode){
@@ -241,14 +223,7 @@ void FrameManager::process(){
                 blober.paint_label(&grey_image);
             }
 #endif
-            player->mutex.lock();
             try{
-//                imgBuffer->push_back(image);
-//                clrBuffer->push_back(clr_image);
-//                gryBuffer->push_back(grey_image);
-//                dbgBuffer->push_back(fore_ground);
-//                backBuffer->push_back(back_ground);
-
                 switch(label_t) {
                 case ORIGINAL:
                     emit processFinished(image, image);
@@ -268,20 +243,13 @@ void FrameManager::process(){
                 default:
                     break;
                 }
-                buffered_frame_idx++;
-                player->mutex.unlock();
             } catch(std::bad_alloc& balc){
                 cerr << i << ": bad allocation caught at " << buffered_frame_idx << "th frame." << endl;
-                player->mutex.unlock();
-                //continue;
             }
 #ifdef MESSAGE_ON
             cout << "<" << buffered_frame_idx << "> " << "processing @fmanager.run(): " << currentThreadId() << endl;
 #endif
             if(state_t == ST_PROC){
-                if(player->state() == BUFFERING && imgBuffer->size()-player->get_frame_ctr() > player->get_fps()*2)
-                    player->start();
-                interval.tv_nsec = 1000000000 / (3*player->get_fps());
                 nanosleep(&interval, NULL);
             }
             else

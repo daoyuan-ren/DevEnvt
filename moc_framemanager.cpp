@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'framemanager.h'
 **
-** Created: Wed Mar 5 15:49:11 2014
+** Created: Wed May 7 15:11:31 2014
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,26 +23,38 @@ static const uint qt_meta_data_FrameManager[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       0,    0, // methods
+       2,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       0,       // signalCount
+       1,       // signalCount
+
+ // signals: signature, parameters, type, tag, flags
+      29,   14,   13,   13, 0x05,
+
+ // slots: signature, parameters, type, tag, flags
+      60,   13,   13,   13, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_FrameManager[] = {
-    "FrameManager\0"
+    "FrameManager\0\0image,dbgImage\0"
+    "processFinished(QImage,QImage)\0process()\0"
 };
 
 void FrameManager::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
-    Q_UNUSED(_o);
-    Q_UNUSED(_id);
-    Q_UNUSED(_c);
-    Q_UNUSED(_a);
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        Q_ASSERT(staticMetaObject.cast(_o));
+        FrameManager *_t = static_cast<FrameManager *>(_o);
+        switch (_id) {
+        case 0: _t->processFinished((*reinterpret_cast< QImage(*)>(_a[1])),(*reinterpret_cast< QImage(*)>(_a[2]))); break;
+        case 1: _t->process(); break;
+        default: ;
+        }
+    }
 }
 
 const QMetaObjectExtraData FrameManager::staticMetaObjectExtraData = {
@@ -76,6 +88,18 @@ int FrameManager::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QThread::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        if (_id < 2)
+            qt_static_metacall(this, _c, _id, _a);
+        _id -= 2;
+    }
     return _id;
+}
+
+// SIGNAL 0
+void FrameManager::processFinished(QImage _t1, QImage _t2)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)) };
+    QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 QT_END_MOC_NAMESPACE

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'mainwindow.h'
 **
-** Created: Wed Mar 5 15:52:25 2014
+** Created: Wed May 7 15:13:40 2014
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -35,34 +35,34 @@ static const uint qt_meta_data_MainWindow[] = {
       43,   11,   11,   11, 0x08,
       69,   11,   11,   11, 0x08,
       99,   11,   11,   11, 0x08,
-     113,   11,   11,   11, 0x08,
-     125,   11,   11,   11, 0x08,
-     151,   11,   11,   11, 0x08,
-     180,   11,   11,   11, 0x08,
-     209,   11,   11,   11, 0x08,
-     238,   11,   11,   11, 0x08,
+     128,  113,   11,   11, 0x08,
+     155,   11,   11,   11, 0x08,
+     181,   11,   11,   11, 0x08,
+     210,   11,   11,   11, 0x08,
+     239,   11,   11,   11, 0x08,
      268,   11,   11,   11, 0x08,
      298,   11,   11,   11, 0x08,
      328,   11,   11,   11, 0x08,
      358,   11,   11,   11, 0x08,
      388,   11,   11,   11, 0x08,
-     419,   11,   11,   11, 0x08,
+     418,   11,   11,   11, 0x08,
      449,   11,   11,   11, 0x08,
      479,   11,   11,   11, 0x08,
-     511,   11,   11,   11, 0x08,
-     548,   11,   11,   11, 0x08,
-     581,   11,   11,   11, 0x08,
-     608,   11,   11,   11, 0x08,
-     640,   11,   11,   11, 0x08,
-     669,   11,   11,   11, 0x08,
-     698,   11,   11,   11, 0x08,
+     509,   11,   11,   11, 0x08,
+     541,   11,   11,   11, 0x08,
+     578,   11,   11,   11, 0x08,
+     611,   11,   11,   11, 0x08,
+     638,   11,   11,   11, 0x08,
+     670,   11,   11,   11, 0x08,
+     699,   11,   11,   11, 0x08,
      728,   11,   11,   11, 0x08,
-     759,  754,   11,   11, 0x08,
-     796,  754,   11,   11, 0x08,
-     836,  754,   11,   11, 0x08,
-     883,   11,   11,   11, 0x08,
-     914,   11,   11,   11, 0x08,
-     942,  754,   11,   11, 0x08,
+     758,   11,   11,   11, 0x08,
+     789,  784,   11,   11, 0x08,
+     826,  784,   11,   11, 0x08,
+     866,  784,   11,   11, 0x08,
+     913,   11,   11,   11, 0x08,
+     944,   11,   11,   11, 0x08,
+     972,  784,   11,   11, 0x08,
 
        0        // eod
 };
@@ -71,7 +71,8 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "MainWindow\0\0on_pushButton_select_clicked()\0"
     "on_actionOpen_triggered()\0"
     "on_pushButton_apply_clicked()\0"
-    "labelUpdate()\0memManage()\0"
+    "labelUpdate()\0image,dbgImage\0"
+    "imageUpdate(QImage,QImage)\0"
     "on_actionQuit_triggered()\0"
     "on_toolButton_play_clicked()\0"
     "on_toolButton_stop_clicked()\0"
@@ -111,7 +112,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 1: _t->on_actionOpen_triggered(); break;
         case 2: _t->on_pushButton_apply_clicked(); break;
         case 3: _t->labelUpdate(); break;
-        case 4: _t->memManage(); break;
+        case 4: _t->imageUpdate((*reinterpret_cast< QImage(*)>(_a[1])),(*reinterpret_cast< QImage(*)>(_a[2]))); break;
         case 5: _t->on_actionQuit_triggered(); break;
         case 6: _t->on_toolButton_play_clicked(); break;
         case 7: _t->on_toolButton_stop_clicked(); break;

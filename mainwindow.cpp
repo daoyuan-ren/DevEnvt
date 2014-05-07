@@ -17,51 +17,27 @@ MainWindow::MainWindow(QWidget *parent) :
     height      = 0;
     alloc_idx   = 0;
     background  = NULL;
-#ifndef STL_LIST
-    imgBuffer   = new QList<QImage>();
-    clrBuffer   = new QList<QImage>();
-    gryBuffer   = new QList<QImage>();
-    dbgBuffer   = new QList<QImage>();
-    backBuffer  = new QList<QImage>();
-#else
-    imgBuffer   = new std::list<QImage>();
-    clrBuffer   = new std::list<QImage>();
-    gryBuffer   = new std::list<QImage>();
-    dbgBuffer   = new std::list<QImage>();
-    backBuffer  = new std::list<QImage>();
-#endif
+
     fps_str     = "";
     status_str  = "";
     interval.tv_sec  = 3;
     interval.tv_nsec = 500000000L; //1 000 000 000nsec = 1sec
 
     fmanager = NULL;
-    //clock used to check and clean memory
-    mem_timer = new QTimer(this);
-    connect(mem_timer, SIGNAL(timeout()), this, SLOT(memManage()));
 
     //clock used to update the label in ui
     lup_timer = new QTimer(this);
-    connect(lup_timer, SIGNAL(timeout()), this, SLOT(labelUpdate()));
-    player = new PlayThread(ui->label, ui->label_debug, imgBuffer,clrBuffer, gryBuffer, dbgBuffer, backBuffer, &fps);
+    connect(lup_timer, SIGNAL(timeout()), this, SLOT(labelUpdate()));    
 }
 
 MainWindow::~MainWindow()
 {
-    if(player != NULL){
-        player->stop_play();
-        player->quit();
-    }
     if(fmanager != NULL){
         fmanager->terminate();
         fmanager->quit();
     }
-    if(mem_timer != NULL)
-        mem_timer->stop();
 
-    delete player;
     delete fmanager;
-    delete mem_timer;
     delete ui;
     exit(0);
 }
@@ -127,7 +103,6 @@ void MainWindow::on_pushButton_apply_clicked()
     if(!cap.isOpened())
         return;
     fps = ui->fps_spinBox->value();
-    player->start();
 }
 
 /************* replaced by Player.imageUpdate() ***********************
@@ -190,8 +165,6 @@ void MainWindow::stop(){
 */
 void MainWindow::on_actionQuit_triggered()
 {
-    player->stop_play();
-//    delete timer;
     delete ui;
     exit(0);
 }
@@ -219,9 +192,7 @@ void MainWindow::process(QString fileName, bool live){
     }
 
     if(cap.isOpened()){
-        fmanager = new FrameManager(cap, imgBuffer, clrBuffer,
-                                    gryBuffer, dbgBuffer, backBuffer, player, ui->spinBox_ctSize,
-                                    ui->label, ui->label_debug, background);
+        fmanager = new FrameManager(cap, ui->spinBox_ctSize, ui->label, ui->label_debug, background);
         connect(fmanager, SIGNAL(processFinished(QImage, QImage)), this, SLOT(imageUpdate(QImage, QImage)));
 
         fmanager->inPrivacy(ui->checkBox_privacy->isChecked());
@@ -242,28 +213,24 @@ void MainWindow::process(QString fileName, bool live){
             fmanager->setOperat(OP_DEFAULT);
         fmanager->start(QThread::NormalPriority);
         //player->start(QThread::HighPriority);
-        mem_timer->start(3000);
         lup_timer->start(500);
     }
 }
 
 void MainWindow::on_toolButton_play_clicked()
 {
-    if(player->state() != PLAYING)
-        player->start();
+    if(fmanager->state() == ST_STOP)
+        fmanager->start();
 }
 
 void MainWindow::on_toolButton_stop_clicked()
 {
-    if(player->state() != STOPPED && player->state() != INIT)
-        player->stop_play();
+    if(fmanager->state() != ST_STOP)
+        fmanager->terminate();
 }
 
 void MainWindow::on_pushButton_live_clicked()
 {
-    if(player->state() == PLAYING){
-        player->stop_play();
-    }
     process(QString::fromStdString(""), true);
 }
 
@@ -310,90 +277,84 @@ void MainWindow::paintBlobs(QImage* frame, Blober& blober){
 
 void MainWindow::on_radioButton_fore_clicked()
 {
-    player->set_label(FOREGROUND);
     if(fmanager != NULL)
         fmanager->setLabel(FOREGROUND);
 }
 
 void MainWindow::on_radioButton_back_clicked()
 {
-    player->set_label(BACKGROUND);
     if(fmanager != NULL)
         fmanager->setLabel(BACKGROUND);
 }
 
 void MainWindow::on_radioButton_grey_clicked()
 {
-    player->set_label(GREYSCALE);
     if(fmanager != NULL)
         fmanager->setLabel(GREYSCALE);
 }
 
 void MainWindow::on_radioButton_orig_clicked()
 {
-    player->set_label(ORIGINAL);
     if(fmanager != NULL)
         fmanager->setLabel(ORIGINAL);
 }
 
-void MainWindow::memManage(){
-#ifdef MESSAGE_ON
-            cout << "@MainWindow.memManage(): 1" << endl;
-#endif
-            std::list<QImage>::iterator beg, end;
-            if(player->get_frame_ctr() > 30){
-                player->mutex.lock();
-                beg = imgBuffer->begin();
-                end = imgBuffer->end();
-                advance(end, player->get_frame_ctr());
+//void MainWindow::memManage(){
+//#ifdef MESSAGE_ON
+//            cout << "@MainWindow.memManage(): 1" << endl;
+//#endif
+//            std::list<QImage>::iterator beg, end;
+//            if(player->get_frame_ctr() > 30){
+//                player->mutex.lock();
+//                beg = imgBuffer->begin();
+//                end = imgBuffer->end();
+//                advance(end, player->get_frame_ctr());
 
-                imgBuffer->erase(beg, end);
-#ifdef MESSAGE_ON
-                cout << "new allocated iBuffer with size " << imgBuffer->size() << endl;
-#endif
-                beg = clrBuffer->begin();
-                end = clrBuffer->end();
-                advance(end, player->get_frame_ctr());
-                clrBuffer->erase(beg, end);
-#ifdef MESSAGE_ON
-                cout << "new allocated cBuffer with size " << clrBuffer->size() << endl;
-#endif
-                beg = gryBuffer->begin();
-                end = gryBuffer->end();
-                advance(end, player->get_frame_ctr());
-                gryBuffer->erase(beg, end);
-#ifdef MESSAGE_ON
-                cout << "new allocated gBuffer with size " << gryBuffer->size() << endl;
-#endif
-                beg = dbgBuffer->begin();
-                end = dbgBuffer->end();
-                advance(end, player->get_frame_ctr());
-                dbgBuffer->erase(beg, end);
-#ifdef MESSAGE_ON
-                cout << "new allocated dBuffer with size " << dbgBuffer->size() << endl;
-#endif
-                beg = backBuffer->begin();
-                end = backBuffer->end();
-                advance(end, player->get_frame_ctr());
-                backBuffer->erase(beg, end);
-#ifdef MESSAGE_ON
-                cout << "new allocated bBuffer with size " << backBuffer->size() << endl;
-#endif
-                alloc_idx = player->get_frame_ctr();
-                player->update_frame_ctr(0);
-                player->mutex.unlock();
-            }
-}
+//                imgBuffer->erase(beg, end);
+//#ifdef MESSAGE_ON
+//                cout << "new allocated iBuffer with size " << imgBuffer->size() << endl;
+//#endif
+//                beg = clrBuffer->begin();
+//                end = clrBuffer->end();
+//                advance(end, player->get_frame_ctr());
+//                clrBuffer->erase(beg, end);
+//#ifdef MESSAGE_ON
+//                cout << "new allocated cBuffer with size " << clrBuffer->size() << endl;
+//#endif
+//                beg = gryBuffer->begin();
+//                end = gryBuffer->end();
+//                advance(end, player->get_frame_ctr());
+//                gryBuffer->erase(beg, end);
+//#ifdef MESSAGE_ON
+//                cout << "new allocated gBuffer with size " << gryBuffer->size() << endl;
+//#endif
+//                beg = dbgBuffer->begin();
+//                end = dbgBuffer->end();
+//                advance(end, player->get_frame_ctr());
+//                dbgBuffer->erase(beg, end);
+//#ifdef MESSAGE_ON
+//                cout << "new allocated dBuffer with size " << dbgBuffer->size() << endl;
+//#endif
+//                beg = backBuffer->begin();
+//                end = backBuffer->end();
+//                advance(end, player->get_frame_ctr());
+//                backBuffer->erase(beg, end);
+//#ifdef MESSAGE_ON
+//                cout << "new allocated bBuffer with size " << backBuffer->size() << endl;
+//#endif
+//                alloc_idx = player->get_frame_ctr();
+//                player->update_frame_ctr(0);
+//                player->mutex.unlock();
+//            }
+//}
 
 void MainWindow::labelUpdate(){
 #ifdef MESSAGE_ON
             cout << "@MainWindow.labelUpdate(): 1" << endl;
 #endif
     ui->label_fps->setText(QString::number(fps));
-    player->mutex.lock();
-    ui->lcdNumber_buffer->display((int)imgBuffer->size() - player->get_frame_ctr());
-    player->mutex.unlock();
-    ui->label_status->setText(player->get_status());
+    ui->lcdNumber_buffer->display(0);
+    ui->label_status->setText("unknown");
     return;
 }
 
@@ -499,9 +460,6 @@ void MainWindow::on_radioButton_poly_clicked()
 
 void MainWindow::on_actionLIVE_triggered()
 {
-    if(player->state() == PLAYING){
-        player->stop_play();
-    }
     process(QString::fromStdString(""), true);
 }
 
@@ -528,11 +486,8 @@ void MainWindow::on_doubleSpinBox_gauSigma_valueChanged(double arg1)
 
 void MainWindow::on_radioButton_color_clicked()
 {
-    if(player != NULL){
-        player->set_label(COLOR);
         if(fmanager != NULL)
             fmanager->setLabel(COLOR);
-    }
 }
 
 void MainWindow::on_checkBox_shape_clicked()

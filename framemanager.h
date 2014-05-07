@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QImage>
 #include <QSpinBox>
+#include <QLabel>
 
 #include <opencv2/opencv.hpp>
 #include <opencv/highgui.h>
@@ -15,7 +16,6 @@
 #include <iostream>
 
 #include "blober.h"
-#include "playthread.h"
 
 using namespace cv;
 using namespace std;
@@ -48,8 +48,7 @@ class FrameManager : public QThread
     Q_OBJECT
 public:
     explicit FrameManager(QObject *parent = 0);
-    FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf,
-                 list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize,
+    FrameManager(VideoCapture cap, QSpinBox* spinBox_ctSize,
                  QLabel* imgLabel, QLabel* dbgLabel, QImage* s_back = NULL);
     ~FrameManager();
 
@@ -80,7 +79,7 @@ public:
     void setLabel(int lbl);
 
     int  state();
-    int     label();
+    int  label();
 
     virtual void run();
 private:
@@ -104,18 +103,10 @@ private:
     QLabel* dbgLabel;
 
     QImage* static_background;
-    std::list<QImage>* imgBuffer;
-    std::list<QImage>* clrBuffer;
-    std::list<QImage>* gryBuffer;
-    std::list<QImage>* dbgBuffer;
-    std::list<QImage>* backBuffer;
-    std::list<QImage>  swap;
-
     VideoCapture cap;
     BackgroundSubtractorMOG2 bg;
 
     Blober blober;
-    PlayThread* player;
 
 signals:
     void processFinished(QImage image, QImage dbgImage);
