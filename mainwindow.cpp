@@ -324,44 +324,6 @@ void MainWindow::on_radioButton_orig_clicked()
     player->set_label(ORIGINAL);
 }
 
-
-#ifndef STL_LIST
-void MainWindow::memManage(){
-#ifdef MESSAGE_ON
-            cout << "@MainWindow.memManage(): 1" << endl;
-#endif
-            if(player->get_frame_ctr() > 30){
-                player->mutex.lock();
-                swap = imgBuffer->mid(player->get_frame_ctr());
-                delete imgBuffer;
-                imgBuffer = new QList<QImage>(swap);
-#ifdef MESSAGE_ON
-                cout << "new allocated iBuffer with size " << imgBuffer->size() << endl;
-#endif
-                swap = gryBuffer->mid(player->get_frame_ctr());
-                delete gryBuffer;
-                gryBuffer = new QList<QImage>(swap);
-#ifdef MESSAGE_ON
-                cout << "new allocated gBuffer with size " << gryBuffer->size() << endl;
-#endif
-                swap = dbgBuffer->mid(player->get_frame_ctr());
-                delete dbgBuffer;
-                dbgBuffer = new QList<QImage>(swap);
-#ifdef MESSAGE_ON
-                cout << "new allocated dBuffer with size " << dbgBuffer->size() << endl;
-#endif
-                swap = backBuffer->mid(player->get_frame_ctr());
-                delete backBuffer;
-                backBuffer = new QList<QImage>(swap);
-#ifdef MESSAGE_ON
-                cout << "new allocated bBuffer with size " << backBuffer->size() << endl;
-#endif
-                alloc_idx = player->get_frame_ctr();
-                player->update_frame_ctr(0);
-                player->mutex.unlock();
-            }
-}
-#else
 void MainWindow::memManage(){
 #ifdef MESSAGE_ON
             cout << "@MainWindow.memManage(): 1" << endl;
@@ -410,21 +372,7 @@ void MainWindow::memManage(){
                 player->mutex.unlock();
             }
 }
-#endif
 
-#ifndef STL_LIST
-void MainWindow::labelUpdate(){
-#ifdef MESSAGE_ON
-            cout << "@MainWindow.labelUpdate(): 1" << endl;
-#endif
-    ui->label_fps->setText(QString::number(fps));
-    player->mutex.lock();
-    ui->lcdNumber_buffer->display(imgBuffer->length() - player->get_frame_ctr());
-    player->mutex.unlock();
-    ui->label_status->setText(player->get_status());
-    return;
-}
-#else
 void MainWindow::labelUpdate(){
 #ifdef MESSAGE_ON
             cout << "@MainWindow.labelUpdate(): 1" << endl;
@@ -436,7 +384,6 @@ void MainWindow::labelUpdate(){
     ui->label_status->setText(player->get_status());
     return;
 }
-#endif
 
 void MainWindow::on_checkBox_privacy_clicked()
 {
