@@ -32,7 +32,9 @@ FrameManager::FrameManager(QObject *parent) :
     spinBox_ctSize      = NULL;
 }
 
-FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back){
+FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf,
+                           list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize,
+                           QLabel* imgLabel, QLabel* dbgLabel, QImage* s_back){
         interval.tv_sec     = 0;
         interval.tv_nsec    = 100000000L; //1 000 000 000nsec = 1sec
         buffered_frame_idx  = 0;
@@ -64,6 +66,8 @@ FrameManager::FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage
 
         this->player= player;
         this->spinBox_ctSize = spinBox_ctSize;
+        this->imgLabel = imgLabel;
+        this->dbgLabel = dbgLabel;
 }
 
 FrameManager::~FrameManager(){
@@ -122,8 +126,16 @@ void FrameManager::setEdgeThd(int edge_thd){
         this->edge_thd = edge_thd;
 }
 
+void FrameManager::setLabel(int lbl) {
+    label_t = lbl;
+}
+
 int FrameManager::state(){
    return this->state_t;
+}
+
+int FrameManager::label() {
+    return label_t;
 }
 
 void FrameManager::process(){
@@ -231,11 +243,31 @@ void FrameManager::process(){
 #endif
             player->mutex.lock();
             try{
-                imgBuffer->push_back(image);
-                clrBuffer->push_back(clr_image);
-                gryBuffer->push_back(grey_image);
-                dbgBuffer->push_back(fore_ground);
-                backBuffer->push_back(back_ground);
+//                imgBuffer->push_back(image);
+//                clrBuffer->push_back(clr_image);
+//                gryBuffer->push_back(grey_image);
+//                dbgBuffer->push_back(fore_ground);
+//                backBuffer->push_back(back_ground);
+
+                switch(label_t) {
+                case ORIGINAL:
+                    emit processFinished(image, image);
+                    break;
+                case COLOR:
+                    emit processFinished(image, clr_image);
+                    break;
+                case GREYSCALE:
+                    emit processFinished(image, grey_image);
+                    break;
+                case BACKGROUND:
+                    emit processFinished(image, back_ground);
+                    break;
+                case FOREGROUND:
+                    emit processFinished(image, fore_ground);
+                    break;
+                default:
+                    break;
+                }
                 buffered_frame_idx++;
                 player->mutex.unlock();
             } catch(std::bad_alloc& balc){

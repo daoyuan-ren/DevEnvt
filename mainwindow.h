@@ -108,6 +108,7 @@ public:
 #endif
     void labelUpdate();
     void memManage();
+    void imageUpdate(QImage image, QImage dbgImage);
     void on_actionQuit_triggered();
     void on_toolButton_play_clicked();
     void on_toolButton_stop_clicked();

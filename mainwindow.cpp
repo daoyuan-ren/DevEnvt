@@ -219,7 +219,11 @@ void MainWindow::process(QString fileName, bool live){
     }
 
     if(cap.isOpened()){
-        fmanager = new FrameManager(cap, imgBuffer, clrBuffer, gryBuffer, dbgBuffer, backBuffer, player, ui->spinBox_ctSize, background);
+        fmanager = new FrameManager(cap, imgBuffer, clrBuffer,
+                                    gryBuffer, dbgBuffer, backBuffer, player, ui->spinBox_ctSize,
+                                    ui->label, ui->label_debug, background);
+        connect(fmanager, SIGNAL(processFinished(QImage, QImage)), this, SLOT(imageUpdate(QImage, QImage)));
+
         fmanager->inPrivacy(ui->checkBox_privacy->isChecked());
         fmanager->pain_rect(ui->checkBox_rect->isChecked());
         if(ui->radioButton_black->isChecked())
@@ -237,7 +241,7 @@ void MainWindow::process(QString fileName, bool live){
         else
             fmanager->setOperat(OP_DEFAULT);
         fmanager->start(QThread::NormalPriority);
-        player->start(QThread::HighPriority);
+        //player->start(QThread::HighPriority);
         mem_timer->start(3000);
         lup_timer->start(500);
     }
@@ -307,21 +311,29 @@ void MainWindow::paintBlobs(QImage* frame, Blober& blober){
 void MainWindow::on_radioButton_fore_clicked()
 {
     player->set_label(FOREGROUND);
+    if(fmanager != NULL)
+        fmanager->setLabel(FOREGROUND);
 }
 
 void MainWindow::on_radioButton_back_clicked()
 {
     player->set_label(BACKGROUND);
+    if(fmanager != NULL)
+        fmanager->setLabel(BACKGROUND);
 }
 
 void MainWindow::on_radioButton_grey_clicked()
 {
     player->set_label(GREYSCALE);
+    if(fmanager != NULL)
+        fmanager->setLabel(GREYSCALE);
 }
 
 void MainWindow::on_radioButton_orig_clicked()
 {
     player->set_label(ORIGINAL);
+    if(fmanager != NULL)
+        fmanager->setLabel(ORIGINAL);
 }
 
 void MainWindow::memManage(){
@@ -383,6 +395,11 @@ void MainWindow::labelUpdate(){
     player->mutex.unlock();
     ui->label_status->setText(player->get_status());
     return;
+}
+
+void MainWindow::imageUpdate(QImage image, QImage dbgImage) {
+    ui->label->setPixmap(QPixmap::fromImage(image));
+    ui->label_debug->setPixmap(QPixmap::fromImage(dbgImage));
 }
 
 void MainWindow::on_checkBox_privacy_clicked()
@@ -513,6 +530,8 @@ void MainWindow::on_radioButton_color_clicked()
 {
     if(player != NULL){
         player->set_label(COLOR);
+        if(fmanager != NULL)
+            fmanager->setLabel(COLOR);
     }
 }
 

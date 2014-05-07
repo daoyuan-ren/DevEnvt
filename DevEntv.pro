@@ -16,7 +16,6 @@ CV22_LIB = /usr/local/lib/OpenCV2
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    playthread.cpp \
     blober.cpp \
     framemanager.cpp \
     package_bgs/lb/LBMixtureOfGaussians.cpp \
@@ -24,7 +23,6 @@ SOURCES += main.cpp\
     package_bgs/lb/BGModel.cpp
 
 HEADERS  += mainwindow.h \
-    playthread.h \
     blober.h \
     framemanager.h \
     package_bgs/lb/LBMixtureOfGaussians.h \

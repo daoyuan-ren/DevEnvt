@@ -34,6 +34,13 @@ using namespace std;
 #define ST_PROC     10
 #define ST_STOP     11
 
+//define the pictures to be shown
+#define ORIGINAL    20
+#define GREYSCALE   21
+#define COLOR       22
+#define BACKGROUND  23
+#define FOREGROUND  24
+
 #define HISTORY     156
 
 class FrameManager : public QThread
@@ -41,18 +48,15 @@ class FrameManager : public QThread
     Q_OBJECT
 public:
     explicit FrameManager(QObject *parent = 0);
-#ifndef STL_LIST
-    FrameManager(VideoCapture cap, QList<QImage>* iBuf, QList<QImage>* gBuf, QList<QImage>* dBuf, QList<QImage>* bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back = NULL);
-#else
-    FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf, list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize, QImage* s_back = NULL);
-#endif
-
+    FrameManager(VideoCapture cap, list<QImage>* stl_iBuf, list<QImage>* stl_cBuf, list<QImage>* stl_gBuf,
+                 list<QImage>* stl_dBuf, list<QImage>* stl_bBuf, PlayThread* player, QSpinBox* spinBox_ctSize,
+                 QLabel* imgLabel, QLabel* dbgLabel, QImage* s_back = NULL);
     ~FrameManager();
 
     QImage Mat2QImage(cv::Mat const& src);
     cv::Mat QImage2Mat(QImage const& src);
 
-    void process();
+//    void process();
     void black_out(Mat& st_back, Mat& st_back_grey);
     void blur(Mat& mat, const Mat& fore, Mat& grey, Mat& st_back, Mat& st_back_grey);
     void poly(Mat& st_back, Mat& st_back_grey, Scalar color = CL_BLUE);
@@ -73,9 +77,10 @@ public:
     void setMosaicSize(int mosaic_size);
     void setSigma(double gau_sigma);
     void setEdgeThd(int edge_thd);
-
+    void setLabel(int lbl);
 
     int  state();
+    int     label();
 
     virtual void run();
 private:
@@ -84,6 +89,7 @@ private:
     bool shadow_detect;
     bool with_shape;
     int  pixel_operation;
+    int  label_t;
     int  state_t;
     int  edge_thd;
     int  poly_acuracy;
@@ -94,23 +100,16 @@ private:
     timespec interval;
     QTimer* timer;
     QSpinBox* spinBox_ctSize;
+    QLabel* imgLabel;
+    QLabel* dbgLabel;
 
     QImage* static_background;
-#ifndef STL_LIST
-    QList<QImage>* imgBuffer;
-    QList<QImage>* clrBuffer;
-    QList<QImage>* gryBuffer;
-    QList<QImage>* dbgBuffer;
-    QList<QImage>* backBuffer;
-    QList<QImage>  swap;
-#else
     std::list<QImage>* imgBuffer;
     std::list<QImage>* clrBuffer;
     std::list<QImage>* gryBuffer;
     std::list<QImage>* dbgBuffer;
     std::list<QImage>* backBuffer;
     std::list<QImage>  swap;
-#endif
 
     VideoCapture cap;
     BackgroundSubtractorMOG2 bg;
@@ -119,9 +118,9 @@ private:
     PlayThread* player;
 
 signals:
-    
+    void processFinished(QImage image, QImage dbgImage);
 public slots:
-    
+    void process();
 };
 
 #endif // FRAMEMANAGER_H
