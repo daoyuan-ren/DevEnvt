@@ -49,3 +49,6 @@ contains(cv,2){
 	LIBS += -L$$CV11_LIB
 	LIBS += -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_features2d -lopencv_flann -lopencv_objdetect -lopencv_ml -lopencv_video  -lopencv_legacy -lopencv_contrib -lopencv_calib3d -pthread
 }
+
+OTHER_FILES += \
+    config/LBMixtureOfGaussians.xml

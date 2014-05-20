@@ -42,11 +42,13 @@ public:
 #endif
     int size();
     void find_blobs(Mat& frame, int blob_minSize, bool shadow_detect, int epsilon = 3);
-    void paint_label(QImage* image);
+    QString paint_label(QImage* image);
     void paint_blobs(Mat& drawing);
     void paint_blobs(Mat &drawing, int shape_t, Scalar color = CL_BLUE);
     void cv_shadow_detect(Mat& frame);
     string drawText(int x, int y, int width, int height);
+
+    QString recInfo();
 
     vector<Rect>* rects();
 private:

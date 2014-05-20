@@ -49,6 +49,11 @@ public:
   void process(const cv::Mat &img_input, cv::Mat &img_output, cv::Mat &img_bgmodel);
   //void finish(void);
 
+  int getSensitivity();
+  int getBgThreshold();
+  int getlearningRt();
+  int getNoiseVar();
+
 private:
   void saveConfig();
   void loadConfig();

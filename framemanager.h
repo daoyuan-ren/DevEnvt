@@ -6,6 +6,7 @@
 #include <QImage>
 #include <QSpinBox>
 #include <QLabel>
+#include <QMutex>
 
 #include <opencv2/opencv.hpp>
 #include <opencv/highgui.h>
@@ -16,6 +17,7 @@
 #include <iostream>
 
 #include "blober.h"
+#include "package_bgs/lb/LBMixtureOfGaussians.h"
 
 using namespace cv;
 using namespace std;
@@ -23,16 +25,17 @@ using namespace std;
 #define BLOB_ON
 #define LABEL_ON
 
-#define OP_BLACK    0
-#define OP_BLUR     1
-#define OP_BORDER   2
-#define OP_EDGE     3
-#define OP_POLY     4
-#define OP_MOSAIC   5
-#define OP_DEFAULT  9
+#define OP_BLACK        0
+#define OP_BLUR         1
+#define OP_SILOUETTE    2
+#define OP_EDGE         3
+#define OP_POLY         4
+#define OP_MOSAIC       5
+#define OP_DEFAULT      9
 
-#define ST_PROC     10
-#define ST_STOP     11
+#define ST_INIT     10
+#define ST_PROC     11
+#define ST_STOP     12
 
 //define the pictures to be shown
 #define ORIGINAL    20
@@ -40,6 +43,9 @@ using namespace std;
 #define COLOR       22
 #define BACKGROUND  23
 #define FOREGROUND  24
+
+#define OPENCV_MD   30
+#define MIXGAU_MD   31
 
 #define HISTORY     156
 
@@ -61,50 +67,69 @@ public:
     void poly(Mat& st_back, Mat& st_back_grey, Scalar color = CL_BLUE);
     void mosaic(Mat &mat, Mat& grey, Mat &st_back, Mat& st_back_grey);
     void edge(Mat& mat, Mat& grey, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey);
-    void border(const Mat& fore, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey);
+    void silouette(const Mat& fore, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey);
 
     void gamma_correction(Mat& mat, const double gamma);
-    unsigned int buffered_frame();
+    unsigned int frameIndex();
 
     void inPrivacy(bool privacy_mode);
     void pain_rect(bool paint_blob);
     void shadow(bool shadow_detect);
     void setShape(bool with_shape);
+    void setGreyROI(bool grey_roi);
     void setOperat(int operation);
     void setState(int state_t);
     void setAcuracy(int acuracy);
     void setMosaicSize(int mosaic_size);
     void setSigma(double gau_sigma);
+    void setGauSize(int gau_size);
     void setEdgeThd(int edge_thd);
     void setLabel(int lbl);
+    void setDetector(int working_md);
 
     int  state();
     int  label();
+    int  motionDetector();
+
+    int  bgModelSensitivity();
+    int  bgModelLearnRate();
+    int  bgModelNoiseVar();
+    int  bgModelBgThreshold();
+
+    QString message();
+    void    addMessage(QString message);
+    void    clearMessage();
 
     virtual void run();
+
+    QMutex msgMutex;
 private:
     bool in_privacy_mode;
     bool pain_blob;
     bool shadow_detect;
     bool with_shape;
+    bool grey_roi;
     int  pixel_operation;
     int  label_t;
     int  state_t;
     int  edge_thd;
     int  poly_acuracy;
     int  mosaic_size;
+    int  gau_size;
+    int  working_md;
     double gau_sigma;
-    unsigned int buffered_frame_idx;
+    unsigned int frame_idx;
 
     timespec interval;
-    QTimer* timer;
     QSpinBox* spinBox_ctSize;
     QLabel* imgLabel;
     QLabel* dbgLabel;
+    QString runningMessage;
 
     QImage* static_background;
     VideoCapture cap;
     BackgroundSubtractorMOG2 bg;
+    LBMixtureOfGaussians* bgs;
 
     Blober blober;
 

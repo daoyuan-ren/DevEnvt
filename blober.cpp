@@ -109,23 +109,43 @@ void Blober::paint_blobs(Mat &drawing, int shape_t, Scalar color){
     }
 }
 
-void Blober::paint_label(QImage* image){
+QString Blober::paint_label(QImage* image){
     if(image->isNull())
-        return;
+        return NULL;
+    ostringstream info;
+    info << "Blob Number = " << blob_num << " {\n";
     for(int i = 0; i < blob_num; i++){
         QPainter* painter = new QPainter(image); // sorry i forgot the "&"
         painter->setPen(Qt::red);
         painter->setFont(QFont("Arial", 12));
-        string text = drawText((*boundRect)[i].x, (*boundRect)[i].y, (*boundRect)[i].width, (*boundRect)[i].height);
-        painter->drawText((*boundRect)[i].x, (*boundRect)[i].y, QString::fromStdString(text));
+        if((*boundRect)[i].width > 0) {
+            string text = drawText((*boundRect)[i].x, (*boundRect)[i].y, (*boundRect)[i].width, (*boundRect)[i].height);
+            painter->drawText((*boundRect)[i].x, (*boundRect)[i].y, QString::fromStdString(text));
+            info << "[" << i << "]\t" << text << "\n";
+        }
         delete painter;
     }
+    info << "}\n";
+    return QString::fromStdString(info.str());
 }
 
 string Blober::drawText(int x, int y, int width, int height){
     ostringstream ss;
     ss << "(" << x <<", " << y << ")<" << width << ", " << height << ">";
     return ss.str();
+}
+
+QString Blober::recInfo() {
+    ostringstream info;
+    if(boundRect->size() > 0) {
+        info << "RecSize = " << boundRect->size() << " { ";
+        for(int i = 0; i < boundRect->size() && (*boundRect)[i].width > 0 && (*boundRect)[i].height > 0; i++) {
+            info << "("+(*boundRect)[i].x << ", " << (*boundRect)[i].y << ") [" <<
+                        (*boundRect)[i].width << ", " << (*boundRect)[i].height << "]\t";
+        }
+        info << "}\n";
+    }
+    return QString::fromStdString(info.str());
 }
 
 vector<Rect>* Blober::rects(){

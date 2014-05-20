@@ -6,7 +6,7 @@ FrameManager::FrameManager(QObject *parent) :
 {
     interval.tv_sec     = 0;
     interval.tv_nsec    = 300000000L; //1 000 000 000nsec = 1sec
-    buffered_frame_idx  = 0;
+    frame_idx           = 0;
     in_privacy_mode     = false;
     pain_blob           = true;
     shadow_detect       = false;
@@ -15,13 +15,15 @@ FrameManager::FrameManager(QObject *parent) :
     poly_acuracy        = 1;
     edge_thd            = 15;
 
-    state_t             = ST_PROC;
-    timer               = NULL;
+    state_t             = ST_INIT;
 
     bg.set("nmixtures", 3);
     bg.set("history", HISTORY);
 //    bg.bShadowDetection = true;
     bg.set("detectShadows", true);
+
+    bgs                 = NULL;
+
     static_background   = NULL;
 
     spinBox_ctSize      = NULL;
@@ -31,18 +33,22 @@ FrameManager::FrameManager(VideoCapture cap, QSpinBox* spinBox_ctSize,
                            QLabel* imgLabel, QLabel* dbgLabel, QImage* s_back){
         interval.tv_sec     = 0;
         interval.tv_nsec    = 300000000L; //1 000 000 000nsec = 1sec
-        buffered_frame_idx  = 0;
+        frame_idx           = 0;
         in_privacy_mode     = false;
         pain_blob           = true;
         shadow_detect       = false;
         with_shape          = false;
+        grey_roi            = false;
         //pixel_operation     = OP_DEFAULT;
         poly_acuracy        = 1;
         mosaic_size         = 10;
+        gau_size            = 9;
         gau_sigma           = 2.5;
         edge_thd            = 15;
 
-        state_t             = ST_PROC;
+
+        working_md          = MIXGAU_MD;
+        state_t             = ST_INIT;
 //        timer               = new QTimer(0);
 //        connect(timer_ptr, SIGNAL(timeout()), this, SLOT(imageUpdate()));
 
@@ -50,7 +56,9 @@ FrameManager::FrameManager(VideoCapture cap, QSpinBox* spinBox_ctSize,
         bg.set("history", HISTORY);
         bg.set("detectShadows", true);
 
-        this->cap = cap;
+        bgs                 = NULL;
+
+        this->cap           = cap;
         static_background   = s_back;
 
         this->spinBox_ctSize = spinBox_ctSize;
@@ -61,8 +69,6 @@ FrameManager::FrameManager(VideoCapture cap, QSpinBox* spinBox_ctSize,
 FrameManager::~FrameManager(){
     terminate();
 
-    if(timer != NULL)
-        delete timer;
     if(static_background != NULL)
         delete static_background;
 }
@@ -103,6 +109,14 @@ void FrameManager::setSigma(double gau_sigma){
     this->gau_sigma = gau_sigma;
 }
 
+void FrameManager::setGreyROI(bool grey_roi) {
+    this->grey_roi = grey_roi;
+}
+
+void FrameManager::setGauSize(int gau_size) {
+    this->gau_size = gau_size;
+}
+
 void FrameManager::setEdgeThd(int edge_thd){
     if(edge_thd >= 0 && edge_thd <= 255)
         this->edge_thd = edge_thd;
@@ -112,12 +126,56 @@ void FrameManager::setLabel(int lbl) {
     label_t = lbl;
 }
 
+void FrameManager::setDetector(int working_md) {
+    this->working_md = working_md;
+}
+
 int FrameManager::state(){
    return this->state_t;
 }
 
 int FrameManager::label() {
     return label_t;
+}
+
+int FrameManager::motionDetector() {
+    return working_md;
+}
+
+int FrameManager::bgModelSensitivity() {
+    if(working_md == MIXGAU_MD && bgs != NULL)
+        return bgs->getSensitivity();
+}
+
+int FrameManager::bgModelBgThreshold() {
+    if(working_md == MIXGAU_MD && bgs != NULL)
+        return bgs->getBgThreshold();
+}
+
+int FrameManager::bgModelLearnRate() {
+    if(working_md == MIXGAU_MD && bgs != NULL)
+        return bgs->getlearningRt();
+}
+
+int FrameManager::bgModelNoiseVar() {
+    if(working_md == MIXGAU_MD && bgs != NULL)
+        return bgs->getNoiseVar();
+}
+
+QString FrameManager::message() {
+    return runningMessage;
+}
+
+void FrameManager::addMessage(QString message) {
+    msgMutex.lock();
+    runningMessage.append(message);
+    msgMutex.unlock();
+}
+
+void FrameManager::clearMessage() {
+    msgMutex.lock();
+    runningMessage.clear();
+    msgMutex.unlock();
 }
 
 void FrameManager::process(){
@@ -132,10 +190,17 @@ void FrameManager::process(){
         Mat frame, frame_gau, back, fore;
         Mat drawing, grey, grey_back, st_back, st_back_grey;
         QImage image, clr_image, grey_image, fore_ground, back_ground;
-        LBMixtureOfGaussians* bgs = new LBMixtureOfGaussians;
+        bgs = new LBMixtureOfGaussians;
 
-        for(unsigned int i = 0;; i++) {
+        if(working_md == MIXGAU_MD)
+            addMessage("LBMixtureOfGaussians()\n");
+        if(working_md == OPENCV_MD)
+            addMessage("BackgroundSubtractorMOG2()\n");
+
+        for(frame_idx = 0;; frame_idx++) {
             cap >> frame;
+            if(frame.empty())
+                break;
             cvtColor(frame, grey, CV_RGB2GRAY);
             cvtColor(grey, grey, CV_GRAY2BGR);
             image = Mat2QImage(frame);
@@ -143,20 +208,28 @@ void FrameManager::process(){
             GaussianBlur(frame, frame_gau, Size(5, 5), 1.5, 1.5);
 
             /*** subtracting backgrounds from frame using different algorithms ***/
-            //bg.operator ()(frame, fore, 0.01);
-            //bg.getBackgroundImage(back);
-            bgs->process(frame_gau, fore, back);
+            if(working_md == OPENCV_MD) {
+                bg.operator ()(frame_gau, fore, 0.01);
+                bg.getBackgroundImage(back);
+                threshold(fore, fore, 129, 255, THRESH_BINARY);
+                cvtColor(fore, drawing, CV_GRAY2BGR);
+            }
+//            imwrite("./fore_bgs/fore.png", fore);
+//            imwrite("./fore_bgs/frame.png", frame);
 
-            //erode(fore, fore, cv::Mat());
-            //dilate(fore, fore, cv::Mat());
-            cvtColor(back, grey_back, CV_RGB2GRAY);
-            cvtColor(grey_back, grey_back, CV_GRAY2BGR);
+//            erode(fore, fore, cv::Mat());
+//            dilate(fore, fore, cv::Mat());
 
             /*** in case using the LBMixtureOfGaussianDetector ***/
-            cvtColor(fore, fore, CV_RGB2GRAY);
-            cvtColor(fore, drawing, CV_GRAY2BGR);
-            //cvtColor(fore, drawing, CV_RGB2BGR);
+            if(working_md == MIXGAU_MD) {
+                bgs->process(frame_gau, fore, back);
+                cvtColor(fore, fore, CV_RGB2GRAY);
+                cvtColor(fore, drawing, CV_GRAY2BGR);
+            }
+//            cvtColor(fore, drawing, CV_RGB2BGR);
             blober.find_blobs(fore, spinBox_ctSize->value(), shadow_detect, poly_acuracy);
+            cvtColor(back, grey_back, CV_RGB2GRAY);
+            cvtColor(grey_back, grey_back, CV_GRAY2BGR);
 
             if(static_background != NULL){
                 st_back = QImage2Mat(*static_background);
@@ -177,8 +250,8 @@ void FrameManager::process(){
                 case OP_EDGE:
                     edge(frame, grey, back, grey_back, st_back, st_back_grey);
                     break;
-                case OP_BORDER:
-                    border(drawing, back, grey_back, st_back, st_back_grey);
+                case OP_SILOUETTE:
+                    silouette(drawing, back, grey_back, st_back, st_back_grey);
                     break;
                 case OP_POLY:
                     poly(st_back, st_back_grey);
@@ -212,10 +285,12 @@ void FrameManager::process(){
 //                QImage grey_image(fore.data, frame.cols, frame.rows, QImage::Format_Indexed8);
 }
             fore_ground = Mat2QImage(drawing);
-            blober.paint_label(&fore_ground);
+            QString blobInfo = blober.paint_label(&fore_ground);
             back_ground = Mat2QImage(back);
             clr_image   = Mat2QImage(st_back);
             grey_image  = Mat2QImage(st_back_grey);
+
+            addMessage(blobInfo);
 #ifdef LABEL_ON
             if(pain_blob == true){
                 blober.paint_label(&back_ground);
@@ -244,7 +319,7 @@ void FrameManager::process(){
                     break;
                 }
             } catch(std::bad_alloc& balc){
-                cerr << i << ": bad allocation caught at " << buffered_frame_idx << "th frame." << endl;
+                cerr << "bad allocation caught at " << frame_idx << "th frame." << endl;
             }
 #ifdef MESSAGE_ON
             cout << "<" << buffered_frame_idx << "> " << "processing @fmanager.run(): " << currentThreadId() << endl;
@@ -275,22 +350,30 @@ void FrameManager::blur(Mat &mat, const Mat& fore, Mat& grey, Mat& st_back, Mat&
         Rect rec    = blober.rects()->at(i);
         if(rec.width <= 0 || rec.height <= 0)
             continue;
-        Mat roi     = mat(rec);
-        Mat roi_c   = grey(rec);
-        Mat mask    = fore(rec);
-        Mat roi_gau, roi_c_gau, inv_mask;
+        Mat roi             = mat(rec);
+        Mat roi_grey        = grey(rec);
+        Mat mask            = fore(rec);
+        Mat roi_back        = st_back(rec);
+        Mat roi_back_grey   = st_back_grey(rec);
+        Mat roi_gau, roi_grey_gau, inv_mask;
 
-        GaussianBlur(roi, roi_gau, Size(9, 9), gau_sigma, gau_sigma);
-        GaussianBlur(roi_c, roi_c_gau, Size(9, 9), gau_sigma, gau_sigma);
+        GaussianBlur(roi, roi_gau, Size(gau_size, gau_size), gau_sigma, gau_sigma);
+        GaussianBlur(roi_grey, roi_grey_gau, Size(gau_size, gau_size), gau_sigma, gau_sigma);
+
+        if(grey_roi == true) {
+            cvtColor(roi_gau, roi_gau, CV_RGB2GRAY);
+            cvtColor(roi_gau, roi_gau, CV_GRAY2RGB);
+        }
+
         bitwise_and(roi_gau,mask,roi_gau);
-        bitwise_and(roi_c_gau,mask,roi_c_gau);
+        bitwise_and(roi_grey_gau,mask,roi_grey_gau);
         bitwise_not(mask, inv_mask);
-        bitwise_and(roi,inv_mask,roi);
-        bitwise_and(roi_c,inv_mask,roi_c);
-        roi += roi_gau;
-        roi_c += roi_c_gau;
-        roi.copyTo(st_back(rec));
-        roi_c.copyTo(st_back_grey(rec));
+        bitwise_and(roi_back,inv_mask,roi_back);
+        bitwise_and(roi_back_grey,inv_mask,roi_back_grey);
+        roi_back += roi_gau;
+        roi_back_grey += roi_grey_gau;
+        roi_back.copyTo(st_back(rec));
+        roi_back_grey.copyTo(st_back_grey(rec));
     }
     if(with_shape == true)
         poly(st_back, st_back_grey, CL_SKY);
@@ -375,17 +458,18 @@ void FrameManager::edge(Mat &mat, Mat& grey, const Mat& back, const Mat& grey_ba
         poly(st_back, st_back_grey, CL_SKY);
 }
 
-void FrameManager::border(const Mat& fore, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey){
-    Mat sobel_x, sobel_y, sobel;
+void FrameManager::silouette(const Mat& fore, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey){
     for(unsigned int i = 0; i <blober.rects()->size(); i++){
         Rect rec = blober.rects()->at(i);
         if(rec.width <= 0 || rec.height <= 0)
             continue;
+        Mat frec = fore(rec);
+        Mat stbrec = st_back(rec);
 
-        Sobel(fore(rec), sobel_x, -1, 0, 1);
-        Sobel(fore(rec), sobel_y, -1, 1, 0);
-        st_back(rec) = sobel_x+sobel_y+back(rec);
-        st_back_grey(rec) = sobel_x+sobel_y+grey_back(rec);
+        Mat frec_inv;
+        threshold(frec, frec_inv, 128, 1, THRESH_BINARY_INV);
+        st_back(rec) = stbrec.mul(frec_inv);
+        st_back_grey(rec) = grey_back(rec).mul(frec_inv);
     }
 }
 
@@ -424,6 +508,7 @@ void FrameManager::run(){
 #ifdef MESSAGE_ON
     cout << "@fmanager.run(): " << currentThreadId() << endl;
 #endif
+    setState(ST_PROC);
     process();
 }
 
@@ -431,6 +516,6 @@ void FrameManager::gamma_correction(Mat &mat, const double gamma){
     mat = mat * gamma;
 }
 
-unsigned int FrameManager::buffered_frame(){
-    return buffered_frame_idx;
+unsigned int FrameManager::frameIndex(){
+    return frame_idx;
 }

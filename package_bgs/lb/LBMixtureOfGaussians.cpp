@@ -71,6 +71,22 @@ void LBMixtureOfGaussians::process(const cv::Mat &img_input, cv::Mat &img_output
 //  delete m_pBGModel;
 //}
 
+int LBMixtureOfGaussians::getBgThreshold() {
+    return bgThreshold;
+}
+
+int LBMixtureOfGaussians::getlearningRt() {
+    return learningRate;
+}
+
+int LBMixtureOfGaussians::getNoiseVar() {
+    return noiseVariance;
+}
+
+int LBMixtureOfGaussians::getSensitivity() {
+    return sensitivity;
+}
+
 void LBMixtureOfGaussians::saveConfig()
 {
   CvFileStorage* fs = cvOpenFileStorage("./config/LBMixtureOfGaussians.xml", 0, CV_STORAGE_WRITE);
