@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'mainwindow.h'
 **
-** Created: Tue May 20 20:18:16 2014
+** Created: Tue Jun 17 18:53:16 2014
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      34,   14, // methods
+      44,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -65,6 +65,16 @@ static const uint qt_meta_data_MainWindow[] = {
      988,   11,   11,   11, 0x08,
     1024,   11,   11,   11, 0x08,
     1052,   11,   11,   11, 0x08,
+    1089,   11,   11,   11, 0x08,
+    1122,  694,   11,   11, 0x08,
+    1158,   11,   11,   11, 0x08,
+    1188,  694,   11,   11, 0x08,
+    1229,  694,   11,   11, 0x08,
+    1266,   11,   11,   11, 0x08,
+    1297,   11,   11,   11, 0x08,
+    1326,  694,   11,   11, 0x08,
+    1367,  694,   11,   11, 0x08,
+    1404,   11,   11,   11, 0x08,
 
        0        // eod
 };
@@ -104,6 +114,16 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "on_radioButton_silhouette_clicked()\0"
     "on_actionOCV_MD_triggered()\0"
     "on_actionMix_Gaussian_MD_triggered()\0"
+    "on_actionFull_Screen_triggered()\0"
+    "on_spinBox_rgbCut_valueChanged(int)\0"
+    "on_checkBox_Erosion_clicked()\0"
+    "on_comboBox_EroType_textChanged(QString)\0"
+    "on_spinBox_EroSize_valueChanged(int)\0"
+    "on_radioButton_debug_clicked()\0"
+    "on_checkBox_dilate_clicked()\0"
+    "on_comboBox_DilType_textChanged(QString)\0"
+    "on_spinBox_DilSize_valueChanged(int)\0"
+    "on_checkBox_record_clicked()\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -146,6 +166,16 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 31: _t->on_radioButton_silhouette_clicked(); break;
         case 32: _t->on_actionOCV_MD_triggered(); break;
         case 33: _t->on_actionMix_Gaussian_MD_triggered(); break;
+        case 34: _t->on_actionFull_Screen_triggered(); break;
+        case 35: _t->on_spinBox_rgbCut_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 36: _t->on_checkBox_Erosion_clicked(); break;
+        case 37: _t->on_comboBox_EroType_textChanged((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 38: _t->on_spinBox_EroSize_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 39: _t->on_radioButton_debug_clicked(); break;
+        case 40: _t->on_checkBox_dilate_clicked(); break;
+        case 41: _t->on_comboBox_DilType_textChanged((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 42: _t->on_spinBox_DilSize_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 43: _t->on_checkBox_record_clicked(); break;
         default: ;
         }
     }
@@ -183,9 +213,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 34)
+        if (_id < 44)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 34;
+        _id -= 44;
     }
     return _id;
 }

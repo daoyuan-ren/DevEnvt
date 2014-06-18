@@ -14,6 +14,7 @@ FrameManager::FrameManager(QObject *parent) :
     //pixel_operation     = OP_DEFAULT;
     poly_acuracy        = 1;
     edge_thd            = 15;
+    rgb_thd          = 40;
 
     state_t             = ST_INIT;
 
@@ -29,7 +30,7 @@ FrameManager::FrameManager(QObject *parent) :
     spinBox_ctSize      = NULL;
 }
 
-FrameManager::FrameManager(VideoCapture cap, QSpinBox* spinBox_ctSize,
+FrameManager::FrameManager(VideoCapture cap, VideoWriter wtr, QSpinBox* spinBox_ctSize,
                            QLabel* imgLabel, QLabel* dbgLabel, QImage* s_back){
         interval.tv_sec     = 0;
         interval.tv_nsec    = 300000000L; //1 000 000 000nsec = 1sec
@@ -39,12 +40,19 @@ FrameManager::FrameManager(VideoCapture cap, QSpinBox* spinBox_ctSize,
         shadow_detect       = false;
         with_shape          = false;
         grey_roi            = false;
+        erosion             = false;
+        dilation            = false;
+        record              = false;
         //pixel_operation     = OP_DEFAULT;
         poly_acuracy        = 1;
         mosaic_size         = 10;
         gau_size            = 9;
         gau_sigma           = 2.5;
         edge_thd            = 15;
+        ero_size            = 3;
+        ero_type            = cv::MORPH_CROSS;
+        dil_size            = 3;
+        ero_type            = cv::MORPH_CROSS;
 
 
         working_md          = MIXGAU_MD;
@@ -59,6 +67,7 @@ FrameManager::FrameManager(VideoCapture cap, QSpinBox* spinBox_ctSize,
         bgs                 = NULL;
 
         this->cap           = cap;
+        this->wtr           = wtr;
         static_background   = s_back;
 
         this->spinBox_ctSize = spinBox_ctSize;
@@ -113,6 +122,18 @@ void FrameManager::setGreyROI(bool grey_roi) {
     this->grey_roi = grey_roi;
 }
 
+void FrameManager::setErosion(bool erosion) {
+    this->erosion = erosion;
+}
+
+void FrameManager::setDilate(bool dilate){
+    this->dilation = dilate;
+}
+
+void FrameManager::setRecord(bool record){
+    this->record = record;
+}
+
 void FrameManager::setGauSize(int gau_size) {
     this->gau_size = gau_size;
 }
@@ -128,6 +149,26 @@ void FrameManager::setLabel(int lbl) {
 
 void FrameManager::setDetector(int working_md) {
     this->working_md = working_md;
+}
+
+void FrameManager::setRGBThd(int rgbThd) {
+    rgb_thd = rgbThd >= 0 && rgbThd <= 255 ? rgbThd : rgb_thd;
+}
+
+void FrameManager::setEroSize(int size) {
+    ero_size = size;
+}
+
+void FrameManager::setEroType(int type){
+    ero_type = type;
+}
+
+void FrameManager::setDilSize(int size){
+    dil_size = size;
+}
+
+void FrameManager::setDilType(int type){
+    dil_type = type;
 }
 
 int FrameManager::state(){
@@ -187,9 +228,9 @@ void FrameManager::process(){
 //        width   = cap.get(CV_CAP_PROP_FRAME_WIDTH);
 //        height  = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
 
-        Mat frame, frame_gau, back, fore;
+        Mat frame, frame_gau, back, fore, fore_contours;
         Mat drawing, grey, grey_back, st_back, st_back_grey;
-        QImage image, clr_image, grey_image, fore_ground, back_ground;
+        QImage image, clr_image, grey_image, fore_ground, back_ground, debug_image;
         bgs = new LBMixtureOfGaussians;
 
         if(working_md == MIXGAU_MD)
@@ -211,8 +252,7 @@ void FrameManager::process(){
             if(working_md == OPENCV_MD) {
                 bg.operator ()(frame_gau, fore, 0.01);
                 bg.getBackgroundImage(back);
-                threshold(fore, fore, 129, 255, THRESH_BINARY);
-                cvtColor(fore, drawing, CV_GRAY2BGR);
+                threshold(fore, fore, 128, 255, THRESH_BINARY);
             }
 //            imwrite("./fore_bgs/fore.png", fore);
 //            imwrite("./fore_bgs/frame.png", frame);
@@ -224,10 +264,19 @@ void FrameManager::process(){
             if(working_md == MIXGAU_MD) {
                 bgs->process(frame_gau, fore, back);
                 cvtColor(fore, fore, CV_RGB2GRAY);
-                cvtColor(fore, drawing, CV_GRAY2BGR);
             }
-//            cvtColor(fore, drawing, CV_RGB2BGR);
-            blober.find_blobs(fore, spinBox_ctSize->value(), shadow_detect, poly_acuracy);
+
+            fore.copyTo(fore_contours);
+            if(shadow_detect == true)
+                rgbCut(fore_contours, frame, back, rgb_thd);
+            if(erosion == true)
+                erode(fore_contours, fore_contours, getStructuringElement(ero_type, Size(ero_size, ero_size), Point(0, 0)));
+
+            if(dilation == true)
+                dilate(fore_contours, fore_contours, getStructuringElement(dil_type, Size(dil_size, dil_size), Point(0, 0)));
+
+            cvtColor(fore, drawing, CV_GRAY2BGR);
+            blober.find_blobs(fore_contours, spinBox_ctSize->value(), shadow_detect, poly_acuracy);
             cvtColor(back, grey_back, CV_RGB2GRAY);
             cvtColor(grey_back, grey_back, CV_GRAY2BGR);
 
@@ -245,7 +294,7 @@ void FrameManager::process(){
                     black_out(st_back, st_back_grey);
                     break;
                 case OP_BLUR:
-                    blur(frame, drawing, grey, st_back, st_back_grey);
+                    blur(fore, drawing, grey, st_back, st_back_grey);
                     break;
                 case OP_EDGE:
                     edge(frame, grey, back, grey_back, st_back, st_back_grey);
@@ -270,7 +319,10 @@ void FrameManager::process(){
                 blober.paint_blobs(drawing, PT_RECT, CL_GREEN);
                 blober.paint_blobs(st_back, PT_RECT, CL_GREEN);
                 blober.paint_blobs(st_back_grey, PT_RECT, CL_GREEN);
+                blober.paint_blobs(fore_contours, PT_RECT, CL_GREEN);
             }
+            if(record == true)
+                wtr << st_back;
 #endif
 
 {
@@ -289,6 +341,7 @@ void FrameManager::process(){
             back_ground = Mat2QImage(back);
             clr_image   = Mat2QImage(st_back);
             grey_image  = Mat2QImage(st_back_grey);
+            debug_image = Mat2QImage(fore_contours);
 
             addMessage(blobInfo);
 #ifdef LABEL_ON
@@ -296,6 +349,7 @@ void FrameManager::process(){
                 blober.paint_label(&back_ground);
                 blober.paint_label(&clr_image);
                 blober.paint_label(&grey_image);
+//                blober.paint_label(&debug_image);
             }
 #endif
             try{
@@ -315,6 +369,8 @@ void FrameManager::process(){
                 case FOREGROUND:
                     emit processFinished(image, fore_ground);
                     break;
+                case DEBUG:
+                    emit processFinished(image, debug_image);
                 default:
                     break;
                 }
@@ -330,6 +386,7 @@ void FrameManager::process(){
             else
                 sleep(3);
         }
+        wtr.release();
 }
 
 void FrameManager::black_out(Mat& st_back, Mat& st_back_grey){
@@ -439,18 +496,21 @@ void FrameManager::mosaic(Mat &mat, Mat& grey, Mat &st_back, Mat& st_back_grey){
         poly(st_back, st_back_grey, CL_SKY);
 }
 
-void FrameManager::edge(Mat &mat, Mat& grey, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey){
+void FrameManager::edge(Mat &fore, Mat& grey, const Mat& back, const Mat& grey_back, Mat& st_back, Mat& st_back_grey){
     Mat sobel_x, sobel_y, sobel;
     for(unsigned int i = 0; i < blober.rects()->size(); i++){
         Rect rec = blober.rects()->at(i);
         if(rec.width <= 0 || rec.height <= 0)
             continue;
         Mat roi = grey(rec);
+        Mat foi = fore(rec);
         GaussianBlur(roi, roi, Size(7, 7), 1.5, 1.5);
         Sobel(roi, sobel_x, -1, 0, 1);
         Sobel(roi, sobel_y, -1, 1, 0);
         sobel = sobel_x + sobel_y;
         threshold(sobel, sobel, edge_thd, 255, THRESH_TOZERO);
+        threshold(foi, foi, 128, 1, THRESH_BINARY);
+        multiply(roi, foi, roi);
         st_back(rec) = sobel + back(rec);
         st_back_grey(rec) = sobel + grey_back(rec);
     }
@@ -471,6 +531,19 @@ void FrameManager::silouette(const Mat& fore, const Mat& back, const Mat& grey_b
         st_back(rec) = stbrec.mul(frec_inv);
         st_back_grey(rec) = grey_back(rec).mul(frec_inv);
     }
+}
+
+void FrameManager::rgbCut(Mat &fore, const Mat &mat, const Mat &back, unsigned char thresh) {
+    if(fore.empty() || mat.empty() || back.empty())
+        return;
+    Mat diff;
+    Mat channels[3];
+    absdiff(mat, back, diff);
+    threshold(diff, diff, thresh, 1, cv::THRESH_BINARY);
+    split(diff, channels);
+    multiply(fore, channels[0], fore);
+    multiply(fore, channels[1], fore);
+    multiply(fore, channels[2], fore);
 }
 
 cv::Mat FrameManager::QImage2Mat(QImage const& src)

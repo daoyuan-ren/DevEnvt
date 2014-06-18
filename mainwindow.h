@@ -40,6 +40,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     
+    virtual void keyPressEvent(QKeyEvent *event);
 private slots:
     void on_pushButton_select_clicked();
 
@@ -50,6 +51,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
+
     QImage* background;
     QTimer* lup_timer;
 
@@ -57,7 +59,7 @@ private:
     QString status_str;
 
     cv::VideoCapture cap;
-
+    cv::VideoWriter wtr;
     FrameManager* fmanager;
     Blober blober;
 
@@ -115,6 +117,16 @@ private:
     void on_radioButton_silhouette_clicked();
     void on_actionOCV_MD_triggered();
     void on_actionMix_Gaussian_MD_triggered();
+    void on_actionFull_Screen_triggered();
+    void on_spinBox_rgbCut_valueChanged(int arg1);
+    void on_checkBox_Erosion_clicked();
+    void on_comboBox_EroType_textChanged(const QString &arg1);
+    void on_spinBox_EroSize_valueChanged(int arg1);
+    void on_radioButton_debug_clicked();
+    void on_checkBox_dilate_clicked();
+    void on_comboBox_DilType_textChanged(const QString &arg1);
+    void on_spinBox_DilSize_valueChanged(int arg1);
+    void on_checkBox_record_clicked();
 };
 
 #endif // MAINWINDOW_H

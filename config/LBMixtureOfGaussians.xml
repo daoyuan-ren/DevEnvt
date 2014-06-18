@@ -2,7 +2,7 @@
 <opencv_storage>
 <sensitivity>45</sensitivity>
 <bgThreshold>127</bgThreshold>
-<learningRate>49</learningRate>
+<learningRate>19</learningRate>
 <noiseVariance>206</noiseVariance>
 <showOutput>1</showOutput>
 </opencv_storage>

@@ -90,6 +90,8 @@ void MainWindow::process(QString fileName, bool live){
     if(live == false) {
         if(cap.isOpened()){
             cap.release();
+            if(wtr.isOpened())
+                wtr.release();
             if(fmanager != NULL){
                 fmanager->quit();
                 delete fmanager;
@@ -108,7 +110,7 @@ void MainWindow::process(QString fileName, bool live){
     }
 
     if(cap.isOpened()){
-        fmanager = new FrameManager(cap, ui->spinBox_ctSize, ui->label, ui->label_debug, background);
+        fmanager = new FrameManager(cap, wtr, ui->spinBox_ctSize, ui->label, ui->label_debug, background);
         connect(fmanager, SIGNAL(processFinished(QImage, QImage)), this, SLOT(imageUpdate(QImage, QImage)));
 
         fmanager->setLabel(getFocus());
@@ -118,6 +120,15 @@ void MainWindow::process(QString fileName, bool live){
         fmanager->setGauSize(ui->spinBox_gauSize->value());
         fmanager->setEdgeThd(ui->spinBox_egThd->value());
         fmanager->setAcuracy(ui->spinBox_polyAcy->value());
+        fmanager->setRGBThd(ui->spinBox_rgbCut->value());
+        fmanager->setErosion(ui->checkBox_Erosion->isChecked());
+        fmanager->setDilate(ui->checkBox_dilate->isChecked());
+        fmanager->setRecord(ui->checkBox_record->isChecked());
+
+        if(ui->checkBox_record->isChecked()){
+            wtr.open(fileName.append("_rec.avi").toStdString(), CV_FOURCC('H','F','Y','U'),
+                     cap.get(CV_CAP_PROP_FPS), Size(cap.get(CV_CAP_PROP_FRAME_WIDTH), cap.get(CV_CAP_PROP_FRAME_HEIGHT)));
+        }
 
         if(detector == MIXGAU_MD) {
             fmanager->setDetector(MIXGAU_MD);
@@ -163,6 +174,8 @@ void MainWindow::process(QString fileName, bool live){
             fmanager->setOperat(OP_DEFAULT);
         fmanager->start(QThread::NormalPriority);
         lup_timer->start(500);
+    } else {
+        std::cerr << fileName.toStdString() << " can not be opened" << std::endl;
     }
 }
 
@@ -411,4 +424,119 @@ void MainWindow::on_actionMix_Gaussian_MD_triggered()
     if(fmanager != NULL && fmanager->state() == ST_INIT) {
         fmanager->setDetector(MIXGAU_MD);
     }
+}
+
+void MainWindow::on_actionFull_Screen_triggered()
+{
+    if(ui->actionFull_Screen->isChecked() && !ui->label_debug->isFullScreen()) {
+        ui->label_debug->setWindowFlags(Qt::Window);
+        ui->label_debug->setScaledContents(true);
+        ui->label_debug->showFullScreen();
+    }
+    if(!ui->actionFull_Screen->isChecked() && ui->label_debug->isFullScreen()) {
+        ui->label_debug->setWindowFlags(Qt::Widget);
+        ui->label_debug->showNormal();
+        ui->actionFull_Screen->setChecked(false);
+    }
+}
+
+void MainWindow::keyPressEvent(QKeyEvent * event) {
+    if(ui->label_debug->isFullScreen() && event->key()==Qt::Key_Escape
+            && event->type()==QEvent::KeyPress) {
+        ui->label_debug->setWindowFlags(Qt::Widget);
+        ui->label_debug->showNormal();
+        ui->actionFull_Screen->setChecked(false);
+    } else
+        event->ignore();
+}
+
+void MainWindow::on_spinBox_rgbCut_valueChanged(int arg1)
+{
+    if(fmanager != NULL)
+        fmanager->setRGBThd(ui->spinBox_rgbCut->value());
+}
+
+void MainWindow::on_checkBox_Erosion_clicked()
+{
+    if(fmanager != NULL){
+        fmanager->setErosion(ui->checkBox_Erosion->isChecked());
+        fmanager->setEroSize(ui->spinBox_EroSize->value());
+        if(ui->comboBox_EroType->currentText() == "ellipse") {
+            fmanager->setEroType(cv::MORPH_ELLIPSE);
+        } else if(ui->comboBox_EroType->currentText() == "rectangle") {
+            fmanager->setEroType(cv::MORPH_RECT);
+        } else if(ui->comboBox_EroType->currentText() == "cross") {
+            fmanager->setEroType(cv::MORPH_CROSS);
+        } else
+            fmanager->setEroType(cv::MORPH_CROSS);
+    }
+}
+
+void MainWindow::on_comboBox_EroType_textChanged(const QString &arg1)
+{
+    if(fmanager != NULL){
+        if(ui->comboBox_EroType->currentText() == "ellipse") {
+            fmanager->setEroType(cv::MORPH_ELLIPSE);
+        } else if(ui->comboBox_EroType->currentText() == "rectangle") {
+            fmanager->setEroType(cv::MORPH_RECT);
+        } else if(ui->comboBox_EroType->currentText() == "cross") {
+            fmanager->setEroType(cv::MORPH_CROSS);
+        } else
+            fmanager->setEroType(cv::MORPH_CROSS);
+    }
+}
+
+void MainWindow::on_spinBox_EroSize_valueChanged(int arg1)
+{
+    if(fmanager != NULL){
+        fmanager->setEroSize(ui->spinBox_EroSize->value());
+    }
+}
+
+void MainWindow::on_radioButton_debug_clicked()
+{
+    if(fmanager != NULL)
+        fmanager->setLabel(DEBUG);
+}
+
+void MainWindow::on_checkBox_dilate_clicked()
+{
+    if(fmanager != NULL){
+        fmanager->setDilate(ui->checkBox_dilate->isChecked());
+        fmanager->setDilSize(ui->spinBox_DilSize->value());
+        if(ui->comboBox_DilType->currentText() == "ellipse") {
+            fmanager->setDilType(cv::MORPH_ELLIPSE);
+        } else if(ui->comboBox_DilType->currentText() == "rectangle") {
+            fmanager->setDilType(cv::MORPH_RECT);
+        } else if(ui->comboBox_DilType->currentText() == "cross") {
+            fmanager->setDilType(cv::MORPH_CROSS);
+        } else
+            fmanager->setDilType(cv::MORPH_CROSS);
+    }
+}
+
+void MainWindow::on_comboBox_DilType_textChanged(const QString &arg1)
+{
+    if(fmanager != NULL){
+        if(ui->comboBox_DilType->currentText() == "ellipse") {
+            fmanager->setDilType(cv::MORPH_ELLIPSE);
+        } else if(ui->comboBox_DilType->currentText() == "rectangle") {
+            fmanager->setDilType(cv::MORPH_RECT);
+        } else if(ui->comboBox_DilType->currentText() == "cross") {
+            fmanager->setDilType(cv::MORPH_CROSS);
+        } else
+            fmanager->setDilType(cv::MORPH_CROSS);
+    }
+}
+
+void MainWindow::on_spinBox_DilSize_valueChanged(int arg1)
+{
+    if(fmanager != NULL)
+        fmanager->setDilSize(ui->spinBox_DilSize->value());
+}
+
+void MainWindow::on_checkBox_record_clicked()
+{
+    if(fmanager != NULL)
+        fmanager->setRecord(ui->checkBox_record->isChecked());
 }

@@ -38,7 +38,7 @@ void LBMixtureOfGaussians::process(const cv::Mat &img_input, cv::Mat &img_output
   
   if(firstTime)
   {
-    saveConfig();
+    //saveConfig();
 
     int w = cvGetSize(frame).width;
     int h = cvGetSize(frame).height;

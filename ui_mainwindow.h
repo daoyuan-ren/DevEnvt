@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Tue May 20 20:27:34 2014
+** Created: Tue Jun 17 18:34:30 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -15,6 +15,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
 #include <QtGui/QCheckBox>
+#include <QtGui/QComboBox>
 #include <QtGui/QDoubleSpinBox>
 #include <QtGui/QGridLayout>
 #include <QtGui/QHBoxLayout>
@@ -45,6 +46,7 @@ public:
     QAction *actionLIVE;
     QAction *actionOCV_MD;
     QAction *actionMix_Gaussian_MD;
+    QAction *actionFull_Screen;
     QWidget *centralWidget;
     QWidget *horizontalLayoutWidget;
     QHBoxLayout *horizontalLayout;
@@ -62,6 +64,7 @@ public:
     QSpinBox *fps_spinBox;
     QPushButton *pushButton_apply;
     QPushButton *pushButton_select;
+    QCheckBox *checkBox_record;
     QWidget *horizontalLayoutWidget_2;
     QHBoxLayout *horizontalLayout_2;
     QLabel *label;
@@ -71,43 +74,49 @@ public:
     QCheckBox *checkBox_blackOriginal;
     QSpacerItem *horizontalSpacer_2;
     QCheckBox *checkBox_shadow;
+    QSpinBox *spinBox_rgbCut;
     QCheckBox *checkBox_rect;
     QRadioButton *radioButton_orig;
     QRadioButton *radioButton_back;
     QRadioButton *radioButton_fore;
     QRadioButton *radioButton_color;
     QRadioButton *radioButton_grey;
+    QRadioButton *radioButton_debug;
     QCheckBox *checkBox_greyROI;
     QWidget *verticalLayoutWidget;
     QGridLayout *gridLayout;
-    QRadioButton *radioButton_poly;
-    QCheckBox *checkBox_privacy;
     QRadioButton *radioButton_mosaic;
-    QRadioButton *radioButton_blur;
-    QRadioButton *radioButton_edge;
-    QSpacerItem *verticalSpacer;
-    QDoubleSpinBox *doubleSpinBox_gauSigma;
-    QRadioButton *radioButton_silhouette;
-    QRadioButton *radioButton_default;
     QSpinBox *spinBox_gauSize;
-    QSpinBox *spinBox_egThd;
-    QSpinBox *spinBox_polyAcy;
     QSpinBox *spinBox_moasicSize;
-    QRadioButton *radioButton_black;
     QCheckBox *checkBox_shape;
+    QRadioButton *radioButton_black;
+    QRadioButton *radioButton_default;
+    QRadioButton *radioButton_silhouette;
+    QRadioButton *radioButton_edge;
+    QCheckBox *checkBox_privacy;
+    QRadioButton *radioButton_poly;
+    QRadioButton *radioButton_blur;
+    QDoubleSpinBox *doubleSpinBox_gauSigma;
+    QSpinBox *spinBox_polyAcy;
+    QSpinBox *spinBox_egThd;
     QWidget *gridLayoutWidget;
     QGridLayout *gridLayout_2;
-    QLabel *label_noiseVar;
     QLabel *label_sensitivity;
-    QLabel *label_bgModel;
-    QLabel *label_9;
-    QLabel *label_bgThresh;
-    QLabel *label_10;
-    QLabel *label_8;
-    QTextBrowser *textBrowser_runMessage;
-    QLabel *label_lnRate;
     QLabel *label_7;
-    QSpacerItem *horizontalSpacer_3;
+    QLabel *label_8;
+    QLabel *label_10;
+    QLabel *label_bgThresh;
+    QLabel *label_lnRate;
+    QLabel *label_9;
+    QLabel *label_noiseVar;
+    QLabel *label_bgModel;
+    QTextBrowser *textBrowser_runMessage;
+    QCheckBox *checkBox_Erosion;
+    QSpinBox *spinBox_EroSize;
+    QComboBox *comboBox_EroType;
+    QCheckBox *checkBox_dilate;
+    QComboBox *comboBox_DilType;
+    QSpinBox *spinBox_DilSize;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QMenu *menuEdit;
@@ -118,12 +127,13 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1275, 752);
+        MainWindow->resize(1282, 781);
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(MainWindow->sizePolicy().hasHeightForWidth());
         MainWindow->setSizePolicy(sizePolicy);
+        MainWindow->setFocusPolicy(Qt::StrongFocus);
         actionOpen = new QAction(MainWindow);
         actionOpen->setObjectName(QString::fromUtf8("actionOpen"));
         actionQuit = new QAction(MainWindow);
@@ -139,6 +149,9 @@ public:
         actionMix_Gaussian_MD->setObjectName(QString::fromUtf8("actionMix_Gaussian_MD"));
         actionMix_Gaussian_MD->setCheckable(true);
         actionMix_Gaussian_MD->setChecked(true);
+        actionFull_Screen = new QAction(MainWindow);
+        actionFull_Screen->setObjectName(QString::fromUtf8("actionFull_Screen"));
+        actionFull_Screen->setCheckable(true);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -148,7 +161,7 @@ public:
         centralWidget->setSizePolicy(sizePolicy1);
         horizontalLayoutWidget = new QWidget(centralWidget);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(0, 660, 1021, 31));
+        horizontalLayoutWidget->setGeometry(QRect(0, 690, 1021, 31));
         horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
         horizontalLayout->setSpacing(6);
         horizontalLayout->setContentsMargins(11, 11, 11, 11);
@@ -227,9 +240,14 @@ public:
 
         horizontalLayout->addWidget(pushButton_select);
 
+        checkBox_record = new QCheckBox(horizontalLayoutWidget);
+        checkBox_record->setObjectName(QString::fromUtf8("checkBox_record"));
+
+        horizontalLayout->addWidget(checkBox_record);
+
         horizontalLayoutWidget_2 = new QWidget(centralWidget);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(0, 30, 1271, 441));
+        horizontalLayoutWidget_2->setGeometry(QRect(0, 30, 1281, 441));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setSpacing(6);
         horizontalLayout_2->setContentsMargins(11, 11, 11, 11);
@@ -250,6 +268,7 @@ public:
         sizePolicy1.setHeightForWidth(label_debug->sizePolicy().hasHeightForWidth());
         label_debug->setSizePolicy(sizePolicy1);
         label_debug->setMinimumSize(QSize(506, 389));
+        label_debug->setFocusPolicy(Qt::NoFocus);
         label_debug->setScaledContents(true);
 
         horizontalLayout_2->addWidget(label_debug);
@@ -278,9 +297,17 @@ public:
 
         horizontalLayout_3->addWidget(checkBox_shadow);
 
+        spinBox_rgbCut = new QSpinBox(horizontalLayoutWidget_3);
+        spinBox_rgbCut->setObjectName(QString::fromUtf8("spinBox_rgbCut"));
+        spinBox_rgbCut->setMaximum(255);
+        spinBox_rgbCut->setSingleStep(5);
+        spinBox_rgbCut->setValue(20);
+
+        horizontalLayout_3->addWidget(spinBox_rgbCut);
+
         checkBox_rect = new QCheckBox(horizontalLayoutWidget_3);
         checkBox_rect->setObjectName(QString::fromUtf8("checkBox_rect"));
-        checkBox_rect->setChecked(true);
+        checkBox_rect->setChecked(false);
 
         horizontalLayout_3->addWidget(checkBox_rect);
 
@@ -317,6 +344,11 @@ public:
 
         horizontalLayout_3->addWidget(radioButton_grey);
 
+        radioButton_debug = new QRadioButton(horizontalLayoutWidget_3);
+        radioButton_debug->setObjectName(QString::fromUtf8("radioButton_debug"));
+
+        horizontalLayout_3->addWidget(radioButton_debug);
+
         checkBox_greyROI = new QCheckBox(horizontalLayoutWidget_3);
         checkBox_greyROI->setObjectName(QString::fromUtf8("checkBox_greyROI"));
 
@@ -324,62 +356,16 @@ public:
 
         verticalLayoutWidget = new QWidget(centralWidget);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(1020, 470, 250, 221));
+        verticalLayoutWidget->setGeometry(QRect(1020, 470, 261, 251));
         gridLayout = new QGridLayout(verticalLayoutWidget);
         gridLayout->setSpacing(6);
         gridLayout->setContentsMargins(11, 11, 11, 11);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         gridLayout->setContentsMargins(0, 0, 0, 0);
-        radioButton_poly = new QRadioButton(verticalLayoutWidget);
-        radioButton_poly->setObjectName(QString::fromUtf8("radioButton_poly"));
-
-        gridLayout->addWidget(radioButton_poly, 7, 0, 1, 1);
-
-        checkBox_privacy = new QCheckBox(verticalLayoutWidget);
-        checkBox_privacy->setObjectName(QString::fromUtf8("checkBox_privacy"));
-        checkBox_privacy->setChecked(true);
-
-        gridLayout->addWidget(checkBox_privacy, 1, 0, 1, 3);
-
         radioButton_mosaic = new QRadioButton(verticalLayoutWidget);
         radioButton_mosaic->setObjectName(QString::fromUtf8("radioButton_mosaic"));
 
-        gridLayout->addWidget(radioButton_mosaic, 9, 0, 1, 1);
-
-        radioButton_blur = new QRadioButton(verticalLayoutWidget);
-        radioButton_blur->setObjectName(QString::fromUtf8("radioButton_blur"));
-        radioButton_blur->setChecked(true);
-
-        gridLayout->addWidget(radioButton_blur, 3, 0, 1, 1);
-
-        radioButton_edge = new QRadioButton(verticalLayoutWidget);
-        radioButton_edge->setObjectName(QString::fromUtf8("radioButton_edge"));
-
-        gridLayout->addWidget(radioButton_edge, 4, 0, 1, 1);
-
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        gridLayout->addItem(verticalSpacer, 0, 0, 1, 1);
-
-        doubleSpinBox_gauSigma = new QDoubleSpinBox(verticalLayoutWidget);
-        doubleSpinBox_gauSigma->setObjectName(QString::fromUtf8("doubleSpinBox_gauSigma"));
-        doubleSpinBox_gauSigma->setMinimum(10);
-        doubleSpinBox_gauSigma->setMaximum(20);
-        doubleSpinBox_gauSigma->setSingleStep(2.5);
-        doubleSpinBox_gauSigma->setValue(20);
-
-        gridLayout->addWidget(doubleSpinBox_gauSigma, 3, 2, 1, 1);
-
-        radioButton_silhouette = new QRadioButton(verticalLayoutWidget);
-        radioButton_silhouette->setObjectName(QString::fromUtf8("radioButton_silhouette"));
-
-        gridLayout->addWidget(radioButton_silhouette, 10, 0, 1, 1);
-
-        radioButton_default = new QRadioButton(verticalLayoutWidget);
-        radioButton_default->setObjectName(QString::fromUtf8("radioButton_default"));
-        radioButton_default->setChecked(false);
-
-        gridLayout->addWidget(radioButton_default, 2, 0, 1, 1);
+        gridLayout->addWidget(radioButton_mosaic, 8, 0, 1, 1);
 
         spinBox_gauSize = new QSpinBox(verticalLayoutWidget);
         spinBox_gauSize->setObjectName(QString::fromUtf8("spinBox_gauSize"));
@@ -388,23 +374,7 @@ public:
         spinBox_gauSize->setSingleStep(2);
         spinBox_gauSize->setValue(27);
 
-        gridLayout->addWidget(spinBox_gauSize, 3, 1, 1, 1);
-
-        spinBox_egThd = new QSpinBox(verticalLayoutWidget);
-        spinBox_egThd->setObjectName(QString::fromUtf8("spinBox_egThd"));
-        spinBox_egThd->setMaximum(255);
-        spinBox_egThd->setSingleStep(5);
-        spinBox_egThd->setValue(15);
-
-        gridLayout->addWidget(spinBox_egThd, 4, 1, 1, 2);
-
-        spinBox_polyAcy = new QSpinBox(verticalLayoutWidget);
-        spinBox_polyAcy->setObjectName(QString::fromUtf8("spinBox_polyAcy"));
-        spinBox_polyAcy->setMinimum(5);
-        spinBox_polyAcy->setMaximum(9);
-        spinBox_polyAcy->setSingleStep(2);
-
-        gridLayout->addWidget(spinBox_polyAcy, 7, 1, 1, 2);
+        gridLayout->addWidget(spinBox_gauSize, 2, 1, 1, 1);
 
         spinBox_moasicSize = new QSpinBox(verticalLayoutWidget);
         spinBox_moasicSize->setObjectName(QString::fromUtf8("spinBox_moasicSize"));
@@ -412,18 +382,76 @@ public:
         spinBox_moasicSize->setMaximum(30);
         spinBox_moasicSize->setSingleStep(10);
 
-        gridLayout->addWidget(spinBox_moasicSize, 9, 1, 1, 2);
+        gridLayout->addWidget(spinBox_moasicSize, 8, 1, 1, 2);
+
+        checkBox_shape = new QCheckBox(verticalLayoutWidget);
+        checkBox_shape->setObjectName(QString::fromUtf8("checkBox_shape"));
+
+        gridLayout->addWidget(checkBox_shape, 9, 2, 1, 1);
 
         radioButton_black = new QRadioButton(verticalLayoutWidget);
         radioButton_black->setObjectName(QString::fromUtf8("radioButton_black"));
         radioButton_black->setChecked(false);
 
-        gridLayout->addWidget(radioButton_black, 10, 1, 1, 1);
+        gridLayout->addWidget(radioButton_black, 9, 1, 1, 1);
 
-        checkBox_shape = new QCheckBox(verticalLayoutWidget);
-        checkBox_shape->setObjectName(QString::fromUtf8("checkBox_shape"));
+        radioButton_default = new QRadioButton(verticalLayoutWidget);
+        radioButton_default->setObjectName(QString::fromUtf8("radioButton_default"));
+        radioButton_default->setChecked(false);
 
-        gridLayout->addWidget(checkBox_shape, 10, 2, 1, 1);
+        gridLayout->addWidget(radioButton_default, 1, 0, 1, 1);
+
+        radioButton_silhouette = new QRadioButton(verticalLayoutWidget);
+        radioButton_silhouette->setObjectName(QString::fromUtf8("radioButton_silhouette"));
+
+        gridLayout->addWidget(radioButton_silhouette, 9, 0, 1, 1);
+
+        radioButton_edge = new QRadioButton(verticalLayoutWidget);
+        radioButton_edge->setObjectName(QString::fromUtf8("radioButton_edge"));
+
+        gridLayout->addWidget(radioButton_edge, 3, 0, 1, 1);
+
+        checkBox_privacy = new QCheckBox(verticalLayoutWidget);
+        checkBox_privacy->setObjectName(QString::fromUtf8("checkBox_privacy"));
+        checkBox_privacy->setChecked(true);
+
+        gridLayout->addWidget(checkBox_privacy, 0, 0, 1, 3);
+
+        radioButton_poly = new QRadioButton(verticalLayoutWidget);
+        radioButton_poly->setObjectName(QString::fromUtf8("radioButton_poly"));
+
+        gridLayout->addWidget(radioButton_poly, 6, 0, 1, 1);
+
+        radioButton_blur = new QRadioButton(verticalLayoutWidget);
+        radioButton_blur->setObjectName(QString::fromUtf8("radioButton_blur"));
+        radioButton_blur->setChecked(true);
+
+        gridLayout->addWidget(radioButton_blur, 2, 0, 1, 1);
+
+        doubleSpinBox_gauSigma = new QDoubleSpinBox(verticalLayoutWidget);
+        doubleSpinBox_gauSigma->setObjectName(QString::fromUtf8("doubleSpinBox_gauSigma"));
+        doubleSpinBox_gauSigma->setMinimum(10);
+        doubleSpinBox_gauSigma->setMaximum(20);
+        doubleSpinBox_gauSigma->setSingleStep(2.5);
+        doubleSpinBox_gauSigma->setValue(20);
+
+        gridLayout->addWidget(doubleSpinBox_gauSigma, 2, 2, 1, 1);
+
+        spinBox_polyAcy = new QSpinBox(verticalLayoutWidget);
+        spinBox_polyAcy->setObjectName(QString::fromUtf8("spinBox_polyAcy"));
+        spinBox_polyAcy->setMinimum(5);
+        spinBox_polyAcy->setMaximum(9);
+        spinBox_polyAcy->setSingleStep(2);
+
+        gridLayout->addWidget(spinBox_polyAcy, 6, 1, 1, 2);
+
+        spinBox_egThd = new QSpinBox(verticalLayoutWidget);
+        spinBox_egThd->setObjectName(QString::fromUtf8("spinBox_egThd"));
+        spinBox_egThd->setMaximum(255);
+        spinBox_egThd->setSingleStep(5);
+        spinBox_egThd->setValue(15);
+
+        gridLayout->addWidget(spinBox_egThd, 3, 1, 1, 2);
 
         gridLayoutWidget = new QWidget(centralWidget);
         gridLayoutWidget->setObjectName(QString::fromUtf8("gridLayoutWidget"));
@@ -433,65 +461,108 @@ public:
         gridLayout_2->setContentsMargins(11, 11, 11, 11);
         gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
         gridLayout_2->setContentsMargins(0, 0, 0, 0);
-        label_noiseVar = new QLabel(gridLayoutWidget);
-        label_noiseVar->setObjectName(QString::fromUtf8("label_noiseVar"));
-
-        gridLayout_2->addWidget(label_noiseVar, 4, 1, 1, 1);
-
         label_sensitivity = new QLabel(gridLayoutWidget);
         label_sensitivity->setObjectName(QString::fromUtf8("label_sensitivity"));
 
         gridLayout_2->addWidget(label_sensitivity, 1, 1, 1, 1);
-
-        label_bgModel = new QLabel(gridLayoutWidget);
-        label_bgModel->setObjectName(QString::fromUtf8("label_bgModel"));
-
-        gridLayout_2->addWidget(label_bgModel, 0, 0, 1, 2, Qt::AlignHCenter);
-
-        label_9 = new QLabel(gridLayoutWidget);
-        label_9->setObjectName(QString::fromUtf8("label_9"));
-
-        gridLayout_2->addWidget(label_9, 2, 0, 1, 1);
-
-        label_bgThresh = new QLabel(gridLayoutWidget);
-        label_bgThresh->setObjectName(QString::fromUtf8("label_bgThresh"));
-
-        gridLayout_2->addWidget(label_bgThresh, 2, 1, 1, 1);
-
-        label_10 = new QLabel(gridLayoutWidget);
-        label_10->setObjectName(QString::fromUtf8("label_10"));
-
-        gridLayout_2->addWidget(label_10, 1, 0, 1, 1);
-
-        label_8 = new QLabel(gridLayoutWidget);
-        label_8->setObjectName(QString::fromUtf8("label_8"));
-
-        gridLayout_2->addWidget(label_8, 3, 0, 1, 1);
-
-        textBrowser_runMessage = new QTextBrowser(gridLayoutWidget);
-        textBrowser_runMessage->setObjectName(QString::fromUtf8("textBrowser_runMessage"));
-        textBrowser_runMessage->setEnabled(true);
-
-        gridLayout_2->addWidget(textBrowser_runMessage, 0, 3, 5, 1);
-
-        label_lnRate = new QLabel(gridLayoutWidget);
-        label_lnRate->setObjectName(QString::fromUtf8("label_lnRate"));
-
-        gridLayout_2->addWidget(label_lnRate, 3, 1, 1, 1);
 
         label_7 = new QLabel(gridLayoutWidget);
         label_7->setObjectName(QString::fromUtf8("label_7"));
 
         gridLayout_2->addWidget(label_7, 4, 0, 1, 1);
 
-        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        label_8 = new QLabel(gridLayoutWidget);
+        label_8->setObjectName(QString::fromUtf8("label_8"));
 
-        gridLayout_2->addItem(horizontalSpacer_3, 1, 2, 1, 1);
+        gridLayout_2->addWidget(label_8, 3, 0, 1, 1);
+
+        label_10 = new QLabel(gridLayoutWidget);
+        label_10->setObjectName(QString::fromUtf8("label_10"));
+
+        gridLayout_2->addWidget(label_10, 1, 0, 1, 1);
+
+        label_bgThresh = new QLabel(gridLayoutWidget);
+        label_bgThresh->setObjectName(QString::fromUtf8("label_bgThresh"));
+
+        gridLayout_2->addWidget(label_bgThresh, 2, 1, 1, 1);
+
+        label_lnRate = new QLabel(gridLayoutWidget);
+        label_lnRate->setObjectName(QString::fromUtf8("label_lnRate"));
+
+        gridLayout_2->addWidget(label_lnRate, 3, 1, 1, 1);
+
+        label_9 = new QLabel(gridLayoutWidget);
+        label_9->setObjectName(QString::fromUtf8("label_9"));
+
+        gridLayout_2->addWidget(label_9, 2, 0, 1, 1);
+
+        label_noiseVar = new QLabel(gridLayoutWidget);
+        label_noiseVar->setObjectName(QString::fromUtf8("label_noiseVar"));
+
+        gridLayout_2->addWidget(label_noiseVar, 4, 1, 1, 1);
+
+        label_bgModel = new QLabel(gridLayoutWidget);
+        label_bgModel->setObjectName(QString::fromUtf8("label_bgModel"));
+
+        gridLayout_2->addWidget(label_bgModel, 0, 0, 1, 2, Qt::AlignHCenter);
+
+        textBrowser_runMessage = new QTextBrowser(gridLayoutWidget);
+        textBrowser_runMessage->setObjectName(QString::fromUtf8("textBrowser_runMessage"));
+        textBrowser_runMessage->setEnabled(true);
+
+        gridLayout_2->addWidget(textBrowser_runMessage, 0, 2, 5, 1);
+
+        checkBox_Erosion = new QCheckBox(gridLayoutWidget);
+        checkBox_Erosion->setObjectName(QString::fromUtf8("checkBox_Erosion"));
+
+        gridLayout_2->addWidget(checkBox_Erosion, 0, 4, 1, 1);
+
+        spinBox_EroSize = new QSpinBox(gridLayoutWidget);
+        spinBox_EroSize->setObjectName(QString::fromUtf8("spinBox_EroSize"));
+        spinBox_EroSize->setMinimum(1);
+        spinBox_EroSize->setMaximum(21);
+        spinBox_EroSize->setSingleStep(2);
+        spinBox_EroSize->setValue(3);
+
+        gridLayout_2->addWidget(spinBox_EroSize, 0, 6, 1, 1);
+
+        comboBox_EroType = new QComboBox(gridLayoutWidget);
+        comboBox_EroType->setObjectName(QString::fromUtf8("comboBox_EroType"));
+        QSizePolicy sizePolicy3(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(comboBox_EroType->sizePolicy().hasHeightForWidth());
+        comboBox_EroType->setSizePolicy(sizePolicy3);
+        comboBox_EroType->setMaximumSize(QSize(100, 27));
+        comboBox_EroType->setEditable(true);
+        comboBox_EroType->setMaxVisibleItems(3);
+
+        gridLayout_2->addWidget(comboBox_EroType, 0, 5, 1, 1);
+
+        checkBox_dilate = new QCheckBox(gridLayoutWidget);
+        checkBox_dilate->setObjectName(QString::fromUtf8("checkBox_dilate"));
+
+        gridLayout_2->addWidget(checkBox_dilate, 1, 4, 1, 1);
+
+        comboBox_DilType = new QComboBox(gridLayoutWidget);
+        comboBox_DilType->setObjectName(QString::fromUtf8("comboBox_DilType"));
+        comboBox_DilType->setEditable(true);
+
+        gridLayout_2->addWidget(comboBox_DilType, 1, 5, 1, 1);
+
+        spinBox_DilSize = new QSpinBox(gridLayoutWidget);
+        spinBox_DilSize->setObjectName(QString::fromUtf8("spinBox_DilSize"));
+        spinBox_DilSize->setMinimum(1);
+        spinBox_DilSize->setMaximum(21);
+        spinBox_DilSize->setSingleStep(2);
+        spinBox_DilSize->setValue(3);
+
+        gridLayout_2->addWidget(spinBox_DilSize, 1, 6, 1, 1);
 
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1275, 25));
+        menuBar->setGeometry(QRect(0, 0, 1282, 25));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         menuEdit = new QMenu(menuBar);
@@ -513,8 +584,12 @@ public:
         menuFile->addAction(actionQuit);
         menuEdit->addAction(actionOCV_MD);
         menuEdit->addAction(actionMix_Gaussian_MD);
+        menuEdit->addAction(actionFull_Screen);
 
         retranslateUi(MainWindow);
+
+        comboBox_EroType->setCurrentIndex(0);
+
 
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
@@ -531,6 +606,7 @@ public:
         actionLIVE->setText(QApplication::translate("MainWindow", "LIVE", 0, QApplication::UnicodeUTF8));
         actionOCV_MD->setText(QApplication::translate("MainWindow", "OCV MD", 0, QApplication::UnicodeUTF8));
         actionMix_Gaussian_MD->setText(QApplication::translate("MainWindow", "Mix Gaussian MD", 0, QApplication::UnicodeUTF8));
+        actionFull_Screen->setText(QApplication::translate("MainWindow", "Full Screen", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("MainWindow", "FPS:", 0, QApplication::UnicodeUTF8));
         label_fps->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("MainWindow", "Status:", 0, QApplication::UnicodeUTF8));
@@ -541,6 +617,7 @@ public:
         label_2->setText(QApplication::translate("MainWindow", "FPS", 0, QApplication::UnicodeUTF8));
         pushButton_apply->setText(QApplication::translate("MainWindow", "apply", 0, QApplication::UnicodeUTF8));
         pushButton_select->setText(QApplication::translate("MainWindow", "select", 0, QApplication::UnicodeUTF8));
+        checkBox_record->setText(QApplication::translate("MainWindow", "record", 0, QApplication::UnicodeUTF8));
         label->setText(QString());
         label_debug->setText(QString());
         checkBox_blackOriginal->setText(QApplication::translate("MainWindow", "black", 0, QApplication::UnicodeUTF8));
@@ -551,25 +628,40 @@ public:
         radioButton_fore->setText(QApplication::translate("MainWindow", "foreground", 0, QApplication::UnicodeUTF8));
         radioButton_color->setText(QApplication::translate("MainWindow", "color", 0, QApplication::UnicodeUTF8));
         radioButton_grey->setText(QApplication::translate("MainWindow", "grey", 0, QApplication::UnicodeUTF8));
+        radioButton_debug->setText(QApplication::translate("MainWindow", "DEBUG", 0, QApplication::UnicodeUTF8));
         checkBox_greyROI->setText(QApplication::translate("MainWindow", "grey roi", 0, QApplication::UnicodeUTF8));
-        radioButton_poly->setText(QApplication::translate("MainWindow", "poly", 0, QApplication::UnicodeUTF8));
-        checkBox_privacy->setText(QApplication::translate("MainWindow", "anonymous mode", 0, QApplication::UnicodeUTF8));
         radioButton_mosaic->setText(QApplication::translate("MainWindow", "mosaic", 0, QApplication::UnicodeUTF8));
-        radioButton_blur->setText(QApplication::translate("MainWindow", "blur", 0, QApplication::UnicodeUTF8));
-        radioButton_edge->setText(QApplication::translate("MainWindow", "edge", 0, QApplication::UnicodeUTF8));
-        radioButton_silhouette->setText(QApplication::translate("MainWindow", "silhouette", 0, QApplication::UnicodeUTF8));
-        radioButton_default->setText(QApplication::translate("MainWindow", "default", 0, QApplication::UnicodeUTF8));
-        radioButton_black->setText(QApplication::translate("MainWindow", "black", 0, QApplication::UnicodeUTF8));
         checkBox_shape->setText(QApplication::translate("MainWindow", "shape", 0, QApplication::UnicodeUTF8));
-        label_noiseVar->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        radioButton_black->setText(QApplication::translate("MainWindow", "black", 0, QApplication::UnicodeUTF8));
+        radioButton_default->setText(QApplication::translate("MainWindow", "default", 0, QApplication::UnicodeUTF8));
+        radioButton_silhouette->setText(QApplication::translate("MainWindow", "silhouette", 0, QApplication::UnicodeUTF8));
+        radioButton_edge->setText(QApplication::translate("MainWindow", "edge", 0, QApplication::UnicodeUTF8));
+        checkBox_privacy->setText(QApplication::translate("MainWindow", "anonymous mode", 0, QApplication::UnicodeUTF8));
+        radioButton_poly->setText(QApplication::translate("MainWindow", "poly", 0, QApplication::UnicodeUTF8));
+        radioButton_blur->setText(QApplication::translate("MainWindow", "blur", 0, QApplication::UnicodeUTF8));
         label_sensitivity->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
-        label_bgModel->setText(QApplication::translate("MainWindow", "Background Model", 0, QApplication::UnicodeUTF8));
-        label_9->setText(QApplication::translate("MainWindow", "bg threshold", 0, QApplication::UnicodeUTF8));
-        label_bgThresh->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
-        label_10->setText(QApplication::translate("MainWindow", "sensitivity", 0, QApplication::UnicodeUTF8));
-        label_8->setText(QApplication::translate("MainWindow", "learning rate", 0, QApplication::UnicodeUTF8));
-        label_lnRate->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("MainWindow", "noise vriance", 0, QApplication::UnicodeUTF8));
+        label_8->setText(QApplication::translate("MainWindow", "learning rate", 0, QApplication::UnicodeUTF8));
+        label_10->setText(QApplication::translate("MainWindow", "sensitivity", 0, QApplication::UnicodeUTF8));
+        label_bgThresh->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        label_lnRate->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        label_9->setText(QApplication::translate("MainWindow", "bg threshold", 0, QApplication::UnicodeUTF8));
+        label_noiseVar->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        label_bgModel->setText(QApplication::translate("MainWindow", "Background Model", 0, QApplication::UnicodeUTF8));
+        checkBox_Erosion->setText(QApplication::translate("MainWindow", "erosion", 0, QApplication::UnicodeUTF8));
+        comboBox_EroType->clear();
+        comboBox_EroType->insertItems(0, QStringList()
+         << QApplication::translate("MainWindow", "ellipse", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("MainWindow", "rectangle", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("MainWindow", "cross", 0, QApplication::UnicodeUTF8)
+        );
+        checkBox_dilate->setText(QApplication::translate("MainWindow", "dilate", 0, QApplication::UnicodeUTF8));
+        comboBox_DilType->clear();
+        comboBox_DilType->insertItems(0, QStringList()
+         << QApplication::translate("MainWindow", "ellipse", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("MainWindow", "rectangle", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("MainWindow", "cross", 0, QApplication::UnicodeUTF8)
+        );
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0, QApplication::UnicodeUTF8));
         menuEdit->setTitle(QApplication::translate("MainWindow", "Edit", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
