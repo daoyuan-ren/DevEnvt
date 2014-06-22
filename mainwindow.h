@@ -127,6 +127,10 @@ private:
     void on_comboBox_DilType_textChanged(const QString &arg1);
     void on_spinBox_DilSize_valueChanged(int arg1);
     void on_checkBox_record_clicked();
+    void on_doubleSpinBox_egGauSigma_valueChanged(double arg1);
+    void on_checkBox_morphClose_clicked();
+    void on_comboBox_mclType_editTextChanged(const QString &arg1);
+    void on_spinBox_mclSize_valueChanged(int arg1);
 };
 
 #endif // MAINWINDOW_H

@@ -55,7 +55,7 @@ class FrameManager : public QThread
     Q_OBJECT
 public:
     explicit FrameManager(QObject *parent = 0);
-    FrameManager(VideoCapture cap, VideoWriter wtr, QSpinBox* spinBox_ctSize,
+    FrameManager(VideoCapture cap, VideoWriter& wtr, QSpinBox* spinBox_ctSize,
                  QLabel* imgLabel, QLabel* dbgLabel, QImage* s_back = NULL);
     ~FrameManager();
 
@@ -87,6 +87,7 @@ public:
     void setMosaicSize(int mosaic_size);
     void setSigma(double gau_sigma);
     void setGauSize(int gau_size);
+    void setEgGauSigma(double egGau_sigma);
     void setEdgeThd(int edge_thd);
     void setLabel(int lbl);
     void setDetector(int working_md);
@@ -96,6 +97,9 @@ public:
     void setDilType(int type);
     void setDilSize(int size);
     void setRecord(bool record);
+    void setClose(bool close);
+    void setMclType(int mclType);
+    void setMclSize(int mclSize);
 
     int  state();
     int  label();
@@ -121,6 +125,7 @@ private:
     bool grey_roi;
     bool erosion;
     bool dilation;
+    bool morph_colse;
     bool record;
     int  pixel_operation;
     int  label_t;
@@ -134,8 +139,11 @@ private:
     int  ero_type;
     int  dil_size;
     int  dil_type;
+    int  mcl_size;
+    int  mcl_type;
     int  working_md;
     double gau_sigma;
+    double egGau_sigma;
     unsigned int frame_idx;
 
     timespec interval;

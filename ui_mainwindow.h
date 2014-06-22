@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Tue Jun 17 18:34:30 2014
+** Created: Sun Jun 22 17:04:31 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -99,6 +99,7 @@ public:
     QDoubleSpinBox *doubleSpinBox_gauSigma;
     QSpinBox *spinBox_polyAcy;
     QSpinBox *spinBox_egThd;
+    QDoubleSpinBox *doubleSpinBox_egGauSigma;
     QWidget *gridLayoutWidget;
     QGridLayout *gridLayout_2;
     QLabel *label_sensitivity;
@@ -117,6 +118,9 @@ public:
     QCheckBox *checkBox_dilate;
     QComboBox *comboBox_DilType;
     QSpinBox *spinBox_DilSize;
+    QCheckBox *checkBox_morphClose;
+    QComboBox *comboBox_mclType;
+    QSpinBox *spinBox_mclSize;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QMenu *menuEdit;
@@ -205,7 +209,7 @@ public:
         spinBox_ctSize->setObjectName(QString::fromUtf8("spinBox_ctSize"));
         spinBox_ctSize->setMaximum(999);
         spinBox_ctSize->setSingleStep(10);
-        spinBox_ctSize->setValue(220);
+        spinBox_ctSize->setValue(150);
 
         horizontalLayout->addWidget(spinBox_ctSize);
 
@@ -242,6 +246,7 @@ public:
 
         checkBox_record = new QCheckBox(horizontalLayoutWidget);
         checkBox_record->setObjectName(QString::fromUtf8("checkBox_record"));
+        checkBox_record->setChecked(true);
 
         horizontalLayout->addWidget(checkBox_record);
 
@@ -370,7 +375,7 @@ public:
         spinBox_gauSize = new QSpinBox(verticalLayoutWidget);
         spinBox_gauSize->setObjectName(QString::fromUtf8("spinBox_gauSize"));
         spinBox_gauSize->setMinimum(15);
-        spinBox_gauSize->setMaximum(27);
+        spinBox_gauSize->setMaximum(37);
         spinBox_gauSize->setSingleStep(2);
         spinBox_gauSize->setValue(27);
 
@@ -431,7 +436,7 @@ public:
         doubleSpinBox_gauSigma = new QDoubleSpinBox(verticalLayoutWidget);
         doubleSpinBox_gauSigma->setObjectName(QString::fromUtf8("doubleSpinBox_gauSigma"));
         doubleSpinBox_gauSigma->setMinimum(10);
-        doubleSpinBox_gauSigma->setMaximum(20);
+        doubleSpinBox_gauSigma->setMaximum(30);
         doubleSpinBox_gauSigma->setSingleStep(2.5);
         doubleSpinBox_gauSigma->setValue(20);
 
@@ -451,7 +456,14 @@ public:
         spinBox_egThd->setSingleStep(5);
         spinBox_egThd->setValue(15);
 
-        gridLayout->addWidget(spinBox_egThd, 3, 1, 1, 2);
+        gridLayout->addWidget(spinBox_egThd, 3, 1, 1, 1);
+
+        doubleSpinBox_egGauSigma = new QDoubleSpinBox(verticalLayoutWidget);
+        doubleSpinBox_egGauSigma->setObjectName(QString::fromUtf8("doubleSpinBox_egGauSigma"));
+        doubleSpinBox_egGauSigma->setMaximum(20);
+        doubleSpinBox_egGauSigma->setSingleStep(2.5);
+
+        gridLayout->addWidget(doubleSpinBox_egGauSigma, 3, 2, 1, 1);
 
         gridLayoutWidget = new QWidget(centralWidget);
         gridLayoutWidget->setObjectName(QString::fromUtf8("gridLayoutWidget"));
@@ -559,6 +571,27 @@ public:
 
         gridLayout_2->addWidget(spinBox_DilSize, 1, 6, 1, 1);
 
+        checkBox_morphClose = new QCheckBox(gridLayoutWidget);
+        checkBox_morphClose->setObjectName(QString::fromUtf8("checkBox_morphClose"));
+        checkBox_morphClose->setChecked(true);
+
+        gridLayout_2->addWidget(checkBox_morphClose, 2, 4, 1, 1);
+
+        comboBox_mclType = new QComboBox(gridLayoutWidget);
+        comboBox_mclType->setObjectName(QString::fromUtf8("comboBox_mclType"));
+        comboBox_mclType->setEditable(true);
+
+        gridLayout_2->addWidget(comboBox_mclType, 2, 5, 1, 1);
+
+        spinBox_mclSize = new QSpinBox(gridLayoutWidget);
+        spinBox_mclSize->setObjectName(QString::fromUtf8("spinBox_mclSize"));
+        spinBox_mclSize->setMinimum(1);
+        spinBox_mclSize->setMaximum(21);
+        spinBox_mclSize->setSingleStep(2);
+        spinBox_mclSize->setValue(7);
+
+        gridLayout_2->addWidget(spinBox_mclSize, 2, 6, 1, 1);
+
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
@@ -658,6 +691,13 @@ public:
         checkBox_dilate->setText(QApplication::translate("MainWindow", "dilate", 0, QApplication::UnicodeUTF8));
         comboBox_DilType->clear();
         comboBox_DilType->insertItems(0, QStringList()
+         << QApplication::translate("MainWindow", "ellipse", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("MainWindow", "rectangle", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("MainWindow", "cross", 0, QApplication::UnicodeUTF8)
+        );
+        checkBox_morphClose->setText(QApplication::translate("MainWindow", "morph close", 0, QApplication::UnicodeUTF8));
+        comboBox_mclType->clear();
+        comboBox_mclType->insertItems(0, QStringList()
          << QApplication::translate("MainWindow", "ellipse", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("MainWindow", "rectangle", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("MainWindow", "cross", 0, QApplication::UnicodeUTF8)

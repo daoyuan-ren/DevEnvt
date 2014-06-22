@@ -30,7 +30,7 @@ FrameManager::FrameManager(QObject *parent) :
     spinBox_ctSize      = NULL;
 }
 
-FrameManager::FrameManager(VideoCapture cap, VideoWriter wtr, QSpinBox* spinBox_ctSize,
+FrameManager::FrameManager(VideoCapture cap, VideoWriter& wtr, QSpinBox* spinBox_ctSize,
                            QLabel* imgLabel, QLabel* dbgLabel, QImage* s_back){
         interval.tv_sec     = 0;
         interval.tv_nsec    = 300000000L; //1 000 000 000nsec = 1sec
@@ -43,16 +43,20 @@ FrameManager::FrameManager(VideoCapture cap, VideoWriter wtr, QSpinBox* spinBox_
         erosion             = false;
         dilation            = false;
         record              = false;
+        morph_colse         = true;
         //pixel_operation     = OP_DEFAULT;
         poly_acuracy        = 1;
         mosaic_size         = 10;
         gau_size            = 9;
         gau_sigma           = 2.5;
         edge_thd            = 15;
+        egGau_sigma         = 0;
         ero_size            = 3;
         ero_type            = cv::MORPH_CROSS;
         dil_size            = 3;
         ero_type            = cv::MORPH_CROSS;
+        mcl_size            = 7;
+        mcl_type            = cv::MORPH_CROSS;
 
 
         working_md          = MIXGAU_MD;
@@ -130,6 +134,10 @@ void FrameManager::setDilate(bool dilate){
     this->dilation = dilate;
 }
 
+void FrameManager::setClose(bool close){
+    this->morph_colse = close;
+}
+
 void FrameManager::setRecord(bool record){
     this->record = record;
 }
@@ -155,6 +163,14 @@ void FrameManager::setRGBThd(int rgbThd) {
     rgb_thd = rgbThd >= 0 && rgbThd <= 255 ? rgbThd : rgb_thd;
 }
 
+void FrameManager::setMclSize(int mclSize) {
+    this->mcl_size = mclSize;
+}
+
+void FrameManager::setMclType(int mclType){
+    this->mcl_type = mclType;
+}
+
 void FrameManager::setEroSize(int size) {
     ero_size = size;
 }
@@ -169,6 +185,10 @@ void FrameManager::setDilSize(int size){
 
 void FrameManager::setDilType(int type){
     dil_type = type;
+}
+
+void FrameManager::setEgGauSigma(double egGau_sigma) {
+    this->egGau_sigma = egGau_sigma;
 }
 
 int FrameManager::state(){
@@ -254,11 +274,6 @@ void FrameManager::process(){
                 bg.getBackgroundImage(back);
                 threshold(fore, fore, 128, 255, THRESH_BINARY);
             }
-//            imwrite("./fore_bgs/fore.png", fore);
-//            imwrite("./fore_bgs/frame.png", frame);
-
-//            erode(fore, fore, cv::Mat());
-//            dilate(fore, fore, cv::Mat());
 
             /*** in case using the LBMixtureOfGaussianDetector ***/
             if(working_md == MIXGAU_MD) {
@@ -276,6 +291,9 @@ void FrameManager::process(){
                 dilate(fore_contours, fore_contours, getStructuringElement(dil_type, Size(dil_size, dil_size), Point(0, 0)));
 
             cvtColor(fore, drawing, CV_GRAY2BGR);
+            if(morph_colse == true)
+                morphologyEx(drawing, drawing, MORPH_CLOSE, getStructuringElement(mcl_type,Size(mcl_size,mcl_size)));
+
             blober.find_blobs(fore_contours, spinBox_ctSize->value(), shadow_detect, poly_acuracy);
             cvtColor(back, grey_back, CV_RGB2GRAY);
             cvtColor(grey_back, grey_back, CV_GRAY2BGR);
@@ -294,10 +312,10 @@ void FrameManager::process(){
                     black_out(st_back, st_back_grey);
                     break;
                 case OP_BLUR:
-                    blur(fore, drawing, grey, st_back, st_back_grey);
+                    blur(frame, drawing, grey, st_back, st_back_grey);
                     break;
                 case OP_EDGE:
-                    edge(frame, grey, back, grey_back, st_back, st_back_grey);
+                    edge(drawing, grey, back, grey_back, st_back, st_back_grey);
                     break;
                 case OP_SILOUETTE:
                     silouette(drawing, back, grey_back, st_back, st_back_grey);
@@ -502,17 +520,22 @@ void FrameManager::edge(Mat &fore, Mat& grey, const Mat& back, const Mat& grey_b
         Rect rec = blober.rects()->at(i);
         if(rec.width <= 0 || rec.height <= 0)
             continue;
-        Mat roi = grey(rec);
-        Mat foi = fore(rec);
-        GaussianBlur(roi, roi, Size(7, 7), 1.5, 1.5);
-        Sobel(roi, sobel_x, -1, 0, 1);
-        Sobel(roi, sobel_y, -1, 1, 0);
+        Mat roi_grey = grey(rec);
+        Mat mask = fore(rec);
+        Mat roi_back = st_back(rec);
+        Mat roi_back_grey = st_back_grey(rec);
+        cvtColor(roi_grey, roi_grey, CV_BGR2GRAY);
+        GaussianBlur(roi_grey, roi_grey, Size(7, 7), 1.5, 1.5);
+        Sobel(roi_grey, sobel_x, -1, 0, 1);
+        Sobel(roi_grey, sobel_y, -1, 1, 0);
         sobel = sobel_x + sobel_y;
         threshold(sobel, sobel, edge_thd, 255, THRESH_TOZERO);
-        threshold(foi, foi, 128, 1, THRESH_BINARY);
-        multiply(roi, foi, roi);
-        st_back(rec) = sobel + back(rec);
-        st_back_grey(rec) = sobel + grey_back(rec);
+        GaussianBlur(sobel, sobel, Size(7, 7), egGau_sigma, egGau_sigma);
+        cvtColor(sobel, sobel, CV_GRAY2BGR);
+
+        bitwise_and(sobel, mask, sobel);
+        roi_back += sobel;
+        roi_back_grey += sobel;
     }
     if(with_shape)
         poly(st_back, st_back_grey, CL_SKY);

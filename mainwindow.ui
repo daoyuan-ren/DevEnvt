@@ -99,7 +99,7 @@
         <number>10</number>
        </property>
        <property name="value">
-        <number>220</number>
+        <number>150</number>
        </property>
       </widget>
      </item>
@@ -149,6 +149,9 @@
       <widget class="QCheckBox" name="checkBox_record">
        <property name="text">
         <string>record</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -371,7 +374,7 @@
         <number>15</number>
        </property>
        <property name="maximum">
-        <number>27</number>
+        <number>37</number>
        </property>
        <property name="singleStep">
         <number>2</number>
@@ -468,7 +471,7 @@
         <double>10.000000000000000</double>
        </property>
        <property name="maximum">
-        <double>20.000000000000000</double>
+        <double>30.000000000000000</double>
        </property>
        <property name="singleStep">
         <double>2.500000000000000</double>
@@ -491,7 +494,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1" colspan="2">
+     <item row="3" column="1">
       <widget class="QSpinBox" name="spinBox_egThd">
        <property name="maximum">
         <number>255</number>
@@ -501,6 +504,16 @@
        </property>
        <property name="value">
         <number>15</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_egGauSigma">
+       <property name="maximum">
+        <double>20.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>2.500000000000000</double>
        </property>
       </widget>
      </item>
@@ -691,6 +704,54 @@
        </property>
        <property name="value">
         <number>3</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="4">
+      <widget class="QCheckBox" name="checkBox_morphClose">
+       <property name="text">
+        <string>morph close</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="5">
+      <widget class="QComboBox" name="comboBox_mclType">
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <item>
+        <property name="text">
+         <string>ellipse</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>rectangle</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>cross</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="2" column="6">
+      <widget class="QSpinBox" name="spinBox_mclSize">
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>21</number>
+       </property>
+       <property name="singleStep">
+        <number>2</number>
+       </property>
+       <property name="value">
+        <number>7</number>
        </property>
       </widget>
      </item>

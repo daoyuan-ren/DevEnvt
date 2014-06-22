@@ -110,6 +110,11 @@ void MainWindow::process(QString fileName, bool live){
     }
 
     if(cap.isOpened()){
+        if(ui->checkBox_record->isChecked()){
+            wtr.open(fileName.append("_rec.avi").toStdString(), CV_FOURCC('H','F','Y','U'),
+                     cap.get(CV_CAP_PROP_FPS), Size(cap.get(CV_CAP_PROP_FRAME_WIDTH), cap.get(CV_CAP_PROP_FRAME_HEIGHT)));
+        }
+
         fmanager = new FrameManager(cap, wtr, ui->spinBox_ctSize, ui->label, ui->label_debug, background);
         connect(fmanager, SIGNAL(processFinished(QImage, QImage)), this, SLOT(imageUpdate(QImage, QImage)));
 
@@ -119,16 +124,13 @@ void MainWindow::process(QString fileName, bool live){
         fmanager->setSigma(ui->doubleSpinBox_gauSigma->value());
         fmanager->setGauSize(ui->spinBox_gauSize->value());
         fmanager->setEdgeThd(ui->spinBox_egThd->value());
+        fmanager->setEgGauSigma(ui->doubleSpinBox_egGauSigma->value());
         fmanager->setAcuracy(ui->spinBox_polyAcy->value());
         fmanager->setRGBThd(ui->spinBox_rgbCut->value());
         fmanager->setErosion(ui->checkBox_Erosion->isChecked());
         fmanager->setDilate(ui->checkBox_dilate->isChecked());
         fmanager->setRecord(ui->checkBox_record->isChecked());
-
-        if(ui->checkBox_record->isChecked()){
-            wtr.open(fileName.append("_rec.avi").toStdString(), CV_FOURCC('H','F','Y','U'),
-                     cap.get(CV_CAP_PROP_FPS), Size(cap.get(CV_CAP_PROP_FRAME_WIDTH), cap.get(CV_CAP_PROP_FRAME_HEIGHT)));
-        }
+        fmanager->setClose(ui->checkBox_morphClose->isChecked());
 
         if(detector == MIXGAU_MD) {
             fmanager->setDetector(MIXGAU_MD);
@@ -539,4 +541,38 @@ void MainWindow::on_checkBox_record_clicked()
 {
     if(fmanager != NULL)
         fmanager->setRecord(ui->checkBox_record->isChecked());
+}
+
+void MainWindow::on_doubleSpinBox_egGauSigma_valueChanged(double arg1)
+{
+    if(fmanager != NULL)
+        fmanager->setEgGauSigma(ui->doubleSpinBox_egGauSigma->value());
+}
+
+void MainWindow::on_checkBox_morphClose_clicked()
+{
+    if(fmanager != NULL)
+        fmanager->setClose(ui->checkBox_morphClose->isChecked());
+}
+
+void MainWindow::on_comboBox_mclType_editTextChanged(const QString &arg1)
+{
+    if(fmanager != NULL) {
+        fmanager->setClose(ui->checkBox_morphClose->isChecked());
+        fmanager->setMclSize(ui->spinBox_mclSize->value());
+        if(ui->comboBox_mclType->currentText() == "ellipse"){
+            fmanager->setMclType(cv::MORPH_ELLIPSE);
+        } else if(ui->comboBox_DilType->currentText() == "rectangle") {
+            fmanager->setDilType(cv::MORPH_RECT);
+        } else if(ui->comboBox_DilType->currentText() == "cross") {
+            fmanager->setDilType(cv::MORPH_CROSS);
+        } else
+            fmanager->setDilType(cv::MORPH_CROSS);
+    }
+}
+
+void MainWindow::on_spinBox_mclSize_valueChanged(int arg1)
+{
+    if(fmanager != NULL)
+        fmanager->setMclSize(ui->spinBox_mclSize->value());
 }

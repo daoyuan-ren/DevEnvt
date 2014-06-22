@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'framemanager.h'
 **
-** Created: Tue Jun 17 18:53:18 2014
+** Created: Sun Jun 22 16:41:16 2014
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!

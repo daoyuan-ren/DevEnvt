@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'mainwindow.h'
 **
-** Created: Tue Jun 17 18:53:16 2014
+** Created: Sun Jun 22 16:41:14 2014
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      44,   14, // methods
+      48,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -75,6 +75,10 @@ static const uint qt_meta_data_MainWindow[] = {
     1326,  694,   11,   11, 0x08,
     1367,  694,   11,   11, 0x08,
     1404,   11,   11,   11, 0x08,
+    1433,  694,   11,   11, 0x08,
+    1482,   11,   11,   11, 0x08,
+    1515,  694,   11,   11, 0x08,
+    1560,  694,   11,   11, 0x08,
 
        0        // eod
 };
@@ -124,6 +128,10 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "on_comboBox_DilType_textChanged(QString)\0"
     "on_spinBox_DilSize_valueChanged(int)\0"
     "on_checkBox_record_clicked()\0"
+    "on_doubleSpinBox_egGauSigma_valueChanged(double)\0"
+    "on_checkBox_morphClose_clicked()\0"
+    "on_comboBox_mclType_editTextChanged(QString)\0"
+    "on_spinBox_mclSize_valueChanged(int)\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -176,6 +184,10 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 41: _t->on_comboBox_DilType_textChanged((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 42: _t->on_spinBox_DilSize_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 43: _t->on_checkBox_record_clicked(); break;
+        case 44: _t->on_doubleSpinBox_egGauSigma_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
+        case 45: _t->on_checkBox_morphClose_clicked(); break;
+        case 46: _t->on_comboBox_mclType_editTextChanged((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 47: _t->on_spinBox_mclSize_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -213,9 +225,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 44)
+        if (_id < 48)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 44;
+        _id -= 48;
     }
     return _id;
 }
